@@ -1,0 +1,3 @@
+displayName = Solar Doomsday
+author = Pointy Orb
+version = 0.1
