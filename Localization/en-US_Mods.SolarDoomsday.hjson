@@ -1,2 +1,5 @@
-# This file will automatically update with entries for new content after a build and reload.
-
+DeathReasons: {
+	Sun0: "{0} turned into a fine atomic goo"
+	Sun1: "{0} got some fun in the sun"
+	Sun2: "{0} was violently vaporized"
+}
