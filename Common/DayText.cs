@@ -41,7 +41,11 @@ public class DayText : UIElement
 
     public override void Draw(SpriteBatch spriteBatch)
     {
-        if (!DoomsdayClock.cycleActive)
+        if (!DoomsdayClock.counterActive)
+        {
+            return;
+        }
+        if (DoomsdayManager.worldEndChoice == DoomsdayOptions.Stagnation)
         {
             return;
         }
@@ -50,13 +54,18 @@ public class DayText : UIElement
         {
             pos.X -= width / 2;
         }
+        var color = Color.Wheat;
+        if (DoomsdayManager.worldEndChoice == DoomsdayOptions.Nova)
+        {
+            color = Color.DarkGoldenrod;
+        }
         for (int i = 0; i < digits.Count; i++)
         {
-            spriteBatch.Draw(texture.Value, new Vector2(pos.X + (width * i), pos.Y), NumberRect(digits[i]), Color.DarkOrange);
+            spriteBatch.Draw(texture.Value, new Vector2(pos.X + (width * i), pos.Y), NumberRect(digits[i]), color);
         }
-        if (DoomsdayClock.daysLeft == 1 && DoomsdayClock.doomsdayTime - Utils.GetDayTimeAs24FloatStartingFromMidnight() >= 1f)
+        if (!DoomsdayClock.LastDay || DoomsdayClock.doomsdayTime - Utils.GetDayTimeAs24FloatStartingFromMidnight() >= 1f)
         {
-            spriteBatch.Draw(texture.Value, new Vector2(Position.X + DaysLeft.Width / 8, Position.Y + height), DaysLeft, Color.DarkOrange, 0f, new Vector2(DaysLeft.Width / 2, 0), 1f, SpriteEffects.None, 0f);
+            spriteBatch.Draw(texture.Value, new Vector2(Position.X + DaysLeft.Width / 8, Position.Y + height), DaysLeft, color, 0f, new Vector2(DaysLeft.Width / 2, 0), 1f, SpriteEffects.None, 0f);
         }
     }
 

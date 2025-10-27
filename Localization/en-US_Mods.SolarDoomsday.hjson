@@ -3,3 +3,29 @@ DeathReasons: {
 	Sun1: "{0} got some fun in the sun"
 	Sun2: "{0} was violently vaporized"
 }
+
+DoomsdaySelection: {
+	Stagnation: {
+		Title: Stagnation
+		Description: Your world will remain at the state of the last day after time runs out.
+	}
+
+	Dissipation: {
+		Title: Dissipation
+		Description: The sun will die peacefully after time runs out.
+	}
+
+	Nova: {
+		Title: Nova
+		Description: The sun will explode and take your world with it after time runs out.
+	}
+}
+
+Buffs: {
+	SolFire: {
+		DisplayName: Solar Flame
+		Description: The heat of the sun burns your skin
+	}
+}
+
+StagnationWatchPrefix: "Day {0}, "

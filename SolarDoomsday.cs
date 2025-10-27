@@ -12,11 +12,14 @@ namespace SolarDoomsday
     // Please read https://github.com/tModLoader/tModLoader/wiki/Basic-tModLoader-Modding-Guide#mod-skeleton-contents for more information about the various files in a mod.
     public class SolarDoomsday : Mod
     {
+        public static Mod mod;
+
         public override void Load()
         {
+            mod = this;
             if (!Main.dedServ)
             {
-                Filters.Scene["MajorasMaskTribute:BigScaryFlashShader"] = new Filter(new BigScaryFlashShader("FilterBloodMoon"), EffectPriority.VeryHigh);
+                Filters.Scene["SolarDoomsday:BigScaryFlashShader"] = new Filter(new BigScaryFlashShader("FilterBloodMoon"), EffectPriority.VeryHigh);
             }
         }
     }
