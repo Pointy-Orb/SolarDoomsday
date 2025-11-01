@@ -61,7 +61,23 @@ public class FireMonsters : GlobalNPC
         {
             return;
         }
-        pool[NPCID.Hellbat] = 0.8f;
+        foreach (int key in pool.Keys)
+        {
+            pool[key] = 0f;
+        }
+        pool[NPCID.Hellbat] = 0.6f;
+        pool[NPCID.LavaSlime] = 0.5f;
+        pool[NPCID.FireImp] = 0.5f;
         pool[NPCID.BlazingWheel] = 0.1f;
+        if (!Main.hardMode)
+        {
+            return;
+        }
+        for (int i = NPCID.HellArmoredBones; i <= NPCID.HellArmoredBonesSword; i++)
+        {
+            pool[i] = 0.6f;
+        }
+        pool[NPCID.Lavabat] = 0.6f;
+        pool[NPCID.Hellbat] = 0.3f;
     }
 }

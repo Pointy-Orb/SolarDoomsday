@@ -20,6 +20,18 @@ public class SuperAliveFire : ModTile
         AnimationFrameHeight = 90;
         HitSound = SoundID.LiquidsWaterLava;
         AddMapEntry(new Color(LightColor));
+        Flammable = new bool[TileLoader.TileCount];
+        for (int i = 0; i < TileLoader.TileCount; i++)
+        {
+            if (FlammableCore.Contains(i))
+            {
+                Flammable[i] = true;
+            }
+            if (TileID.Sets.IsATreeTrunk[i])
+            {
+                Flammable[i] = true;
+            }
+        }
     }
 
     public override void SetDrawPositions(int i, int j, ref int width, ref int offsetY, ref int height, ref short tileFrameX, ref short tileFrameY)
@@ -39,7 +51,9 @@ public class SuperAliveFire : ModTile
         frame = Main.tileFrame[TileID.LivingFire];
     }
 
-    public static readonly int[] Flammable = new int[]
+    public static bool[] Flammable;
+
+    public static readonly int[] FlammableCore = new int[]
     {
         TileID.WoodBlock,
         TileID.LivingWood,
@@ -61,21 +75,31 @@ public class SpreadFire : GlobalTile
 {
     public override void RandomUpdate(int i, int j, int type)
     {
-        if (type != ModContent.TileType<SuperAliveFire>())
+        for (int k = i - 1; k <= i + 1; k++)
         {
-            return;
+            for (int l = j - 1; l <= j + 1; l++)
+            {
+                if (Main.tile[k, l].TileType == ModContent.TileType<SuperAliveFire>())
+                {
+                    AttemptSpread(k, l);
+                }
+            }
         }
+    }
+
+    private static void AttemptSpread(int i, int j)
+    {
         bool spread = false;
         for (int k = i - 1; k <= i + 1; k++)
         {
             for (int l = j - 1; l <= j + 1; l++)
             {
                 int targetType = Main.tile[k, l].TileType;
-                if (SuperAliveFire.Flammable.Contains(targetType))
+                if (SuperAliveFire.Flammable[targetType])
                 {
                     spread = true;
                     Main.tile[k, l].TileType = (ushort)ModContent.TileType<SuperAliveFire>();
-                    Main.tile[k, l].WallType = 0;
+                    WorldGen.KillWall(i, j);
                     WorldGen.Reframe(k, l);
                 }
             }

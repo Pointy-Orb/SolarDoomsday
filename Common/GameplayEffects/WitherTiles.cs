@@ -104,21 +104,23 @@ public class WitherTiles : GlobalTile
         {
             WorldGen.KillTile(i, j, noItem: true);
         }
-        if (TileID.Sets.IsATreeTrunk[type] && DoomsdayClock.TimeLeftInRange(3))
+        if (TileID.Sets.IsATreeTrunk[type] && DoomsdayClock.TimeLeftInRange(2))
         {
             var k = j;
-            while (TileID.Sets.IsATreeTrunk[Main.tile[i, k + 1].TileType])
+            while (TileID.Sets.IsATreeTrunk[Main.tile[i, k - 2].TileType])
             {
-                k++;
+                k--;
             }
-            WorldGen.KillTile(i, k, noItem: true);
+            Main.tile[i, k].TileType = (ushort)ModContent.TileType<SuperAliveFire>();
+            WorldGen.KillWall(i, k);
+            WorldGen.Reframe(i, k);
         }
         if (DoomsdayClock.TimeLeftInRange(3) && (TileID.Sets.Dirt[type] || TileID.Sets.SandBiome[type] > 0 || type == TileID.ClayBlock) && (Main.rand.NextBool(3) || DoomsdayClock.TimeLeftInRange(6)))
         {
             Main.tile[i, j].TileType = TileID.Ash;
             WorldGen.Reframe(i, j);
         }
-        if (DoomsdayClock.TimeLeftInRange(3) && (TileID.Sets.Stone[type] || TileID.Sets.Ore[type]) && (Main.rand.NextBool(3) || DoomsdayClock.TimeLeftInRange(6)) && (j < Main.worldSurface || Main.rand.NextBool(3)))
+        if (DoomsdayClock.TimeLeftInRange(3) && (TileID.Sets.Stone[type] || TileID.Sets.Ore[type]) && Main.tile[i, j - 1].TileType != TileID.DemonAltar && (Main.rand.NextBool(3) || DoomsdayClock.TimeLeftInRange(6)) && (j < Main.worldSurface || Main.rand.NextBool(3)))
         {
             Tile tile = Main.tile[i, j];
             tile.HasTile = false;
@@ -158,11 +160,11 @@ public class WitherTiles : GlobalTile
                 WorldGen.KillTile(i, j);
             }
         }
-        if (DoomsdayClock.TimeLeftInRange(3) && SuperAliveFire.Flammable.Contains(type))
+        if (DoomsdayClock.TimeLeftInRange(3) && SuperAliveFire.Flammable[type])
         {
             Tile tile = Main.tile[i, j];
             tile.TileType = (ushort)ModContent.TileType<SuperAliveFire>();
-            tile.WallType = 0;
+            WorldGen.KillWall(i, j);
             WorldGen.Reframe(i, j);
         }
         if (DoomsdayClock.TimeLeftInRange(3, 2) && (Main.rand.NextBool(6) || DoomsdayClock.TimeLeftInRange(2)))

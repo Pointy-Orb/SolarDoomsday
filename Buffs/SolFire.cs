@@ -42,7 +42,7 @@ public class SolFirePlayer : ModPlayer
 
     public override void PostUpdateBuffs()
     {
-        Player.buffImmune[ModContent.BuffType<SolFire>()] = Player.lavaImmune;
+        Player.buffImmune[ModContent.BuffType<SolFire>()] = Player.lavaImmune || Player.wet;
     }
 
     public override void UpdateBadLifeRegen()

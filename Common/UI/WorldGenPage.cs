@@ -1,4 +1,6 @@
 using System;
+using Terraria.ID;
+using Terraria.Audio;
 using Terraria;
 using Terraria.Localization;
 using System.Collections.Generic;
@@ -24,6 +26,10 @@ namespace SolarDoomsday;
 //TODO: Add IL gamepad support
 public class WorldGenPage : ModSystem
 {
+    static UIState worldCreationState;
+
+    static UICharacterNameButton characterNameButton;
+
     private static readonly GroupOptionButton<DoomsdayOptions>[] DoomsdayButtons =
         new GroupOptionButton<DoomsdayOptions>[Enum.GetValues<DoomsdayOptions>().Length];
 
@@ -250,6 +256,14 @@ public class WorldGenPage : ModSystem
         ),
     };
 
+
+    public static Asset<Texture2D>[] icons =
+    {
+        ModContent.Request<Texture2D>("SolarDoomsday/Common/IconStagnation"),
+        ModContent.Request<Texture2D>("SolarDoomsday/Common/IconDissipation"),
+        ModContent.Request<Texture2D>("SolarDoomsday/Common/IconNova"),
+    };
+
     private static void AddDoomsdayOptions(
         UIWorldCreation self,
         UIElement container,
@@ -272,12 +286,22 @@ public class WorldGenPage : ModSystem
             ),
         };
         Color[] colors = { Color.DarkRed, Color.AliceBlue, Color.Orange };
-        Asset<Texture2D>[] icons =
+        characterNameButton = new UICharacterNameButton(
+                Language.GetText(SolarDoomsday.mod.GetLocalizationKey("DoomsdaySelection.DaysLeft.Title")),
+                Language.GetText(SolarDoomsday.mod.GetLocalizationKey("DoomsdaySelection.DaysLeft.Empty")),
+                Language.GetText(SolarDoomsday.mod.GetLocalizationKey("DoomsdaySelection.DaysLeft.Description")))
         {
-            ModContent.Request<Texture2D>("SolarDoomsday/Common/IconStagnation"),
-            ModContent.Request<Texture2D>("SolarDoomsday/Common/IconDissipation"),
-            ModContent.Request<Texture2D>("SolarDoomsday/Common/IconNova"),
+            Width = StyleDimension.FromPixelsAndPercent(-1 * (DoomsdayButtons.Length), 1f / (float)(DoomsdayButtons.Length + 1) * usableWidthPercent),
+            Left = StyleDimension.FromPercent(1f - usableWidthPercent),
+            HAlign = 0,
         };
+        characterNameButton.Top.Set(accumulatedHeight - 3, 0f);
+        characterNameButton.SetContents("30");
+        characterNameButton.OnLeftMouseDown += SetDayCount;
+        characterNameButton.OnMouseOver += self.ShowOptionDescription;
+        characterNameButton.OnMouseOut += self.ClearOptionDescription;
+        characterNameButton.SetSnapPoint(tagGroup, 0);
+        container.Append(characterNameButton);
         for (int i = 0; i < DoomsdayButtons.Length; i++)
         {
             var groupOptionButton =
@@ -292,18 +316,15 @@ public class WorldGenPage : ModSystem
                     16f
                 )
                 {
-                    Width = StyleDimension.FromPixelsAndPercent(
-                        -4 * (DoomsdayButtons.Length - 1),
-                        1f / DoomsdayButtons.Length * usableWidthPercent
-                    ),
+                    Width = StyleDimension.FromPixelsAndPercent(-1 * (DoomsdayButtons.Length), 1f / (float)(DoomsdayButtons.Length + 1) * usableWidthPercent),
                     Left = StyleDimension.FromPercent(1f - usableWidthPercent),
-                    HAlign = i / (float)(DoomsdayButtons.Length - 1),
+                    HAlign = (i + 1) / (float)(DoomsdayButtons.Length),
                 };
             groupOptionButton.Top.Set(accumulatedHeight, 0f);
             groupOptionButton.OnLeftMouseDown += clickEvent;
             groupOptionButton.OnMouseOver += self.ShowOptionDescription;
             groupOptionButton.OnMouseOut += self.ClearOptionDescription;
-            groupOptionButton.SetSnapPoint(tagGroup, i);
+            groupOptionButton.SetSnapPoint(tagGroup, i + 1);
             container.Append(groupOptionButton);
             DoomsdayButtons[i] = groupOptionButton;
         }
@@ -321,6 +342,33 @@ public class WorldGenPage : ModSystem
         }
     }
 
+    private static void SetDayCount(UIMouseEvent evt, UIElement listeningElement)
+    {
+        worldCreationState = Main.MenuUI.CurrentState;
+        SoundEngine.PlaySound(SoundID.MenuOpen);
+        Main.clrInput();
+        UIVirtualKeyboard keyboard = new(Language.GetTextValue("Mods.SolarDoomsday.DoomsdaySelection.DaysLeft.Input"), "", OnFinishedSettingDays, ReturnToMenu);
+        keyboard.SetMaxInputLength(4);
+        Main.MenuUI.SetState(keyboard);
+    }
+
+    private static void OnFinishedSettingDays(string days)
+    {
+        if (Int32.TryParse(days, out int dayCount) && dayCount > 0)
+        {
+            DoomsdayManager.chosenDayNumber = dayCount;
+            characterNameButton.SetContents(dayCount.ToString());
+            characterNameButton.Recalculate();
+            characterNameButton.TrimDisplayIfOverElementDimensions(4);
+            characterNameButton.Recalculate();
+            ReturnToMenu();
+        }
+    }
+
+    private static void ReturnToMenu()
+    {
+        Main.MenuUI.SetState(worldCreationState);
+    }
     /*
     private void DrawWorldSelectIcon(
         On_UIWorldListItem.orig_DrawSelf orig,

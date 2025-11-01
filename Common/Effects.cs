@@ -145,7 +145,7 @@ public class BigScaryFlashShader : ScreenShaderData
 
     public override void Update(GameTime gameTime)
     {
-        UseColor(3000, 2000, 1000);
+        UseColor(3000, 500, 500);
     }
 }
 

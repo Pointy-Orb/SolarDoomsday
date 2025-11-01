@@ -19,7 +19,16 @@ DoomsdaySelection: {
 		Title: Nova
 		Description: The sun will explode and take your world with it after time runs out.
 	}
+
+	DaysLeft: {
+		Title: Days:
+		Empty: <30>
+		Description: The amount of days your world has before it reaches an end scenario.
+		Input: Enter Number of Days Left (must be non-negative number)
+	}
 }
+
+WorldFileLabel: Day {0}
 
 Buffs: {
 	SolFire: {

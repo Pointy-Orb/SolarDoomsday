@@ -18,6 +18,12 @@ public class DoomsdayClock : ModSystem
 
     public static bool LastDay => daysLeft == 1 && DoomsdayManager.worldEndChoice != DoomsdayOptions.Stagnation && !DoomsdayManager.sunDied;
 
+    public static void SetDayCount(int proposal)
+    {
+        DayCount = proposal;
+        daysLeft = proposal;
+    }
+
     public override void SaveWorldData(TagCompound tag)
     {
         tag["daysLeft"] = daysLeft;
@@ -51,6 +57,19 @@ public class DoomsdayClock : ModSystem
         }
     }
 
+    public override void SaveWorldHeader(TagCompound tag)
+    {
+        tag["daysLeft"] = daysLeft;
+        if (DayCount != 30)
+        {
+            tag["DayCount"] = DayCount;
+        }
+        if (DoomsdayManager.worldEndChoice != DoomsdayOptions.Dissipation)
+        {
+            tag["worldEndChoice"] = (int)DoomsdayManager.worldEndChoice;
+        }
+    }
+
     public override void ClearWorld()
     {
         DayCount = 30;
@@ -63,15 +82,15 @@ public class DoomsdayClock : ModSystem
 
     public override void PostUpdateTime()
     {
-        if (!counterActive)
-        {
-            return;
-        }
         if (Main.dayTime && !wasDay)
         {
             daysLeft--;
         }
         wasDay = Main.dayTime;
+        if (!counterActive)
+        {
+            return;
+        }
         if (LastDay && Utils.GetDayTimeAs24FloatStartingFromMidnight() >= doomsdayTime)
         {
             DoomsdayManager.DestroyWorldAccordingToChoice();

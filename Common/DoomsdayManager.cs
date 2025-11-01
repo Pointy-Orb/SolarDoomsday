@@ -19,6 +19,7 @@ public class DoomsdayManager : ModSystem
 {
     public DoomsdayOptions SelectedDoomsdayOption { get; set; } = DoomsdayOptions.Stagnation;
     public static DoomsdayOptions worldEndChoice = DoomsdayOptions.Dissipation;
+    public static int chosenDayNumber = 30;
 
     public static bool sunDied = false;
 
@@ -81,6 +82,7 @@ public class DoomsdayManager : ModSystem
     public override void PreWorldGen()
     {
         worldEndChoice = SelectedDoomsdayOption;
+        DoomsdayClock.SetDayCount(chosenDayNumber);
     }
 
     public static void DestroyWorldAccordingToChoice()
@@ -127,6 +129,7 @@ public class DoomsdayManager : ModSystem
             var deathReason = new PlayerDeathReason();
             int message = Main.rand.Next(0, 3);
             deathReason.CustomReason = Language.GetText($"Mods.SolarDoomsday.DeathReasons.Sun{message}").WithFormatArgs(player.name).ToNetworkText();
+            player.creativeGodMode = false;
             player.KillMe(deathReason, 999999, 0);
         }
         var cloudY = Main.spawnTileY;
@@ -140,7 +143,7 @@ public class DoomsdayManager : ModSystem
 
     private static bool NotDayWhenSunIsDead(On_Main.orig_IsItDay orig)
     {
-        if (sunDied)
+        if (sunDied || Main.eclipse)
         {
             return false;
         }
