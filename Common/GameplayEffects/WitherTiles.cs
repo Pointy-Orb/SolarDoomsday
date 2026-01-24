@@ -33,6 +33,10 @@ public class WitherTiles : GlobalTile
         {
             return;
         }
+        if (DoomsdayManager.savedEverybody)
+        {
+            return;
+        }
         if (DoomsdayClock.TimeLeftInRange(6, 5))
         {
             if (Main.rand.NextBool(4))

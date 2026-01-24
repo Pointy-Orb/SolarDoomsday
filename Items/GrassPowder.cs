@@ -7,10 +7,35 @@ namespace SolarDoomsday.Items;
 
 public class GrassPowder : ModItem
 {
+    public override void SetStaticDefaults()
+    {
+        Item.ResearchUnlockCount = 99;
+    }
+
     public override void SetDefaults()
     {
         Item.CloneDefaults(ItemID.PurificationPowder);
         Item.shoot = ModContent.ProjectileType<GrassPowderProjectile>();
+    }
+}
+
+public class SoldByDryad : GlobalNPC
+{
+    public override void ModifyShop(NPCShop shop)
+    {
+        if (shop.NpcType != NPCID.Dryad)
+        {
+            return;
+        }
+
+        if (shop.TryGetEntry(ItemID.PurificationPowder, out NPCShop.Entry powder))
+        {
+            shop.InsertAfter(ItemID.PurificationPowder, ModContent.ItemType<GrassPowder>(), new Condition("Mods.SolarDoomsday.Conditions.WhenApocalypseOver", () => DoomsdayManager.savedEverybody));
+        }
+        else
+        {
+            shop.Add(ModContent.ItemType<GrassPowder>(), new Condition("Mods.SolarDoomsday.Conditions.WhenApocalypseOver", () => DoomsdayManager.savedEverybody));
+        }
     }
 }
 

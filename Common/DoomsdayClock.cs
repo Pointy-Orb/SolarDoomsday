@@ -88,6 +88,11 @@ public class DoomsdayClock : ModSystem
     static bool wasDay = true;
     public static bool counterActive = true;
 
+    public override void OnWorldLoad()
+    {
+        wasDay = Main.dayTime;
+    }
+
     public override void PostUpdateTime()
     {
         if (DoomsdayManager.savedEverybody)
@@ -139,21 +144,4 @@ public class DoomsdayClock : ModSystem
         counterActive = reader.ReadBoolean();
         DoomsdayManager.worldEndChoice = (DoomsdayOptions)reader.ReadByte();
     }
-}
-
-public class SetCounter : ModCommand
-{
-    public override CommandType Type => CommandType.World;
-
-    public override void Action(CommandCaller caller, string input, string[] args)
-    {
-        if (Int32.TryParse(args[0], out int set))
-        {
-            DoomsdayClock.daysLeft = set;
-            Main.NewText("Set counter to " + set);
-            NetMessage.SendData(MessageID.WorldData);
-        }
-    }
-
-    public override string Command => "setcounter";
 }
