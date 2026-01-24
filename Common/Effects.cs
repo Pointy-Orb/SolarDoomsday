@@ -1,4 +1,6 @@
 using Terraria;
+using System.Reflection;
+using System.Linq;
 using System;
 using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
@@ -24,18 +26,72 @@ public class Effects : ModSystem
         On_Main.DrawSunAndMoon += ControlSunColor;
     }
 
-    public override void PostUpdateEverything()
+    public override void PostUpdateTime()
     {
-        if (DoomsdayClock.TimeLeftInRange(3, 2) && (Main.LocalPlayer.ZoneOverworldHeight || Main.LocalPlayer.ZoneSkyHeight || Main.LocalPlayer.ZoneDirtLayerHeight))
+        if (Main.dedServ)
         {
-            Main.LocalPlayer.ManageSpecialBiomeVisuals("HeatDistortion", Main.UseHeatDistortion && Main.IsItDay());
-            Filters.Scene["HeatDistortion"].GetShader().UseIntensity(5f - DoomsdayClock.PercentTimeLeft() * 4);
+            return;
+        }
+        if (DoomsdayManager.savedEverybody)
+        {
+            return;
+        }
+        if (!(DoomsdayClock.TimeLeftInRange(3, 2) && (Main.LocalPlayer.ZoneOverworldHeight || Main.LocalPlayer.ZoneSkyHeight || Main.LocalPlayer.ZoneDirtLayerHeight)))
+        {
+            return;
+        }
+        Main.LocalPlayer.ManageSpecialBiomeVisuals("HeatDistortion", Main.UseHeatDistortion && Main.IsItDay());
+        Filters.Scene["HeatDistortion"].GetShader().UseIntensity(5f - DoomsdayClock.PercentTimeLeft() * 4);
+        switch (Main.bgStyle)
+        {
+            case 0:
+                if (badBackgrounds.Contains(WorldGen.treeBG1))
+                {
+                    while (badBackgrounds.Contains(WorldGen.treeBG1))
+                    {
+                        WorldGen.RandomizeBackgroundBasedOnPlayer(Main.rand, Main.LocalPlayer);
+                    }
+                }
+                break;
+            case 10:
+                if (badBackgrounds.Contains(WorldGen.treeBG2))
+                {
+                    while (badBackgrounds.Contains(WorldGen.treeBG2))
+                    {
+                        WorldGen.RandomizeBackgroundBasedOnPlayer(Main.rand, Main.LocalPlayer);
+                    }
+                }
+                break;
+            case 11:
+                if (badBackgrounds.Contains(WorldGen.treeBG3))
+                {
+                    while (badBackgrounds.Contains(WorldGen.treeBG3))
+                    {
+                        WorldGen.RandomizeBackgroundBasedOnPlayer(Main.rand, Main.LocalPlayer);
+                    }
+                }
+                break;
+            case 12:
+                if (badBackgrounds.Contains(WorldGen.treeBG4))
+                {
+                    while (badBackgrounds.Contains(WorldGen.treeBG4))
+                    {
+                        WorldGen.RandomizeBackgroundBasedOnPlayer(Main.rand, Main.LocalPlayer);
+                    }
+                }
+                break;
         }
     }
+
+    private static int[] badBackgrounds = new int[] { 10, 9, 8, 3 };
 
     public override void ModifySunLightColor(ref Color tileColor, ref Color backgroundColor)
     {
         //TODO: Time it better so that the transition from scary flash to not scary flash is more gradual
+        if (DoomsdayManager.savedEverybody)
+        {
+            return;
+        }
         if (DoomsdayManager.shaderTime > 0)
         {
             return;
@@ -47,7 +103,7 @@ public class Effects : ModSystem
             return;
         }
         var defaultColor = backgroundColor;
-        backgroundColor = Color.Lerp(backgroundColor, Color.Orange.MultiplyRGB(backgroundColor), Utils.GetLerpValue(DoomsdayClock.DayCount, DoomsdayClock.DayCount / 2, DoomsdayClock.daysLeft, true));
+        backgroundColor = Color.Lerp(backgroundColor, Color.OrangeRed.MultiplyRGB(backgroundColor), Utils.GetLerpValue(DoomsdayClock.DayCount, DoomsdayClock.DayCount / 2, DoomsdayClock.daysLeft, true));
         if (!Main.IsItDay() && Utils.GetDayTimeAs24FloatStartingFromMidnight() > 19f)
         {
             return;
@@ -56,7 +112,7 @@ public class Effects : ModSystem
         if (DoomsdayClock.TimeLeftInRange(2))
         {
             backgroundColor = defaultColor;
-            backgroundColor = Color.Lerp(Color.Orange.MultiplyRGB(backgroundColor), Color.DarkRed.MultiplyRGB(backgroundColor), Utils.GetLerpValue(DoomsdayClock.DayCount / 2, 0, DoomsdayClock.daysLeft, true));
+            backgroundColor = Color.Lerp(Color.OrangeRed.MultiplyRGB(backgroundColor), Color.DarkRed.MultiplyRGB(backgroundColor), Utils.GetLerpValue(DoomsdayClock.DayCount / 2, 0, DoomsdayClock.daysLeft, true));
         }
         if (DoomsdayClock.LastDay)
         {
@@ -104,6 +160,10 @@ public class Effects : ModSystem
                 {
                     return 1f;
                 }
+                if (DoomsdayManager.savedEverybody)
+                {
+                    return 1f;
+                }
                 if (DoomsdayManager.sunDied)
                 {
                     return 0.1f;
@@ -130,7 +190,7 @@ public class Effects : ModSystem
         {
             realSunColor = Color.White;
         }
-        if (Main.gameMenu)
+        if (Main.gameMenu || DoomsdayManager.savedEverybody)
         {
             realSunColor = sunColor;
         }
@@ -151,6 +211,12 @@ public class BigScaryFlashShader : ScreenShaderData
 
 public class MakeAtmosphereHellish : ModSceneEffect
 {
+    public override void Load()
+    {
+        On_Main.UpdateBGVisibility_FrontLayer += RemoveFrontLayerOverTime;
+        On_Main.DrawBG_ModifyBGFarBackLayerAlpha += RemoveOceanBackground;
+    }
+
     public override int Music
     {
         get
@@ -183,6 +249,32 @@ public class MakeAtmosphereHellish : ModSceneEffect
 
     public override bool IsSceneEffectActive(Player player)
     {
-        return (player.ZoneOverworldHeight || player.ZoneSkyHeight) && (Main.IsItDay() || DoomsdayManager.sunDied);
+        return (player.ZoneOverworldHeight || player.ZoneSkyHeight) && (Main.IsItDay() || DoomsdayManager.sunDied) && !DoomsdayManager.savedEverybody;
+    }
+
+    private static void RemoveFrontLayerOverTime(On_Main.orig_UpdateBGVisibility_FrontLayer orig, Main self, int? targetBiomeOverride, float? transitionAmountOverride)
+    {
+        orig(self, targetBiomeOverride, transitionAmountOverride);
+        if (!Main.LocalPlayer.ZonePurity || DoomsdayManager.savedEverybody)
+        {
+            return;
+        }
+        for (int i = 0; i < Main.bgAlphaFrontLayer.Length; i++)
+        {
+            Main.bgAlphaFrontLayer[i] *= Utils.Remap(DoomsdayClock.PercentTimeLeft(), (2f / 3f), (1f / 3f), 1, 0);
+        }
+    }
+
+    private static void RemoveOceanBackground(On_Main.orig_DrawBG_ModifyBGFarBackLayerAlpha orig, Main self, int desiredBG, int? desiredBG2 = null, float? transitionAmountOverride = null)
+    {
+        orig(self, desiredBG, desiredBG2, transitionAmountOverride);
+        if (!Main.LocalPlayer.ZoneBeach || DoomsdayManager.savedEverybody)
+        {
+            return;
+        }
+        for (int i = 0; i < Main.bgAlphaFarBackLayer.Length; i++)
+        {
+            Main.bgAlphaFarBackLayer[i] *= Utils.Remap(DoomsdayClock.PercentTimeLeft(), (2f / 3f), (1f / 3f), 1, 0);
+        }
     }
 }

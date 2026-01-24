@@ -22,6 +22,9 @@ public class DoomsdayManager : ModSystem
     public static int chosenDayNumber = 30;
 
     public static bool sunDied = false;
+    public static bool savedEverybody = false;
+
+    public static bool sentTheMessage = false;
 
     public static int shaderTime = 0;
     private static int novaTime = 0;
@@ -35,6 +38,8 @@ public class DoomsdayManager : ModSystem
     {
         worldEndChoice = DoomsdayOptions.Dissipation;
         sunDied = false;
+        savedEverybody = false;
+        sentTheMessage = false;
     }
 
     public override void PostUpdateTime()
@@ -43,7 +48,10 @@ public class DoomsdayManager : ModSystem
         {
             shaderTime--;
         }
-        Main.LocalPlayer.ManageSpecialBiomeVisuals("SolarDoomsday:BigScaryFlashShader", shaderTime > 60 && (Main.LocalPlayer.ZoneOverworldHeight || Main.LocalPlayer.ZoneSkyHeight || worldEndChoice == DoomsdayOptions.Nova));
+        if (!Main.dedServ)
+        {
+            Main.LocalPlayer.ManageSpecialBiomeVisuals("SolarDoomsday:BigScaryFlashShader", shaderTime > 60 && (Main.LocalPlayer.ZoneOverworldHeight || Main.LocalPlayer.ZoneSkyHeight || worldEndChoice == DoomsdayOptions.Nova));
+        }
     }
 
     public override void PostUpdateEverything()
@@ -68,6 +76,10 @@ public class DoomsdayManager : ModSystem
         {
             tag["sunDied"] = sunDied;
         }
+        if (savedEverybody)
+        {
+            tag["savedEverybody"] = savedEverybody;
+        }
     }
 
     public override void LoadWorldData(TagCompound tag)
@@ -77,6 +89,7 @@ public class DoomsdayManager : ModSystem
             worldEndChoice = (DoomsdayOptions)tag.GetAsInt("worldEndChoice");
         }
         sunDied = tag.GetBool("sunDied");
+        savedEverybody = tag.GetBool("savedEverybody");
     }
 
     public override void PreWorldGen()
@@ -131,6 +144,11 @@ public class DoomsdayManager : ModSystem
             deathReason.CustomReason = Language.GetText($"Mods.SolarDoomsday.DeathReasons.Sun{message}").WithFormatArgs(player.name).ToNetworkText();
             player.creativeGodMode = false;
             player.KillMe(deathReason, 999999, 0);
+            if (Main.dedServ)
+            {
+                NetMessage.SendPlayerDeath(player.whoAmI, deathReason, 999999, 0, false);
+                RemoteClient.CheckSection(player.whoAmI, player.Center, 50);
+            }
         }
         var cloudY = Main.spawnTileY;
         while (!Main.tile[Main.spawnTileX, cloudY + 5].HasTile && Main.tile[Main.spawnTileX, cloudY + 5].LiquidAmount <= 0 && cloudY + 5 < Main.maxTilesY)

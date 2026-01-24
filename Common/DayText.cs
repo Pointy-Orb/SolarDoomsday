@@ -41,6 +41,10 @@ public class DayText : UIElement
 
     public override void Draw(SpriteBatch spriteBatch)
     {
+        if (DoomsdayManager.savedEverybody)
+        {
+            return;
+        }
         if (!DoomsdayClock.counterActive)
         {
             return;

@@ -38,3 +38,25 @@ Buffs: {
 }
 
 StagnationWatchPrefix: "Day {0}, "
+
+Items: {
+	CosmicSunblock: {
+		DisplayName: Cosmic Sunblock
+		Tooltip:
+			'''
+			Ends the solar apocalypse
+			Can only be used above ground
+			Doesn't work if the sun is already dead
+			'''
+	}
+
+	GrassPowder: {
+		Tooltip: Spreads grass on dirt and puts out fires
+		DisplayName: Grass Powder
+	}
+}
+
+ApocalypseEnd: The apocalypse is over...
+TooLate: You were too late...
+Projectiles.GrassPowderProjectile.DisplayName: Grass Powder
+DropConditions.WorldNotSavedCondition: Drops while the Solar Apocalypse is still ongoing

@@ -52,6 +52,10 @@ public class WitherTiles : GlobalTile
 
     public override void RandomUpdate(int i, int j, int type)
     {
+        if (DoomsdayManager.savedEverybody)
+        {
+            return;
+        }
         if (j > Main.worldSurface && !DoomsdayClock.TimeLeftInRange(2))
         {
             return;
@@ -60,15 +64,22 @@ public class WitherTiles : GlobalTile
         {
             return;
         }
+        if (Main.netMode == NetmodeID.MultiplayerClient)
+        {
+            return;
+        }
+        bool didSomething = false;
         if (DoomsdayManager.sunDied && Main.rand.NextBool(110))
         {
             if (type == TileID.Ash)
             {
                 Main.tile[i, j].TileType = TileID.SnowBlock;
+                didSomething = true;
             }
             if (type == TileID.Stone)
             {
                 Main.tile[i, j].TileType = TileID.IceBlock;
+                didSomething = true;
             }
         }
         else if (DoomsdayManager.sunDied && Main.rand.NextBool(10))
@@ -91,34 +102,44 @@ public class WitherTiles : GlobalTile
                     }
                 }
             }
+            if (Main.dedServ)
+            {
+                NetMessage.SendTileSquare(-1, x - 1, y - 1, 3, 3);
+            }
         }
         if (Main.rand.NextBool() && !DoomsdayClock.TimeLeftInRange(10))
         {
-            return;
+            goto serverSync;
         }
         if (!Main.IsItDay())
         {
-            return;
+            goto serverSync;
         }
         if (type == TileID.PalmTree && DoomsdayClock.TimeLeftInRange(3))
         {
             WorldGen.KillTile(i, j, noItem: true);
         }
-        if (TileID.Sets.IsATreeTrunk[type] && DoomsdayClock.TimeLeftInRange(2))
+        if (WorldGen.InWorld(i, j - 1) && TileID.Sets.PreventsTileRemovalIfOnTopOfIt[Main.tile[i, j - 1].TileType])
         {
-            var k = j;
-            while (TileID.Sets.IsATreeTrunk[Main.tile[i, k - 2].TileType])
+            return;
+        }
+        if (TileID.Sets.IsATreeTrunk[type] && DoomsdayClock.TimeLeftInRange(3, 2))
+        {
+            WorldGen.GetTreeBottom(i, j, out var k, out var l);
+            while (WorldGen.InWorld(k, l - 1) && TileID.Sets.IsATreeTrunk[Main.tile[k, l - 1].TileType])
             {
-                k--;
+                l--;
             }
-            Main.tile[i, k].TileType = (ushort)ModContent.TileType<SuperAliveFire>();
-            WorldGen.KillWall(i, k);
-            WorldGen.Reframe(i, k);
+            Main.tile[k, l].TileType = (ushort)ModContent.TileType<SuperAliveFire>();
+            didSomething = true;
+            WorldGen.KillWall(k, l);
+            WorldGen.Reframe(k, l);
         }
         if (DoomsdayClock.TimeLeftInRange(3) && (TileID.Sets.Dirt[type] || TileID.Sets.SandBiome[type] > 0 || type == TileID.ClayBlock) && (Main.rand.NextBool(3) || DoomsdayClock.TimeLeftInRange(6)))
         {
             Main.tile[i, j].TileType = TileID.Ash;
             WorldGen.Reframe(i, j);
+            didSomething = true;
         }
         if (DoomsdayClock.TimeLeftInRange(3) && (TileID.Sets.Stone[type] || TileID.Sets.Ore[type]) && Main.tile[i, j - 1].TileType != TileID.DemonAltar && (Main.rand.NextBool(3) || DoomsdayClock.TimeLeftInRange(6)) && (j < Main.worldSurface || Main.rand.NextBool(3)))
         {
@@ -126,6 +147,7 @@ public class WitherTiles : GlobalTile
             tile.HasTile = false;
             WorldGen.PlaceLiquid(i, j, (byte)LiquidID.Lava, 255);
             WorldGen.Reframe(i, j);
+            didSomething = true;
         }
         if (DoomsdayClock.TimeLeftInRange(6, 5) && (Main.rand.NextBool(7) || DoomsdayClock.TimeLeftInRange(2)))
         {
@@ -133,11 +155,13 @@ public class WitherTiles : GlobalTile
             {
                 Main.tile[i, j].TileType = TileID.Dirt;
                 WorldGen.Reframe(i, j);
+                didSomething = true;
             }
             if (TileID.Sets.Ices[Main.tile[i, j].TileType])
             {
                 Main.tile[i, j].TileType = TileID.Stone;
                 WorldGen.Reframe(i, j);
+                didSomething = true;
             }
             if (type == TileID.BreakableIce)
             {
@@ -146,6 +170,7 @@ public class WitherTiles : GlobalTile
             if (Main.tile[i, j].WallType == WallID.SnowWallUnsafe)
             {
                 Main.tile[i, j].WallType = WallID.Dirt;
+                NetMessage.SendTileSquare(-1, i, j, 1, 1);
             }
         }
         if (DoomsdayClock.TimeLeftInRange(3, 2) && (Main.rand.NextBool(3) || DoomsdayClock.TimeLeftInRange(3)))
@@ -154,6 +179,7 @@ public class WitherTiles : GlobalTile
             {
                 Main.tile[i, j].TileType = TileID.Dirt;
                 WorldGen.Reframe(i, j);
+                NetMessage.SendTileSquare(-1, i, j, 1, 1);
             }
             if (TileID.Sets.Leaves[type])
             {
@@ -162,10 +188,11 @@ public class WitherTiles : GlobalTile
         }
         if (DoomsdayClock.TimeLeftInRange(3) && SuperAliveFire.Flammable[type])
         {
-            Tile tile = Main.tile[i, j];
-            tile.TileType = (ushort)ModContent.TileType<SuperAliveFire>();
+            WorldGen.KillTile(i, j, noItem: true);
+            WorldGen.PlaceTile(i, j, ModContent.TileType<SuperAliveFire>(), true);
             WorldGen.KillWall(i, j);
             WorldGen.Reframe(i, j);
+            didSomething = true;
         }
         if (DoomsdayClock.TimeLeftInRange(3, 2) && (Main.rand.NextBool(6) || DoomsdayClock.TimeLeftInRange(2)))
         {
@@ -173,10 +200,7 @@ public class WitherTiles : GlobalTile
             {
                 Main.tile[i, j].TileType = TileID.Grass;
                 WorldGen.Reframe(i, j);
-            }
-            if (TileID.Sets.Grass[Main.tile[i, j].TileType])
-            {
-                return;
+                NetMessage.SendTileSquare(-1, i, j, 1, 1);
             }
             for (int k = i - 2; k <= i + 2; k++)
             {
@@ -189,6 +213,12 @@ public class WitherTiles : GlobalTile
                     }
                 }
             }
+            NetMessage.SendTileSquare(-1, i - 1, j - 1, 3, 3, TileChangeType.None);
+        }
+    serverSync:
+        if (didSomething)
+        {
+            NetMessage.SendTileSquare(-1, i, j, 1, 1);
         }
     }
 }

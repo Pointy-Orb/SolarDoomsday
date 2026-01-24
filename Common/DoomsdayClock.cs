@@ -1,7 +1,10 @@
 using Terraria;
+using Terraria.Audio;
+using Terraria.ID;
 using System;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
+using System.IO;
 
 namespace SolarDoomsday;
 
@@ -15,8 +18,9 @@ public class DoomsdayClock : ModSystem
 
     public const float doomsdayTime = 16.5f;
 
+    public static bool Ongoing => !DoomsdayManager.sunDied && !DoomsdayManager.savedEverybody;
 
-    public static bool LastDay => daysLeft == 1 && DoomsdayManager.worldEndChoice != DoomsdayOptions.Stagnation && !DoomsdayManager.sunDied;
+    public static bool LastDay => daysLeft == 1 && DoomsdayManager.worldEndChoice != DoomsdayOptions.Stagnation && Ongoing;
 
     public static void SetDayCount(int proposal)
     {
@@ -68,6 +72,10 @@ public class DoomsdayClock : ModSystem
         {
             tag["worldEndChoice"] = (int)DoomsdayManager.worldEndChoice;
         }
+        if (DoomsdayManager.savedEverybody)
+        {
+            tag["savedEverybody"] = DoomsdayManager.savedEverybody;
+        }
     }
 
     public override void ClearWorld()
@@ -77,21 +85,29 @@ public class DoomsdayClock : ModSystem
         counterActive = true;
     }
 
-    bool wasDay = true;
+    static bool wasDay = true;
     public static bool counterActive = true;
 
     public override void PostUpdateTime()
     {
+        if (DoomsdayManager.savedEverybody)
+        {
+            return;
+        }
         if (Main.dayTime && !wasDay)
         {
             daysLeft--;
+            if (!Main.dedServ && Ongoing && DoomsdayManager.worldEndChoice != DoomsdayOptions.Stagnation)
+            {
+                SoundEngine.PlaySound(new SoundStyle("SolarDoomsday/Assets/bell"));
+            }
         }
         wasDay = Main.dayTime;
         if (!counterActive)
         {
             return;
         }
-        if (LastDay && Utils.GetDayTimeAs24FloatStartingFromMidnight() >= doomsdayTime)
+        if (LastDay && Utils.GetDayTimeAs24FloatStartingFromMidnight() >= doomsdayTime && Main.netMode != NetmodeID.MultiplayerClient)
         {
             DoomsdayManager.DestroyWorldAccordingToChoice();
             counterActive = false;
@@ -107,6 +123,22 @@ public class DoomsdayClock : ModSystem
     {
         return PercentTimeLeft() <= ((float)numerator / (float)denominator);
     }
+
+    public override void NetSend(BinaryWriter writer)
+    {
+        writer.Write((ushort)DayCount);
+        writer.Write((ushort)daysLeft);
+        writer.Write(counterActive);
+        writer.Write((byte)DoomsdayManager.worldEndChoice);
+    }
+
+    public override void NetReceive(BinaryReader reader)
+    {
+        DayCount = (int)reader.ReadUInt16();
+        daysLeft = (int)reader.ReadUInt16();
+        counterActive = reader.ReadBoolean();
+        DoomsdayManager.worldEndChoice = (DoomsdayOptions)reader.ReadByte();
+    }
 }
 
 public class SetCounter : ModCommand
@@ -119,6 +151,7 @@ public class SetCounter : ModCommand
         {
             DoomsdayClock.daysLeft = set;
             Main.NewText("Set counter to " + set);
+            NetMessage.SendData(MessageID.WorldData);
         }
     }
 

@@ -21,6 +21,7 @@ public class SuperAliveFire : ModTile
         HitSound = SoundID.LiquidsWaterLava;
         AddMapEntry(new Color(LightColor));
         Flammable = new bool[TileLoader.TileCount];
+        VanillaFallbackOnModDeletion = TileID.LivingFire;
         for (int i = 0; i < TileLoader.TileCount; i++)
         {
             if (FlammableCore.Contains(i))
@@ -81,13 +82,16 @@ public class SpreadFire : GlobalTile
             {
                 if (Main.tile[k, l].TileType == ModContent.TileType<SuperAliveFire>())
                 {
-                    AttemptSpread(k, l);
+                    if (AttemptSpread(k, l))
+                    {
+                        return;
+                    }
                 }
             }
         }
     }
 
-    private static void AttemptSpread(int i, int j)
+    private static bool AttemptSpread(int i, int j)
     {
         bool spread = false;
         for (int k = i - 1; k <= i + 1; k++)
@@ -95,12 +99,18 @@ public class SpreadFire : GlobalTile
             for (int l = j - 1; l <= j + 1; l++)
             {
                 int targetType = Main.tile[k, l].TileType;
+                if (WorldGen.InWorld(k, l - 1) && TileID.Sets.PreventsTileRemovalIfOnTopOfIt[Main.tile[k, l - 1].TileType])
+                {
+                    continue;
+                }
                 if (SuperAliveFire.Flammable[targetType])
                 {
                     spread = true;
-                    Main.tile[k, l].TileType = (ushort)ModContent.TileType<SuperAliveFire>();
+                    WorldGen.KillTile(k, l, noItem: true);
+                    WorldGen.PlaceTile(k, l, ModContent.TileType<SuperAliveFire>(), true);
                     WorldGen.KillWall(i, j);
                     WorldGen.Reframe(k, l);
+                    NetMessage.SendTileSquare(-1, k, l, 1, 1);
                 }
             }
         }
@@ -108,5 +118,6 @@ public class SpreadFire : GlobalTile
         {
             WorldGen.KillTile(i, j);
         }
+        return spread;
     }
 }

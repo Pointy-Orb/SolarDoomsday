@@ -17,6 +17,10 @@ public class BurnEverybody : ModSystem
         {
             return;
         }
+        if (DoomsdayManager.savedEverybody)
+        {
+            return;
+        }
         foreach (Player player in Main.ActivePlayers)
         {
             if ((player.ZoneOverworldHeight || player.ZoneSkyHeight) && (!player.behindBackWall || DoomsdayClock.TimeLeftInRange(3)))

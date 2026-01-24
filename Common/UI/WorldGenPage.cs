@@ -262,6 +262,7 @@ public class WorldGenPage : ModSystem
         ModContent.Request<Texture2D>("SolarDoomsday/Common/IconStagnation"),
         ModContent.Request<Texture2D>("SolarDoomsday/Common/IconDissipation"),
         ModContent.Request<Texture2D>("SolarDoomsday/Common/IconNova"),
+        ModContent.Request<Texture2D>("SolarDoomsday/Common/IconPeaceful")
     };
 
     private static void AddDoomsdayOptions(
