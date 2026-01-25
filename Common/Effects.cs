@@ -231,11 +231,11 @@ public class MakeAtmosphereHellish : ModSceneEffect
             }
             if (DoomsdayClock.PercentTimeLeft() <= (1f / 3f))
             {
-                return !Main.swapMusic == Main.drunkWorld && !Main.remixWorld ? MusicID.OtherworldlyUnderworld : MusicID.Hell;
+                return !Main.swapMusic == Main.drunkWorld && !Main.remixWorld ? MusicID.OtherworldlyEerie : MusicID.Hell;
             }
             else if (DoomsdayClock.PercentTimeLeft() <= (2f / 3f))
             {
-                return !Main.swapMusic == Main.drunkWorld && !Main.remixWorld ? MusicID.OtherworldlyEerie : MusicID.Eerie;
+                return !Main.swapMusic == Main.drunkWorld && !Main.remixWorld ? MusicID.OtherworldlyUnderworld : MusicID.Eerie;
             }
             return -1;
         }
