@@ -105,11 +105,26 @@ public class SolFireNPC : GlobalNPC
 
     public bool onSolFire = false;
 
-    public override bool PreAI(NPC npc)
+    public override void ResetEffects(NPC npc)
     {
         npc.GetGlobalNPC<SolFireNPC>().onSolFire = false;
         npc.buffImmune[ModContent.BuffType<SolFire>()] = npc.buffImmune[BuffID.OnFire] || npc.lavaImmune || npc.wet;
-        return true;
+    }
+
+    public override void AI(NPC npc)
+    {
+        if (!npc.GetGlobalNPC<SolFireNPC>().onSolFire)
+        {
+            return;
+        }
+        int dot = SolFire.DebuffDamage;
+        Main.NewText(dot);
+        var point = npc.Center.ToTileCoordinates();
+        if (Main.tile[point.X, point.Y].WallType > 0)
+        {
+            dot /= 2;
+        }
+        npc.lifeRegen -= dot;
     }
 
     public override void DrawEffects(NPC npc, ref Color drawColor)
