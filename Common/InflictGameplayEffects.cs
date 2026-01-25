@@ -35,6 +35,10 @@ public class FireMonsters : GlobalNPC
         {
             return;
         }
+        if (DoomsdayManager.savedEverybody)
+        {
+            return;
+        }
         foreach (int key in pool.Keys)
         {
             pool[key] = 0f;

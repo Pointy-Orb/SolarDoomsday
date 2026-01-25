@@ -41,7 +41,7 @@ public class Effects : ModSystem
             return;
         }
         Main.LocalPlayer.ManageSpecialBiomeVisuals("HeatDistortion", Main.UseHeatDistortion && Main.IsItDay());
-        Filters.Scene["HeatDistortion"].GetShader().UseIntensity(5f - DoomsdayClock.PercentTimeLeft() * 4);
+        Filters.Scene["HeatDistortion"].GetShader().UseIntensity((5f - DoomsdayClock.PercentTimeLeft() * 4) / (Main.LocalPlayer.behindBackWall ? 2 : 1));
         switch (Main.bgStyle)
         {
             case 0:
@@ -227,7 +227,7 @@ public class MakeAtmosphereHellish : ModSceneEffect
             }
             if (DoomsdayClock.LastDay)
             {
-                return MusicID.Boss2;
+                return !Main.swapMusic == Main.drunkWorld && !Main.remixWorld ? MusicID.OtherworldlyTowers : MusicID.Boss2;
             }
             if (DoomsdayClock.PercentTimeLeft() <= (1f / 3f))
             {

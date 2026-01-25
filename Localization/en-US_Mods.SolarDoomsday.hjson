@@ -64,6 +64,16 @@ Items: {
 		Tooltip: Spreads grass on dirt and puts out fires
 		DisplayName: Grass Powder
 	}
+
+	CyanSolution: {
+		DisplayName: Cyan Solution
+		Tooltip: ""
+	}
+
+	DarkGreenSolution: {
+		DisplayName: Dark Green Solution
+		Tooltip: ""
+	}
 }
 
 ApocalypseEnd: The apocalypse is over...
@@ -73,6 +83,8 @@ TooLate: You were too late...
 Projectiles: {
 	GrassPowderProjectile.DisplayName: Grass Powder
 	SlimeBomb.DisplayName: Slime Bomb
+	CyanSolutionProjectile.DisplayName: Cyan Solution Projectile
+	DarkGreenSolutionProjectile.DisplayName: Dark Green Solution Projectile
 }
 
 DropConditions.WorldNotSavedCondition: Drops while the Solar Apocalypse is still ongoing
