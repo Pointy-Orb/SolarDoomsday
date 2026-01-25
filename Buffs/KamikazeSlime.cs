@@ -37,7 +37,10 @@ public class BlowUpSlime : GlobalNPC
     {
         if (npc.GetGlobalNPC<BlowUpSlime>().blowCooldown <= 0 && !npc.wet && npc.HasBuff(ModContent.BuffType<KamikazeSlime>()) && Main.dayTime)
         {
-            Projectile.NewProjectile(npc.GetSource_Death(), npc.Center, Vector2.Zero, ModContent.ProjectileType<SlimeBomb>(), npc.damage * 2, 7f);
+            var bomb = Projectile.NewProjectileDirect(npc.GetSource_Death(), npc.Center, Vector2.Zero, ModContent.ProjectileType<SlimeBomb>(), npc.damage * 2, 7f);
+            bomb.scale = npc.scale;
+            bomb.width = (int)(bomb.width * bomb.scale);
+            bomb.height = (int)(bomb.height * bomb.scale);
         }
         return true;
     }
@@ -58,6 +61,7 @@ public class BlowUpSlime : GlobalNPC
     public override void PostAI(NPC npc)
     {
         npc.GetGlobalNPC<BlowUpSlime>().blowCooldown--;
+        npc.buffImmune[ModContent.BuffType<KamikazeSlime>()] = Main.raining;
     }
 }
 
@@ -70,7 +74,7 @@ public class SlimeBomb : ModProjectile
         ProjectileID.Sets.Explosive[Type] = true;
     }
 
-    private int ExplodeRadius => DoomsdayClock.TimeLeftInRange(3) ? 4 : 2;
+    private int ExplodeRadius => DoomsdayClock.TimeLeftInRange(3) ? 6 : 4;
 
     public override void SetDefaults()
     {
@@ -104,7 +108,7 @@ public class SlimeBomb : ModProjectile
 
         if (Projectile.owner == Main.myPlayer)
         {
-            int explosionRadius = ExplodeRadius;
+            int explosionRadius = (int)(ExplodeRadius * Projectile.scale);
             int minTileX = (int)(Projectile.Center.X / 16f - explosionRadius);
             int maxTileX = (int)(Projectile.Center.X / 16f + explosionRadius);
             int minTileY = (int)(Projectile.Center.Y / 16f - explosionRadius);

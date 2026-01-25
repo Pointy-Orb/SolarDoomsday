@@ -19,26 +19,6 @@ public class GrassPowder : ModItem
     }
 }
 
-public class SoldByDryad : GlobalNPC
-{
-    public override void ModifyShop(NPCShop shop)
-    {
-        if (shop.NpcType != NPCID.Dryad)
-        {
-            return;
-        }
-
-        if (shop.TryGetEntry(ItemID.GrassSeeds, out NPCShop.Entry powder))
-        {
-            shop.InsertBefore(ItemID.GrassSeeds, ModContent.ItemType<GrassPowder>(), new Condition("Mods.SolarDoomsday.Conditions.WhenApocalypseOver", () => DoomsdayManager.savedEverybody));
-        }
-        else
-        {
-            shop.Add(ModContent.ItemType<GrassPowder>(), new Condition("Mods.SolarDoomsday.Conditions.WhenApocalypseOver", () => DoomsdayManager.savedEverybody));
-        }
-    }
-}
-
 public class GrassPowderProjectile : ModProjectile
 {
     public override string Texture => "Terraria/Images/Projectile_10";

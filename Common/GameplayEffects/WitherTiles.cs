@@ -29,7 +29,7 @@ public class WitherTiles : GlobalTile
         {
             return;
         }
-        if (!Main.IsItDay())
+        if (!Main.IsItDay() || Main.raining)
         {
             return;
         }
@@ -115,7 +115,7 @@ public class WitherTiles : GlobalTile
         {
             goto serverSync;
         }
-        if (!Main.IsItDay())
+        if (!Main.IsItDay() || Main.raining)
         {
             goto serverSync;
         }

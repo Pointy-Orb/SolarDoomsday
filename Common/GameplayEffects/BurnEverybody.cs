@@ -47,11 +47,7 @@ public class BurnEverybody : ModSystem
             Point npcSpot = npc.Center.ToTileCoordinates();
             if (npcSpot.Y < Main.worldSurface && (Main.tile[npcSpot.X, npcSpot.Y].WallType == 0 || DoomsdayClock.TimeLeftInRange(6)))
             {
-                npc.AddBuff(BuffID.OnFire, 10);
-            }
-            if (npcSpot.Y < Main.worldSurface && (Main.tile[npcSpot.X, npcSpot.Y].WallType == 0 && DoomsdayClock.TimeLeftInRange(6)))
-            {
-                npc.AddBuff(BuffID.OnFire3, 10);
+                npc.AddBuff(ModContent.BuffType<Buffs.SolFire>(), 10);
             }
         }
     }

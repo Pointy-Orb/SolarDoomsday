@@ -1,4 +1,7 @@
 using Terraria;
+using System;
+using static Terraria.GameContent.PlayerEyeHelper;
+using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ID;
 
@@ -6,16 +9,28 @@ namespace SolarDoomsday.Buffs;
 
 public class HeatStroke : ModBuff
 {
+    private static LocalizedText TooltipText;
+
+    public static float Modifier => Utils.Remap(DoomsdayClock.PercentTimeLeft(), 2f / 3f, 1f / 3f, 0.05f, 0.2f);
+
     public override void SetStaticDefaults()
     {
         Main.debuff[Type] = true;
         Main.buffNoSave[Type] = true;
         Main.buffNoTimeDisplay[Type] = true;
+
+        TooltipText = this.GetLocalization("Description");
     }
 
     public override void Update(Player player, ref int buffIndex)
     {
         player.GetModPlayer<HeatStrokePlayer>().heatStroke = true;
+        player.buffImmune[BuffID.Chilled] = true;
+    }
+
+    public override void ModifyBuffText(ref string buffName, ref string tip, ref int rare)
+    {
+        tip = TooltipText.Format(MathF.Round(Modifier * 100, 2));
     }
 }
 
@@ -35,12 +50,13 @@ public class HeatStrokePlayer : ModPlayer
 
     public override void PostUpdateBuffs()
     {
-        Player.buffImmune[ModContent.BuffType<HeatStroke>()] = Player.buffImmune[BuffID.OnFire] || Player.wet;
+        Player.buffImmune[ModContent.BuffType<HeatStroke>()] = Player.buffImmune[BuffID.OnFire] || Player.wet || Main.raining;
         if (!heatStroke)
         {
             return;
         }
-        Player.endurance -= 0.1f;
-        Player.GetDamage(DamageClass.Generic) *= 0.9f;
+        Player.eyeHelper.SwitchToState(EyeState.IsPoisoned);
+        Player.endurance -= HeatStroke.Modifier;
+        Player.GetDamage(DamageClass.Generic) *= (1f - HeatStroke.Modifier);
     }
 }

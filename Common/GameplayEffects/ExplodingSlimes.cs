@@ -47,6 +47,13 @@ public class ExplodingSlimes : GlobalNPC
             naughtyList.Remove(npc.whoAmI);
             npc.AddBuff(ModContent.BuffType<Buffs.KamikazeSlime>(), 21600);
         }
+        foreach (int key in naughtyList.Keys)
+        {
+            if (!Main.npc[key].active)
+            {
+                naughtyList.Remove(key);
+            }
+        }
     }
 
     private static readonly int[] Slimes =

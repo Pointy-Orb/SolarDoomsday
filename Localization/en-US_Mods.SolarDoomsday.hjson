@@ -37,7 +37,7 @@ Buffs: {
 	}
 
 	HeatStroke: {
-		Description: Offense and defense are decreased by 10%
+		Description: Offense and defense are decreased by {0}%
 		DisplayName: Heat Stroke
 	}
 
@@ -67,12 +67,21 @@ Items: {
 
 	CyanSolution: {
 		DisplayName: Cyan Solution
-		Tooltip: ""
+		Tooltip:
+			'''
+			Used by the Clentaminator
+			Turns ash to dirt and lava to stone
+			Only works on surface and underground layers
+			'''
 	}
 
 	DarkGreenSolution: {
 		DisplayName: Dark Green Solution
-		Tooltip: ""
+		Tooltip:
+			'''
+			Used by the Clentaminator
+			Spreads the Jungle
+			'''
 	}
 }
 
@@ -89,3 +98,4 @@ Projectiles: {
 
 DropConditions.WorldNotSavedCondition: Drops while the Solar Apocalypse is still ongoing
 Conditions.WhenApocalypseOver: When the Solar Apocalypse has been stopped
+TerraformingKitMessage: I'm working on a terraforming kit that can help us fix up the surface after the sun stops blasting it!

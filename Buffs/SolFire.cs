@@ -16,9 +16,11 @@ public class SolFire : ModBuff
         Main.buffNoTimeDisplay[Type] = true;
     }
 
+    public static int DebuffDamage => (int)Utils.Remap(DoomsdayClock.PercentTimeLeft(), 1f / 3f, 0, 1, 50);
+
     public override void Update(NPC npc, ref int buffIndex)
     {
-        base.Update(npc, ref buffIndex);
+        npc.GetGlobalNPC<SolFireNPC>().onSolFire = true;
     }
 
     public override void Update(Player player, ref int buffIndex)
@@ -64,7 +66,7 @@ public class SolFirePlayer : ModPlayer
             Player.lifeRegen = 0;
         }
         Player.lifeRegenTime = 0;
-        int dot = (int)Utils.Remap(DoomsdayClock.PercentTimeLeft(), 1f / 3f, 0, 1, 50);
+        int dot = SolFire.DebuffDamage;
         if (Player.behindBackWall)
         {
             dot /= 2;
@@ -94,5 +96,40 @@ public class SolFirePlayer : ModPlayer
         r = Utils.Remap(DoomsdayClock.PercentTimeLeft(), 1f / 3f, 0, r, 1f);
         g = Utils.Remap(DoomsdayClock.PercentTimeLeft(), 1f / 3f, 0, g, g * 0.5f);
         b = Utils.Remap(DoomsdayClock.PercentTimeLeft(), 1f / 3f, 0, b, b * 0.4f);
+    }
+}
+
+public class SolFireNPC : GlobalNPC
+{
+    public override bool InstancePerEntity => true;
+
+    public bool onSolFire = false;
+
+    public override bool PreAI(NPC npc)
+    {
+        npc.GetGlobalNPC<SolFireNPC>().onSolFire = false;
+        npc.buffImmune[ModContent.BuffType<SolFire>()] = npc.buffImmune[BuffID.OnFire] || npc.lavaImmune || npc.wet;
+        return true;
+    }
+
+    public override void DrawEffects(NPC npc, ref Color drawColor)
+    {
+        if (!npc.GetGlobalNPC<SolFireNPC>().onSolFire)
+        {
+            return;
+        }
+        float scale = Utils.Remap(DoomsdayClock.PercentTimeLeft(), 1f / 3f, 0, 0.5f, 3f);
+        var point = npc.Center.ToTileCoordinates();
+        if (Main.tile[point.X, point.Y].WallType > 0)
+        {
+            scale /= 2;
+        }
+        Dust dust6 = Dust.NewDustDirect(new Vector2(npc.position.X - 2f, npc.position.Y - 2f), npc.width + 4, npc.height + 4, 6, npc.velocity.X * 0.4f, npc.velocity.Y * 0.4f, 100, default(Color), scale);
+        dust6.noGravity = true;
+        dust6.velocity *= 1.8f;
+        dust6.velocity.Y -= 0.75f;
+        drawColor.R = (byte)Utils.Remap(DoomsdayClock.PercentTimeLeft(), 1f / 3f, 0, drawColor.R, byte.MaxValue);
+        drawColor.G = (byte)Utils.Remap(DoomsdayClock.PercentTimeLeft(), 1f / 3f, 0, drawColor.G, byte.MaxValue);
+        drawColor.B = (byte)Utils.Remap(DoomsdayClock.PercentTimeLeft(), 1f / 3f, 0, drawColor.B, byte.MaxValue);
     }
 }
