@@ -9,11 +9,13 @@ namespace SolarDoomsday.Items;
 public class CosmicSunblock : ModItem
 {
     static LocalizedText apocalypseOver;
+    static LocalizedText postApocalypse;
     static LocalizedText tooLate;
 
     public override void SetStaticDefaults()
     {
         apocalypseOver = Language.GetOrRegister("Mods.SolarDoomsday.ApocalypseEnd");
+        postApocalypse = Language.GetOrRegister("Mods.SolarDoomsday.ApocalypseEndLate");
         tooLate = Language.GetOrRegister("Mods.SolarDoomsday.TooLate");
     }
 
@@ -32,6 +34,10 @@ public class CosmicSunblock : ModItem
     public override bool CanUseItem(Player player)
     {
         if (player.ZoneDirtLayerHeight || player.ZoneRockLayerHeight || player.ZoneUnderworldHeight)
+        {
+            return false;
+        }
+        if (!Main.dayTime)
         {
             return false;
         }
@@ -74,6 +80,10 @@ public class CosmicSunblock : ModItem
         }
         DoomsdayManager.shaderTime = 120;
         Main.NewText(apocalypseOver.Value, 50, 255, 130);
+        if (DoomsdayClock.TimeLeftInRange(3))
+        {
+            Main.NewText(postApocalypse.Value, 50, 255, 130);
+        }
         DoomsdayManager.savedEverybody = true;
         return true;
     }

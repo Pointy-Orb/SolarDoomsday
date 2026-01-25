@@ -9,10 +9,6 @@ public class BurnEverybody : ModSystem
 {
     public override void PostUpdateTime()
     {
-        if (!DoomsdayClock.TimeLeftInRange(2))
-        {
-            return;
-        }
         if (!Main.IsItDay())
         {
             return;
@@ -21,15 +17,25 @@ public class BurnEverybody : ModSystem
         {
             return;
         }
+
+        if (DoomsdayClock.TimeLeftInRange(3))
+        {
+            IncinerateEveryone();
+        }
+        if (DoomsdayClock.TimeLeftInRange(3, 2))
+        {
+            DiscomfortEveryone();
+        }
+    }
+
+    private void IncinerateEveryone()
+    {
         foreach (Player player in Main.ActivePlayers)
         {
-            if ((player.ZoneOverworldHeight || player.ZoneSkyHeight) && (!player.behindBackWall || DoomsdayClock.TimeLeftInRange(3)))
+            if ((player.ZoneOverworldHeight || player.ZoneSkyHeight) && (!player.behindBackWall || DoomsdayClock.TimeLeftInRange(6)))
             {
-                if (DoomsdayClock.TimeLeftInRange(2))
-                {
-                    player.AddBuff(ModContent.BuffType<Buffs.SolFire>(), 20);
-                    continue;
-                }
+                player.AddBuff(ModContent.BuffType<Buffs.SolFire>(), 20);
+                continue;
             }
         }
         foreach (NPC npc in Main.ActiveNPCs)
@@ -46,6 +52,18 @@ public class BurnEverybody : ModSystem
             if (npcSpot.Y < Main.worldSurface && (Main.tile[npcSpot.X, npcSpot.Y].WallType == 0 && DoomsdayClock.TimeLeftInRange(6)))
             {
                 npc.AddBuff(BuffID.OnFire3, 10);
+            }
+        }
+    }
+
+    private void DiscomfortEveryone()
+    {
+        foreach (Player player in Main.ActivePlayers)
+        {
+            if ((player.ZoneOverworldHeight || player.ZoneSkyHeight) && (!player.behindBackWall || DoomsdayClock.TimeLeftInRange(2)))
+            {
+                player.AddBuff(ModContent.BuffType<Buffs.HeatStroke>(), 5);
+                continue;
             }
         }
     }

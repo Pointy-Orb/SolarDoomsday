@@ -35,6 +35,16 @@ Buffs: {
 		DisplayName: Solar Flame
 		Description: The heat of the sun burns your skin
 	}
+
+	HeatStroke: {
+		Description: Offense and defense are decreased by 10%
+		DisplayName: Heat Stroke
+	}
+
+	KamikazeSlime: {
+		Description: Mods.SolarDoomsday.Buffs.KamikazeSlime.Description
+		DisplayName: Kamikaze Slime
+	}
 }
 
 StagnationWatchPrefix: "Day {0}, "
@@ -45,7 +55,7 @@ Items: {
 		Tooltip:
 			'''
 			Ends the solar apocalypse
-			Can only be used above ground
+			Can only be used above ground during the daytime
 			Doesn't work if the sun is already dead
 			'''
 	}
@@ -57,8 +67,13 @@ Items: {
 }
 
 ApocalypseEnd: The apocalypse is over...
+ApocalypseEndLate: but the post-apocalypse has just begun...
 TooLate: You were too late...
-Projectiles.GrassPowderProjectile.DisplayName: Grass Powder
+
+Projectiles: {
+	GrassPowderProjectile.DisplayName: Grass Powder
+	SlimeBomb.DisplayName: Slime Bomb
+}
+
 DropConditions.WorldNotSavedCondition: Drops while the Solar Apocalypse is still ongoing
-Mods.SolarDoomsday.Conditions.WhenApocalypseOver: When the Solar Apocalypse has been stopped
-Conditions.WhenApocalypseOver: Mods.SolarDoomsday.Conditions.WhenApocalypseOver
+Conditions.WhenApocalypseOver: When the Solar Apocalypse has been stopped

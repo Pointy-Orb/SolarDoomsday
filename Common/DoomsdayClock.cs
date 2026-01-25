@@ -22,6 +22,8 @@ public class DoomsdayClock : ModSystem
 
     public static bool LastDay => daysLeft == 1 && DoomsdayManager.worldEndChoice != DoomsdayOptions.Stagnation && Ongoing;
 
+    private static bool start = false;
+
     public static void SetDayCount(int proposal)
     {
         DayCount = proposal;
@@ -83,6 +85,7 @@ public class DoomsdayClock : ModSystem
         DayCount = 30;
         daysLeft = DayCount;
         counterActive = true;
+        start = false;
     }
 
     static bool wasDay = true;
@@ -99,7 +102,7 @@ public class DoomsdayClock : ModSystem
         {
             return;
         }
-        if (Main.dayTime && !wasDay)
+        if (Main.dayTime && !wasDay && start)
         {
             daysLeft--;
             if (!Main.dedServ && Ongoing && DoomsdayManager.worldEndChoice != DoomsdayOptions.Stagnation)
@@ -108,6 +111,11 @@ public class DoomsdayClock : ModSystem
             }
         }
         wasDay = Main.dayTime;
+        if (!start)
+        {
+            start = true;
+            return;
+        }
         if (!counterActive)
         {
             return;

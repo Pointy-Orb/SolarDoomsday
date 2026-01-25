@@ -127,7 +127,7 @@ public class WitherTiles : GlobalTile
         {
             return;
         }
-        if (TileID.Sets.IsATreeTrunk[type] && DoomsdayClock.TimeLeftInRange(3, 2))
+        if (TileID.Sets.IsATreeTrunk[type] && DoomsdayClock.TimeLeftInRange(2))
         {
             WorldGen.GetTreeBottom(i, j, out var k, out var l);
             while (WorldGen.InWorld(k, l - 1) && TileID.Sets.IsATreeTrunk[Main.tile[k, l - 1].TileType])
@@ -143,6 +143,11 @@ public class WitherTiles : GlobalTile
         {
             Main.tile[i, j].TileType = TileID.Ash;
             WorldGen.Reframe(i, j);
+            didSomething = true;
+        }
+        if (DoomsdayClock.TimeLeftInRange(3, 2) && TileID.Sets.Dirt[Main.tile[i, j + 1].TileType] && Main.tileCut[type])
+        {
+            WorldGen.KillTile(i, j);
             didSomething = true;
         }
         if (DoomsdayClock.TimeLeftInRange(3) && (TileID.Sets.Stone[type] || TileID.Sets.Ore[type]) && Main.tile[i, j - 1].TileType != TileID.DemonAltar && (Main.rand.NextBool(3) || DoomsdayClock.TimeLeftInRange(6)) && (j < Main.worldSurface || Main.rand.NextBool(3)))

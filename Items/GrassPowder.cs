@@ -28,9 +28,9 @@ public class SoldByDryad : GlobalNPC
             return;
         }
 
-        if (shop.TryGetEntry(ItemID.PurificationPowder, out NPCShop.Entry powder))
+        if (shop.TryGetEntry(ItemID.GrassSeeds, out NPCShop.Entry powder))
         {
-            shop.InsertAfter(ItemID.PurificationPowder, ModContent.ItemType<GrassPowder>(), new Condition("Mods.SolarDoomsday.Conditions.WhenApocalypseOver", () => DoomsdayManager.savedEverybody));
+            shop.InsertBefore(ItemID.GrassSeeds, ModContent.ItemType<GrassPowder>(), new Condition("Mods.SolarDoomsday.Conditions.WhenApocalypseOver", () => DoomsdayManager.savedEverybody));
         }
         else
         {

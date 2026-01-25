@@ -21,32 +21,6 @@ public class Weather : ModSystem
 
 public class FireMonsters : GlobalNPC
 {
-    public override bool CheckDead(NPC npc)
-    {
-        if (!DoomsdayClock.TimeLeftInRange(3))
-        {
-            return true;
-        }
-        if (!Main.IsItDay())
-        {
-            return true;
-        }
-        if (npc.position.ToTileCoordinates().Y > Main.worldSurface)
-        {
-            return true;
-        }
-        if (npc.aiStyle != NPCAIStyleID.Slime)
-        {
-            return true;
-        }
-        if (!npc.HasBuff(BuffID.OnFire))
-        {
-            return true;
-        }
-        npc.Transform(NPCID.LavaSlime);
-        return false;
-    }
-
     public override void EditSpawnPool(IDictionary<int, float> pool, NPCSpawnInfo spawnInfo)
     {
         if (!DoomsdayClock.TimeLeftInRange(3))
@@ -67,6 +41,7 @@ public class FireMonsters : GlobalNPC
         }
         pool[NPCID.Hellbat] = 0.6f;
         pool[NPCID.LavaSlime] = 0.5f;
+        pool[NPCID.RedSlime] = 0.7f;
         pool[NPCID.FireImp] = 0.5f;
         pool[NPCID.BlazingWheel] = 0.1f;
         if (!Main.hardMode)

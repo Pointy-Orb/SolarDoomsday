@@ -64,7 +64,12 @@ public class SolFirePlayer : ModPlayer
             Player.lifeRegen = 0;
         }
         Player.lifeRegenTime = 0;
-        Player.lifeRegen -= 40;
+        int dot = (int)Utils.Remap(DoomsdayClock.PercentTimeLeft(), 1f / 3f, 0, 1, 50);
+        if (Player.behindBackWall)
+        {
+            dot /= 2;
+        }
+        Player.lifeRegen -= dot;
     }
 
     public override void DrawEffects(PlayerDrawSet drawInfo, ref float r, ref float g, ref float b, ref float a, ref bool fullBright)
@@ -75,14 +80,19 @@ public class SolFirePlayer : ModPlayer
         }
         if (drawInfo.shadow == 0f && Player.lavaTime < 2)
         {
-            Dust dust6 = Dust.NewDustDirect(new Vector2(drawInfo.Position.X - 2f, drawInfo.Position.Y - 2f), Player.width + 4, Player.height + 4, 6, Player.velocity.X * 0.4f, Player.velocity.Y * 0.4f, 100, default(Color), 3f);
+            float scale = Utils.Remap(DoomsdayClock.PercentTimeLeft(), 1f / 3f, 0, 0.5f, 3f);
+            if (Player.behindBackWall)
+            {
+                scale /= 2;
+            }
+            Dust dust6 = Dust.NewDustDirect(new Vector2(drawInfo.Position.X - 2f, drawInfo.Position.Y - 2f), Player.width + 4, Player.height + 4, 6, Player.velocity.X * 0.4f, Player.velocity.Y * 0.4f, 100, default(Color), scale);
             dust6.noGravity = true;
             dust6.velocity *= 1.8f;
             dust6.velocity.Y -= 0.75f;
             drawInfo.DustCache.Add(dust6.dustIndex);
         }
-        r = 1f;
-        g *= 0.5f;
-        b *= 0.4f;
+        r = Utils.Remap(DoomsdayClock.PercentTimeLeft(), 1f / 3f, 0, r, 1f);
+        g = Utils.Remap(DoomsdayClock.PercentTimeLeft(), 1f / 3f, 0, g, g * 0.5f);
+        b = Utils.Remap(DoomsdayClock.PercentTimeLeft(), 1f / 3f, 0, b, b * 0.4f);
     }
 }
