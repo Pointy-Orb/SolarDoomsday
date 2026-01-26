@@ -60,3 +60,14 @@ public class FireMonsters : GlobalNPC
         pool[NPCID.Hellbat] = 0.3f;
     }
 }
+
+public class NoTownBenefits : ModPlayer
+{
+    public override void PostUpdateMiscEffects()
+    {
+        if (Player.ZoneShadowCandle == false)
+        {
+            Player.ZoneShadowCandle = DoomsdayClock.Ongoing && Main.IsItDay() && DoomsdayClock.TimeLeftInRange(3, 2);
+        }
+    }
+}

@@ -1,4 +1,6 @@
 using Terraria;
+using Microsoft.Xna.Framework;
+using Terraria.Chat;
 using Terraria.GameContent.ItemDropRules;
 using Terraria.Localization;
 using Terraria.ModLoader;
@@ -68,23 +70,45 @@ public class CosmicSunblock : ModItem
     public override bool? UseItem(Player player)
     {
         Item.consumable = !DoomsdayManager.sunDied;
+        DoomsdayManager.savedEverybody = true;
+        DoomsdayManager.shaderTime = 120;
+        if (Main.netMode == NetmodeID.MultiplayerClient)
+        {
+            return true;
+        }
         if (DoomsdayManager.sunDied)
         {
             if (DoomsdayManager.sentTheMessage)
             {
                 return true;
             }
-            Main.NewText(tooLate.Value, 50, 255, 130);
+            if (Main.dedServ)
+            {
+                ChatHelper.BroadcastChatMessage(tooLate.ToNetworkText(), new Color(50, 255, 130));
+            }
+            else
+            {
+                Main.NewText(tooLate.Value, 50, 255, 130);
+            }
             DoomsdayManager.sentTheMessage = true;
             return true;
         }
-        DoomsdayManager.shaderTime = 120;
-        Main.NewText(apocalypseOver.Value, 50, 255, 130);
-        if (DoomsdayClock.TimeLeftInRange(3))
+        if (Main.dedServ)
         {
-            Main.NewText(postApocalypse.Value, 50, 255, 130);
+            ChatHelper.BroadcastChatMessage(apocalypseOver.ToNetworkText(), new Color(50, 255, 130));
+            if (DoomsdayClock.TimeLeftInRange(3))
+            {
+                ChatHelper.BroadcastChatMessage(postApocalypse.ToNetworkText(), new Color(50, 255, 130));
+            }
         }
-        DoomsdayManager.savedEverybody = true;
+        else
+        {
+            Main.NewText(apocalypseOver.Value, 50, 255, 130);
+            if (DoomsdayClock.TimeLeftInRange(3))
+            {
+                Main.NewText(postApocalypse.Value, 50, 255, 130);
+            }
+        }
         return true;
     }
 }

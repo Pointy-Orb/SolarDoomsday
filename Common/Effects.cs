@@ -87,7 +87,6 @@ public class Effects : ModSystem
 
     public override void ModifySunLightColor(ref Color tileColor, ref Color backgroundColor)
     {
-        //TODO: Time it better so that the transition from scary flash to not scary flash is more gradual
         if (DoomsdayManager.savedEverybody)
         {
             return;
@@ -233,7 +232,7 @@ public class MakeAtmosphereHellish : ModSceneEffect
             {
                 return !Main.swapMusic == Main.drunkWorld && !Main.remixWorld ? MusicID.OtherworldlyEerie : MusicID.Hell;
             }
-            else if (DoomsdayClock.PercentTimeLeft() <= (2f / 3f))
+            else if (DoomsdayClock.TimeLeftInRange(3, 2) && !Main.raining)
             {
                 return !Main.swapMusic == Main.drunkWorld && !Main.remixWorld ? MusicID.OtherworldlyUnderworld : MusicID.Eerie;
             }

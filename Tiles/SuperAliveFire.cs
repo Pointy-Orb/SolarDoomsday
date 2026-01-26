@@ -108,7 +108,7 @@ public class SpreadFire : GlobalTile
                     spread = true;
                     WorldGen.KillTile(k, l, noItem: true);
                     WorldGen.PlaceTile(k, l, ModContent.TileType<SuperAliveFire>(), true);
-                    WorldGen.KillWall(i, j);
+                    WorldGen.KillWall(k, l);
                     WorldGen.Reframe(k, l);
                     NetMessage.SendTileSquare(-1, k, l, 1, 1);
                 }
@@ -117,6 +117,7 @@ public class SpreadFire : GlobalTile
         if (!spread)
         {
             WorldGen.KillTile(i, j);
+            NetMessage.SendTileSquare(-1, i, j, 1, 1);
         }
         return spread;
     }

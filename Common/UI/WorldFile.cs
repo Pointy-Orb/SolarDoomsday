@@ -40,7 +40,7 @@ public class WorldFile : ModSystem
                 worldEndChoice = (DoomsdayOptions)_data.GetInt("worldEndChoice");
             }
         }
-        var displayMaxDays = !(daysLeft <= 0 || worldEndChoice == DoomsdayOptions.Stagnation || savedEverybody);
+        var displayMaxDays = !(daysLeft <= 0 || worldEndChoice == DoomsdayOptions.Stagnation) || savedEverybody;
         var text = Language.GetTextValue("Mods.SolarDoomsday.WorldFileLabel", (DayCount - daysLeft + 1).ToString() + (displayMaxDays ? $"/{DayCount}" : ""));
         UIElement WorldIcon = (UIElement)typeof(UIWorldListItem).GetField("_worldIcon", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(self);
         var dimensions = WorldIcon.GetDimensions();

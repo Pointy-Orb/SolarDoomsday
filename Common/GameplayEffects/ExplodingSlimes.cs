@@ -54,6 +54,10 @@ public class ExplodingSlimes : GlobalNPC
                 naughtyList.Remove(key);
             }
         }
+        if (!Main.IsItDay())
+        {
+            naughtyList.Clear();
+        }
     }
 
     private static readonly int[] Slimes =

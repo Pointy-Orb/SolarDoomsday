@@ -120,7 +120,7 @@ public class DoomsdayClock : ModSystem
         {
             return;
         }
-        if (LastDay && Utils.GetDayTimeAs24FloatStartingFromMidnight() >= doomsdayTime && Main.netMode != NetmodeID.MultiplayerClient)
+        if (LastDay && Utils.GetDayTimeAs24FloatStartingFromMidnight() >= doomsdayTime)
         {
             DoomsdayManager.DestroyWorldAccordingToChoice();
             counterActive = false;

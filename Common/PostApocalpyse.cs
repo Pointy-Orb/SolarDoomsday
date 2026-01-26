@@ -32,6 +32,10 @@ public class PostApocalypseSystem : ModSystem
         {
             return false;
         }
+        if (!DoomsdayClock.TimeLeftInRange(3))
+        {
+            return false;
+        }
         return true;
     }
 

@@ -355,7 +355,7 @@ public class WorldGenPage : ModSystem
 
     private static void OnFinishedSettingDays(string days)
     {
-        if (Int32.TryParse(days, out int dayCount) && dayCount > 0)
+        if (Int32.TryParse(days, out int dayCount) && dayCount > 1)
         {
             DoomsdayManager.chosenDayNumber = dayCount;
             characterNameButton.SetContents(dayCount.ToString());

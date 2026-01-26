@@ -1,10 +1,12 @@
 using Terraria;
 using Terraria.ID;
+using System;
 using Terraria.DataStructures;
 using Terraria.Localization;
 using Terraria.Audio;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
+using System.IO;
 
 namespace SolarDoomsday;
 
@@ -56,6 +58,10 @@ public class DoomsdayManager : ModSystem
 
     public override void PostUpdateEverything()
     {
+        if (Main.netMode == NetmodeID.MultiplayerClient)
+        {
+            return;
+        }
         if (novaTime > 0)
         {
             novaTime--;
@@ -111,6 +117,7 @@ public class DoomsdayManager : ModSystem
                 break;
             case DoomsdayOptions.Nova:
                 SoundEngine.PlaySound(new SoundStyle("SolarDoomsday/Assets/sunsplosion"));
+                sunDied = true;
                 novaTime = 400;
                 shaderTime = 440;
                 break;
@@ -134,8 +141,30 @@ public class DoomsdayManager : ModSystem
                 tile.LiquidAmount = 0;
             }
         }
-        Main.worldSurface = Main.UnderworldLayer - 300;
-        Main.rockLayer = Main.UnderworldLayer - 200;
+        Main.worldSurface = Math.Max(Main.UnderworldLayer - 300, Main.worldSurface);
+        Main.rockLayer = Math.Max(Main.UnderworldLayer - 200, Main.rockLayer);
+        if (Main.dedServ)
+        {
+            var chunkSize = 50;
+            for (int i = 0; i < Main.maxTilesX; i += chunkSize)
+            {
+                for (int j = 0; j < Main.maxTilesY; j += chunkSize)
+                {
+                    var rangeX = chunkSize;
+                    var rangeY = chunkSize;
+                    if (!WorldGen.InWorld(i + rangeX, j))
+                    {
+                        rangeX = Main.maxTilesX - i;
+                    }
+                    if (!WorldGen.InWorld(i, j + rangeY))
+                    {
+                        rangeY = Main.maxTilesY - j;
+                    }
+                    NetMessage.SendTileSquare(-1, i, j, rangeX, rangeY);
+                }
+            }
+            NetMessage.SendData(MessageID.WorldData);
+        }
         sunDied = true;
         foreach (Player player in Main.ActivePlayers)
         {
@@ -147,7 +176,6 @@ public class DoomsdayManager : ModSystem
             if (Main.dedServ)
             {
                 NetMessage.SendPlayerDeath(player.whoAmI, deathReason, 999999, 0, false);
-                RemoteClient.CheckSection(player.whoAmI, player.Center, 50);
             }
         }
         var cloudY = Main.spawnTileY;
@@ -166,5 +194,19 @@ public class DoomsdayManager : ModSystem
             return false;
         }
         return orig();
+    }
+
+    public override void NetSend(BinaryWriter writer)
+    {
+        writer.Write(sunDied);
+        writer.Write(savedEverybody);
+        writer.Write((byte)worldEndChoice);
+    }
+
+    public override void NetReceive(BinaryReader reader)
+    {
+        sunDied = reader.ReadBoolean();
+        savedEverybody = reader.ReadBoolean();
+        worldEndChoice = (DoomsdayOptions)reader.ReadByte();
     }
 }

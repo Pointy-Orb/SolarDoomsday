@@ -42,9 +42,14 @@ public class SolFirePlayer : ModPlayer
         onSolFire = false;
     }
 
+    public override void UpdateDead()
+    {
+        onSolFire = false;
+    }
+
     public override void PostUpdateBuffs()
     {
-        Player.buffImmune[ModContent.BuffType<SolFire>()] = Player.lavaImmune || Player.wet;
+        Player.buffImmune[ModContent.BuffType<SolFire>()] = Player.lavaImmune || (Player.wet && !Player.lavaWet);
     }
 
     public override void UpdateBadLifeRegen()
@@ -108,17 +113,16 @@ public class SolFireNPC : GlobalNPC
     public override void ResetEffects(NPC npc)
     {
         npc.GetGlobalNPC<SolFireNPC>().onSolFire = false;
-        npc.buffImmune[ModContent.BuffType<SolFire>()] = npc.buffImmune[BuffID.OnFire] || npc.lavaImmune || npc.wet;
+        npc.buffImmune[ModContent.BuffType<SolFire>()] = npc.buffImmune[BuffID.OnFire] || npc.lavaImmune || (npc.wet && !npc.lavaWet);
     }
 
-    public override void AI(NPC npc)
+    public override void UpdateLifeRegen(NPC npc, ref int damage)
     {
         if (!npc.GetGlobalNPC<SolFireNPC>().onSolFire)
         {
             return;
         }
         int dot = SolFire.DebuffDamage;
-        Main.NewText(dot);
         var point = npc.Center.ToTileCoordinates();
         if (Main.tile[point.X, point.Y].WallType > 0)
         {

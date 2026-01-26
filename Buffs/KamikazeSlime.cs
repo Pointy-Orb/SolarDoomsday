@@ -20,7 +20,7 @@ public class KamikazeSlime : ModBuff
 
     public override void Update(NPC npc, ref int buffIndex)
     {
-        if (!npc.HasBuff(fireDebuff) && !npc.wet && Main.dayTime)
+        if (!npc.HasBuff(fireDebuff) && (!npc.wet || npc.lavaWet) && Main.dayTime)
         {
             npc.AddBuff(fireDebuff, npc.buffTime[buffIndex]);
         }
@@ -35,7 +35,7 @@ public class BlowUpSlime : GlobalNPC
 
     public override bool CheckDead(NPC npc)
     {
-        if (npc.GetGlobalNPC<BlowUpSlime>().blowCooldown <= 0 && !npc.wet && npc.HasBuff(ModContent.BuffType<KamikazeSlime>()) && Main.dayTime)
+        if (npc.GetGlobalNPC<BlowUpSlime>().blowCooldown <= 0 && (!npc.wet || npc.lavaWet) && npc.HasBuff(ModContent.BuffType<KamikazeSlime>()) && Main.dayTime)
         {
             var bomb = Projectile.NewProjectileDirect(npc.GetSource_Death(), npc.Center, Vector2.Zero, ModContent.ProjectileType<SlimeBomb>(), npc.damage * 2, 7f);
             bomb.scale = npc.scale;
