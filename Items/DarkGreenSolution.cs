@@ -96,7 +96,13 @@ public class DarkGreenSolutionConversion : ModBiomeConversion
 {
     public override void PostSetupContent()
     {
+        TileLoader.RegisterConversionFallback(TileID.Sand, TileID.Dirt);
+        TileLoader.RegisterConversionFallback(TileID.SnowBlock, TileID.Dirt);
         TileLoader.RegisterConversion(TileID.Dirt, Type, TileID.Mud);
         TileLoader.RegisterConversion(TileID.Grass, Type, TileID.JungleGrass);
+
+        WallLoader.RegisterConversion(WallID.DirtUnsafe, Type, WallID.MudUnsafe);
+        WallLoader.RegisterConversionFallback(WallID.Dirt, WallID.DirtUnsafe);
+        WallLoader.RegisterConversionFallback(WallID.HardenedSand, WallID.DirtUnsafe);
     }
 }

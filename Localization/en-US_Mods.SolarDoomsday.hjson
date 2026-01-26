@@ -24,7 +24,7 @@ DoomsdaySelection: {
 		Title: Days:
 		Empty: <30>
 		Description: The amount of days your world has before it reaches an end scenario.
-		Input: Enter Number of Days Left (9 is recommended minimum)
+		Input: Enter Number of Days Left (12 is recommended minimum)
 	}
 }
 
@@ -83,11 +83,24 @@ Items: {
 			Spreads the Jungle
 			'''
 	}
+
+	SolarAccelerationPill: {
+		DisplayName: Solar Acceleration Pill
+		Tooltip: ""
+	}
+
+	AshWallItem: {
+		DisplayName: Ash Wall Item
+		Tooltip: ""
+	}
 }
 
-ApocalypseEnd: The apocalypse is over...
-ApocalypseEndLate: but the post-apocalypse has just begun...
-TooLate: You were too late...
+Announcements: {
+	ApocalypseEnd: The apocalypse is over...
+	ApocalypseEndLate: but the post-apocalypse has just begun...
+	TooLate: You were too late...
+	ApocalypseAgain: The apocalypse begins again...
+}
 
 Projectiles: {
 	GrassPowderProjectile.DisplayName: Grass Powder

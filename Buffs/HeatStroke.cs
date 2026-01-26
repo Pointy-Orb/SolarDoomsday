@@ -30,7 +30,12 @@ public class HeatStroke : ModBuff
 
     public override void ModifyBuffText(ref string buffName, ref string tip, ref int rare)
     {
-        tip = TooltipText.Format(MathF.Round(Modifier * 100, 2));
+        var modifier = Modifier;
+        if (Main.LocalPlayer.behindBackWall)
+        {
+            modifier /= 2;
+        }
+        tip = TooltipText.Format(MathF.Round(modifier * 100, 2));
     }
 }
 
@@ -55,8 +60,13 @@ public class HeatStrokePlayer : ModPlayer
         {
             return;
         }
+        var modifier = HeatStroke.Modifier;
+        if (Player.behindBackWall)
+        {
+            modifier /= 2;
+        }
         Player.eyeHelper.SwitchToState(EyeState.IsPoisoned);
-        Player.endurance -= HeatStroke.Modifier;
-        Player.GetDamage(DamageClass.Generic) *= (1f - HeatStroke.Modifier);
+        Player.endurance -= modifier;
+        Player.GetDamage(DamageClass.Generic) *= (1f - modifier);
     }
 }

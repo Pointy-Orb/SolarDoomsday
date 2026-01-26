@@ -73,7 +73,7 @@ public class WitherTiles : GlobalTile
             return;
         }
         bool didSomething = false;
-        if (DoomsdayManager.sunDied && Main.rand.NextBool(110))
+        if (DoomsdayManager.sunDied && Main.rand.NextBool(90))
         {
             if (type == TileID.Ash)
             {
@@ -115,7 +115,7 @@ public class WitherTiles : GlobalTile
         {
             goto serverSync;
         }
-        if (!Main.IsItDay() || Main.raining)
+        if (!Main.IsItDay() || (Main.raining && DoomsdayClock.DayCount >= 9))
         {
             goto serverSync;
         }
@@ -123,7 +123,7 @@ public class WitherTiles : GlobalTile
         {
             WorldGen.KillTile(i, j, noItem: true);
         }
-        if (WorldGen.InWorld(i, j - 1) && TileID.Sets.PreventsTileRemovalIfOnTopOfIt[Main.tile[i, j - 1].TileType])
+        if (WorldGen.InWorld(i, j - 1) && TileID.Sets.PreventsTileRemovalIfOnTopOfIt[Main.tile[i, j - 1].TileType] && !TileID.Sets.IsATreeTrunk[Main.tile[i, j - 1].TileType])
         {
             return;
         }
@@ -139,10 +139,9 @@ public class WitherTiles : GlobalTile
             WorldGen.KillWall(k, l);
             WorldGen.Reframe(k, l);
         }
-        if (DoomsdayClock.TimeLeftInRange(3) && (TileID.Sets.Dirt[type] || TileID.Sets.SandBiome[type] > 0 || type == TileID.ClayBlock) && (Main.rand.NextBool(3) || DoomsdayClock.TimeLeftInRange(6)))
+        if (DoomsdayClock.TimeLeftInRange(3) && (Main.rand.NextBool(3) || DoomsdayClock.TimeLeftInRange(6)))
         {
-            Main.tile[i, j].TileType = TileID.Ash;
-            WorldGen.Reframe(i, j);
+            WorldGen.Convert(i, j, ModContent.GetInstance<AshConversion>().Type, 0, true, true);
             didSomething = true;
         }
         if (DoomsdayClock.TimeLeftInRange(3, 2) && TileID.Sets.Dirt[Main.tile[i, j + 1].TileType] && Main.tileCut[type])
@@ -150,19 +149,18 @@ public class WitherTiles : GlobalTile
             WorldGen.KillTile(i, j);
             didSomething = true;
         }
-        if (DoomsdayClock.TimeLeftInRange(3) && (TileID.Sets.Stone[type] || TileID.Sets.Ore[type]) && Main.tile[i, j - 1].TileType != TileID.DemonAltar && (Main.rand.NextBool(3) || DoomsdayClock.TimeLeftInRange(6)) && (j < Main.worldSurface || Main.rand.NextBool(3)))
-        {
-            Tile tile = Main.tile[i, j];
-            tile.HasTile = false;
-            WorldGen.PlaceLiquid(i, j, (byte)LiquidID.Lava, 255);
-            WorldGen.Reframe(i, j);
-            didSomething = true;
-        }
         if (DoomsdayClock.TimeLeftInRange(6, 5) && (Main.rand.NextBool(7) || DoomsdayClock.TimeLeftInRange(2)))
         {
             if (TileID.Sets.Snow[Main.tile[i, j].TileType])
             {
-                Main.tile[i, j].TileType = TileID.Dirt;
+                if (WorldGen.TileIsExposedToAir(i, j))
+                {
+                    Main.tile[i, j].TileType = TileID.Grass;
+                }
+                else
+                {
+                    Main.tile[i, j].TileType = TileID.Dirt;
+                }
                 WorldGen.Reframe(i, j);
                 didSomething = true;
             }

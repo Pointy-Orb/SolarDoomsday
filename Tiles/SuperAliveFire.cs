@@ -16,11 +16,15 @@ public class SuperAliveFire : ModTile
     {
         Main.tileLighted[Type] = true;
         TileID.Sets.CanPlaceNextToNonSolidTile[Type] = true;
+        TileID.Sets.TouchDamageHot[Type] = true;
+
         DustType = DustID.Torch;
         AnimationFrameHeight = 90;
         HitSound = SoundID.LiquidsWaterLava;
         AddMapEntry(new Color(LightColor));
+
         Flammable = new bool[TileLoader.TileCount];
+        FlammableWall = new bool[WallLoader.WallCount];
         VanillaFallbackOnModDeletion = TileID.LivingFire;
         for (int i = 0; i < TileLoader.TileCount; i++)
         {
@@ -31,6 +35,17 @@ public class SuperAliveFire : ModTile
             if (TileID.Sets.IsATreeTrunk[i])
             {
                 Flammable[i] = true;
+            }
+        }
+        for (int i = 0; i < WallLoader.WallCount; i++)
+        {
+            if (FlammableWallCore.Contains(i))
+            {
+                FlammableWall[i] = true;
+                if (Main.wallBlend[i] > 0)
+                {
+                    FlammableWall[Main.wallBlend[i]] = true;
+                }
             }
         }
     }
@@ -52,6 +67,11 @@ public class SuperAliveFire : ModTile
         frame = Main.tileFrame[TileID.LivingFire];
     }
 
+    public override bool IsTileDangerous(int i, int j, Player player)
+    {
+        return true;
+    }
+
     public static bool[] Flammable;
 
     public static readonly int[] FlammableCore = new int[]
@@ -70,6 +90,24 @@ public class SuperAliveFire : ModTile
         TileID.Rope,
         TileID.Cobweb
     };
+
+    public static bool[] FlammableWall;
+
+    public static readonly int[] FlammableWallCore = new int[]
+    {
+        WallID.Wood,
+        WallID.LivingWood,
+        WallID.LivingWoodUnsafe,
+        WallID.Shadewood,
+        WallID.Ebonwood,
+        WallID.BlueDynasty,
+        WallID.WhiteDynasty,
+        WallID.RichMaogany,
+        WallID.PalmWood,
+        WallID.BorealWood,
+        WallID.Pearlwood,
+        WallID.LivingLeaf,
+    };
 }
 
 public class SpreadFire : GlobalTile
@@ -80,6 +118,10 @@ public class SpreadFire : GlobalTile
         {
             for (int l = j - 1; l <= j + 1; l++)
             {
+                if (!WorldGen.InWorld(k, l))
+                {
+                    continue;
+                }
                 if (Main.tile[k, l].TileType == ModContent.TileType<SuperAliveFire>())
                 {
                     if (AttemptSpread(k, l))
@@ -98,17 +140,27 @@ public class SpreadFire : GlobalTile
         {
             for (int l = j - 1; l <= j + 1; l++)
             {
-                int targetType = Main.tile[k, l].TileType;
+                var target = Main.tile[k, l];
                 if (WorldGen.InWorld(k, l - 1) && TileID.Sets.PreventsTileRemovalIfOnTopOfIt[Main.tile[k, l - 1].TileType])
                 {
                     continue;
                 }
-                if (SuperAliveFire.Flammable[targetType])
+                if (SuperAliveFire.Flammable[target.TileType])
                 {
                     spread = true;
                     WorldGen.KillTile(k, l, noItem: true);
                     WorldGen.PlaceTile(k, l, ModContent.TileType<SuperAliveFire>(), true);
-                    WorldGen.KillWall(k, l);
+                    WorldGen.KillWall(k, l, true);
+                    WorldGen.ConvertWall(i, j, 0);
+                    WorldGen.Reframe(k, l);
+                    NetMessage.SendTileSquare(-1, k, l, 1, 1);
+                }
+                else if (SuperAliveFire.FlammableWall[target.WallType])
+                {
+                    spread = true;
+                    WorldGen.KillWall(k, l, true);
+                    WorldGen.ConvertWall(i, j, 0);
+                    WorldGen.PlaceTile(k, l, ModContent.TileType<SuperAliveFire>(), true);
                     WorldGen.Reframe(k, l);
                     NetMessage.SendTileSquare(-1, k, l, 1, 1);
                 }
@@ -122,3 +174,4 @@ public class SpreadFire : GlobalTile
         return spread;
     }
 }
+

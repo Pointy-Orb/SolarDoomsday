@@ -16,9 +16,9 @@ public class CosmicSunblock : ModItem
 
     public override void SetStaticDefaults()
     {
-        apocalypseOver = Language.GetOrRegister("Mods.SolarDoomsday.ApocalypseEnd");
-        postApocalypse = Language.GetOrRegister("Mods.SolarDoomsday.ApocalypseEndLate");
-        tooLate = Language.GetOrRegister("Mods.SolarDoomsday.TooLate");
+        apocalypseOver = Language.GetOrRegister("Mods.SolarDoomsday.Announcements.ApocalypseEnd");
+        postApocalypse = Language.GetOrRegister("Mods.SolarDoomsday.Announcements.ApocalypseEndLate");
+        tooLate = Language.GetOrRegister("Mods.SolarDoomsday.Announcements.TooLate");
     }
 
     public override void SetDefaults()

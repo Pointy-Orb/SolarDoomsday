@@ -1,4 +1,5 @@
 using Terraria;
+using System;
 using Microsoft.Xna.Framework;
 using Terraria.ModLoader;
 using Terraria.ID;
@@ -107,11 +108,16 @@ public class CyanSolutionConversion : ModBiomeConversion
         TileLoader.RegisterConversion(TileID.SnowBlock, Type, CheckStone);
 
         TileLoader.RegisterConversion(TileID.Mud, Type, CheckStone);
+
+        WallLoader.RegisterConversion(ModContent.WallType<Walls.AshWall>(), Type, ConvertAshWall);
+        WallLoader.RegisterConversion(ModContent.WallType<Walls.AshWallSafe>(), Type, ConvertAshWall);
+
+        WallLoader.RegisterConversion(0, Type, CheckStone);
     }
 
     public bool ConvertAsh(int i, int j, int type, int conversionType)
     {
-        if (j > Main.rockLayer)
+        if (j > Math.Min(Main.rockLayer + 50, Main.UnderworldLayer))
         {
             return false;
         }
@@ -120,9 +126,19 @@ public class CyanSolutionConversion : ModBiomeConversion
         return false;
     }
 
+    public bool ConvertAshWall(int i, int j, int type, int conversionType)
+    {
+        if (j > Math.Min(Main.rockLayer + 50, Main.UnderworldLayer))
+        {
+            return false;
+        }
+        WorldGen.ConvertWall(i, j, WallID.DirtUnsafe);
+        return false;
+    }
+
     public bool CheckStone(int i, int j, int type, int conversionType)
     {
-        if (j > Main.rockLayer)
+        if (j > Math.Min(Main.rockLayer + 50, Main.UnderworldLayer))
         {
             return false;
         }
@@ -142,14 +158,18 @@ public class CyanSolutionConversion : ModBiomeConversion
                     continue;
                 }
                 Tile tile = Main.tile[i, j];
-                if (tile.LiquidAmount > 0 && tile.LiquidType == LiquidID.Lava && !tile.HasTile)
+                if (tile.LiquidAmount <= 0 || tile.LiquidType != LiquidID.Lava)
                 {
-                    tile.LiquidAmount = 0;
+                    continue;
+                }
+                tile.LiquidAmount = 0;
+                foundIt = true;
+                if (!tile.HasTile)
+                {
                     tile.ClearTile();
                     tile.HasTile = true;
                     tile.TileType = TileID.Stone;
                     WorldGen.Reframe(i, j);
-                    foundIt = true;
                 }
             }
         }

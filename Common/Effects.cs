@@ -28,10 +28,6 @@ public class Effects : ModSystem
 
     public override void PostUpdateTime()
     {
-        if (Main.dedServ)
-        {
-            return;
-        }
         if (DoomsdayManager.savedEverybody)
         {
             return;
