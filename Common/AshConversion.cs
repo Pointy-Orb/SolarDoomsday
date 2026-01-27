@@ -31,9 +31,9 @@ public class AshConversion : ModBiomeConversion
         {
             if (WallID.Sets.Conversion.Dirt[i] || WallID.Sets.Conversion.HardenedSand[i])
             {
-                WallLoader.RegisterConversion(i, Type, WallID.ObsidianBackUnsafe);
+                WallLoader.RegisterConversion(i, Type, WallID.LavaUnsafe1);
             }
-            else if (!SuperAliveFire.FlammableWall[i] && i != WallID.ObsidianBrick && i != WallID.ObsidianBackUnsafe && i != WallID.ObsidianBackEcho && !Main.wallDungeon[i])
+            else if (!SuperAliveFire.FlammableWall[i] && i != WallID.ObsidianBrick && i != WallID.LavaUnsafe1 && i != WallID.Lava1Echo && !Main.wallDungeon[i])
             {
                 WallLoader.RegisterConversion(i, Type, WallID.LavaUnsafe3);
             }
@@ -42,11 +42,11 @@ public class AshConversion : ModBiomeConversion
 
     private bool MeltTile(int i, int j, int type, int conversionType)
     {
-        if (WorldGen.InWorld(i, j - 1) && TileID.Sets.PreventsTileRemovalIfOnTopOfIt[Main.tile[i, j - 1].TileType])
+        if (WorldGen.InWorld(i, j - 1) && (TileID.Sets.PreventsTileRemovalIfOnTopOfIt[Main.tile[i, j - 1].TileType] || TileID.Sets.BasicChest[Main.tile[i, j - 1].TileType]))
         {
             return false;
         }
-        if (!(j < Main.worldSurface || Main.rand.NextBool(3)))
+        if (!(j < Main.worldSurface || Main.rand.NextBool(3) || DoomsdayClock.LastDay))
         {
             return false;
         }

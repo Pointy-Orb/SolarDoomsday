@@ -244,7 +244,7 @@ public class MakeAtmosphereHellish : ModSceneEffect
 
     public override bool IsSceneEffectActive(Player player)
     {
-        return (player.ZoneOverworldHeight || player.ZoneSkyHeight) && (Main.IsItDay() || DoomsdayManager.sunDied) && !DoomsdayManager.savedEverybody;
+        return (player.ZoneOverworldHeight || player.ZoneSkyHeight || (player.ZoneDirtLayerHeight && DoomsdayClock.LastDay)) && (Main.IsItDay() || DoomsdayManager.sunDied) && !DoomsdayManager.savedEverybody;
     }
 
     private static void RemoveFrontLayerOverTime(On_Main.orig_UpdateBGVisibility_FrontLayer orig, Main self, int? targetBiomeOverride, float? transitionAmountOverride)

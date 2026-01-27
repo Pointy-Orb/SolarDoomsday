@@ -29,7 +29,14 @@ public class ExplodingSlimes : GlobalNPC
         {
             return;
         }
-        naughtyList.Add(npc.whoAmI, 5);
+        if (naughtyList.ContainsKey(npc.whoAmI))
+        {
+            naughtyList[npc.whoAmI] = 5;
+        }
+        else
+        {
+            naughtyList.Add(npc.whoAmI, 5);
+        }
     }
 
     public override void PostAI(NPC npc)

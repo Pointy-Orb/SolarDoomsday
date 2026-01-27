@@ -109,8 +109,8 @@ public class CyanSolutionConversion : ModBiomeConversion
 
         TileLoader.RegisterConversion(TileID.Mud, Type, CheckStone);
 
-        WallLoader.RegisterConversion(ModContent.WallType<Walls.AshWall>(), Type, ConvertAshWall);
-        WallLoader.RegisterConversion(ModContent.WallType<Walls.AshWallSafe>(), Type, ConvertAshWall);
+        WallLoader.RegisterConversion(WallID.LavaUnsafe1, Type, ConvertAshWall);
+        WallLoader.RegisterConversion(WallID.LavaUnsafe3, Type, ConvertAshStoneWall);
 
         WallLoader.RegisterConversion(0, Type, CheckStone);
     }
@@ -133,6 +133,16 @@ public class CyanSolutionConversion : ModBiomeConversion
             return false;
         }
         WorldGen.ConvertWall(i, j, WallID.DirtUnsafe);
+        return false;
+    }
+
+    public bool ConvertAshStoneWall(int i, int j, int type, int conversionType)
+    {
+        if (j > Math.Min(Main.rockLayer + 50, Main.UnderworldLayer))
+        {
+            return false;
+        }
+        WorldGen.ConvertWall(i, j, WallID.Stone);
         return false;
     }
 

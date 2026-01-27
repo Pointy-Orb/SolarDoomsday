@@ -60,6 +60,12 @@ public class WitherTiles : GlobalTile
         {
             return;
         }
+        //Reduce lag on large worlds by updating less often
+        var area = Main.maxTilesX * Main.maxTilesY;
+        if (area > 15000000 && Main.rand.NextBool())
+        {
+            return;
+        }
         if (j > Main.worldSurface && !DoomsdayClock.TimeLeftInRange(2))
         {
             return;
@@ -89,7 +95,7 @@ public class WitherTiles : GlobalTile
         else if (DoomsdayManager.sunDied && Main.rand.NextBool(10))
         {
             int x = Main.rand.Next(0, Main.maxTilesX);
-            int y = Main.rand.Next(0, Main.maxTilesY);
+            int y = Main.rand.Next(0, (int)Main.rockLayer);
             for (int k = x - 1; k <= x + 1; k++)
             {
                 for (int l = y - 1; l <= y + 1; l++)
@@ -123,7 +129,7 @@ public class WitherTiles : GlobalTile
         {
             WorldGen.KillTile(i, j, noItem: true);
         }
-        if (WorldGen.InWorld(i, j - 1) && TileID.Sets.PreventsTileRemovalIfOnTopOfIt[Main.tile[i, j - 1].TileType] && !TileID.Sets.IsATreeTrunk[Main.tile[i, j - 1].TileType])
+        if (WorldGen.InWorld(i, j - 1) && (TileID.Sets.PreventsTileRemovalIfOnTopOfIt[Main.tile[i, j - 1].TileType] || TileID.Sets.BasicChest[Main.tile[i, j - 1].TileType]) && !TileID.Sets.IsATreeTrunk[Main.tile[i, j - 1].TileType])
         {
             return;
         }
@@ -141,6 +147,10 @@ public class WitherTiles : GlobalTile
         }
         if (DoomsdayClock.TimeLeftInRange(3) && (Main.rand.NextBool(3) || DoomsdayClock.TimeLeftInRange(6)))
         {
+            if (area > 15000000 && !Main.rand.NextBool(4))
+            {
+                return;
+            }
             WorldGen.Convert(i, j, ModContent.GetInstance<AshConversion>().Type, 0, true, true);
             didSomething = true;
         }
@@ -161,13 +171,19 @@ public class WitherTiles : GlobalTile
                 {
                     Main.tile[i, j].TileType = TileID.Dirt;
                 }
-                WorldGen.Reframe(i, j);
+                if (Main.sectionManager.SectionLoaded(i, j))
+                {
+                    WorldGen.Reframe(i, j);
+                }
                 didSomething = true;
             }
             if (TileID.Sets.Ices[Main.tile[i, j].TileType])
             {
                 Main.tile[i, j].TileType = TileID.Stone;
-                WorldGen.Reframe(i, j);
+                if (Main.sectionManager.SectionLoaded(i, j))
+                {
+                    WorldGen.Reframe(i, j);
+                }
                 didSomething = true;
             }
             if (type == TileID.BreakableIce)
@@ -185,7 +201,10 @@ public class WitherTiles : GlobalTile
             if (type == TileID.Mud)
             {
                 Main.tile[i, j].TileType = TileID.Dirt;
-                WorldGen.Reframe(i, j);
+                if (Main.sectionManager.SectionLoaded(i, j))
+                {
+                    WorldGen.Reframe(i, j);
+                }
                 NetMessage.SendTileSquare(-1, i, j, 1, 1);
             }
             if (TileID.Sets.Leaves[type])
@@ -193,7 +212,8 @@ public class WitherTiles : GlobalTile
                 WorldGen.KillTile(i, j);
             }
         }
-        if (DoomsdayClock.TimeLeftInRange(3) && SuperAliveFire.Flammable[type])
+        if (DoomsdayClock.TimeLeftInRange(3) && SuperAliveFire.Flammable[type] &&
+                !(WorldGen.InWorld(i, j - 1) && (TileID.Sets.PreventsTileRemovalIfOnTopOfIt[Main.tile[i, j - 1].TileType] || TileID.Sets.BasicChest[Main.tile[i, j - 1].TileType])))
         {
             WorldGen.KillTile(i, j, noItem: true);
             WorldGen.PlaceTile(i, j, ModContent.TileType<SuperAliveFire>(), true);

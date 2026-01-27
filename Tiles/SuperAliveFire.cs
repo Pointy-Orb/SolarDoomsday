@@ -141,7 +141,7 @@ public class SpreadFire : GlobalTile
             for (int l = j - 1; l <= j + 1; l++)
             {
                 var target = Main.tile[k, l];
-                if (WorldGen.InWorld(k, l - 1) && TileID.Sets.PreventsTileRemovalIfOnTopOfIt[Main.tile[k, l - 1].TileType])
+                if (WorldGen.InWorld(k, l - 1) && (TileID.Sets.PreventsTileRemovalIfOnTopOfIt[Main.tile[k, l - 1].TileType] || TileID.Sets.BasicChest[Main.tile[k, l - 1].TileType]))
                 {
                     continue;
                 }
@@ -160,7 +160,10 @@ public class SpreadFire : GlobalTile
                     spread = true;
                     WorldGen.KillWall(k, l, true);
                     WorldGen.ConvertWall(i, j, 0);
-                    WorldGen.PlaceTile(k, l, ModContent.TileType<SuperAliveFire>(), true);
+                    if (!Main.tile[i, j].HasTile)
+                    {
+                        WorldGen.PlaceTile(k, l, ModContent.TileType<SuperAliveFire>(), true);
+                    }
                     WorldGen.Reframe(k, l);
                     NetMessage.SendTileSquare(-1, k, l, 1, 1);
                 }

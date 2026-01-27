@@ -11,7 +11,7 @@ public class WitherWalls : GlobalWall
 {
     public override void RandomUpdate(int i, int j, int type)
     {
-        if (!DoomsdayClock.Ongoing)
+        if (DoomsdayManager.savedEverybody)
         {
             return;
         }
@@ -35,20 +35,20 @@ public class WitherWalls : GlobalWall
         bool didSomething = false;
         if (DoomsdayManager.sunDied && Main.rand.NextBool(90))
         {
-            if (type == ModContent.WallType<AshWall>())
+            if (type == WallID.LavaUnsafe1)
             {
                 Main.tile[i, j].WallType = WallID.SnowWallUnsafe;
                 didSomething = true;
             }
-            if (type == WallID.Stone)
+            if (type == WallID.LavaUnsafe3)
             {
                 Main.tile[i, j].WallType = WallID.IceUnsafe;
                 didSomething = true;
             }
-            if (didSomething)
-            {
-                goto serverSync;
-            }
+        }
+        if (!Main.IsItDay())
+        {
+            goto serverSync;
         }
 
         if (DoomsdayClock.TimeLeftInRange(6, 5) && (Main.rand.NextBool(7) || DoomsdayClock.TimeLeftInRange(2)))
