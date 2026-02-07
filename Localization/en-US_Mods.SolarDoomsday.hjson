@@ -93,6 +93,21 @@ Items: {
 		DisplayName: Ash Wall Item
 		Tooltip: ""
 	}
+
+	CombustibleLemon: {
+		Tooltip:
+			'''
+			Can be thrown
+			A very small explosion that sets tiles on fire
+			'Make life take the lemons BACK!'
+			'''
+		DisplayName: Combustible Lemon
+	}
+
+	Match: {
+		DisplayName: Match
+		Tooltip: ""
+	}
 }
 
 Announcements: {
@@ -107,8 +122,15 @@ Projectiles: {
 	SlimeBomb.DisplayName: Slime Bomb
 	CyanSolutionProjectile.DisplayName: Cyan Solution Projectile
 	DarkGreenSolutionProjectile.DisplayName: Dark Green Solution Projectile
+	CombustibleLemon.DisplayName: Combustible Lemon
+	CombustibleLemonRocket.DisplayName: Combustible Lemon Rocket
 }
 
 DropConditions.WorldNotSavedCondition: Drops while the Solar Apocalypse is still ongoing
-Conditions.WhenApocalypseOver: When the Solar Apocalypse has been stopped
+
+Conditions: {
+	WhenApocalypseOver: When the Solar Apocalypse has been stopped
+	HasCombustibleLemon: While a Combustible Lemon is in your inventory
+}
+
 TerraformingKitMessage: I'm working on a terraforming kit that can help us fix up the surface after the sun stops blasting it!

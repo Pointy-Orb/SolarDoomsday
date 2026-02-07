@@ -36,6 +36,10 @@ public class SuperAliveFire : ModTile
             {
                 Flammable[i] = true;
             }
+            if (TileID.Sets.IsVine[i])
+            {
+                Flammable[i] = true;
+            }
         }
         for (int i = 0; i < WallLoader.WallCount; i++)
         {
@@ -48,6 +52,11 @@ public class SuperAliveFire : ModTile
                 }
             }
         }
+    }
+
+    public override bool CanDrop(int i, int j)
+    {
+        return false;
     }
 
     public override void SetDrawPositions(int i, int j, ref int width, ref int offsetY, ref int height, ref short tileFrameX, ref short tileFrameY)
@@ -87,8 +96,12 @@ public class SuperAliveFire : ModTile
         TileID.Pearlwood,
         TileID.LeafBlock,
         TileID.LivingMahoganyLeaves,
+        TileID.LivingMahogany,
         TileID.Rope,
-        TileID.Cobweb
+        TileID.Cobweb,
+        TileID.BorealBeam,
+        TileID.RichMahoganyBeam,
+        TileID.WoodenBeam
     };
 
     public static bool[] FlammableWall;
@@ -124,7 +137,7 @@ public class SpreadFire : GlobalTile
                 }
                 if (Main.tile[k, l].TileType == ModContent.TileType<SuperAliveFire>())
                 {
-                    if (AttemptSpread(k, l))
+                    if (AttemptSpreadOuter(k, l))
                     {
                         return;
                     }
@@ -133,40 +146,18 @@ public class SpreadFire : GlobalTile
         }
     }
 
-    private static bool AttemptSpread(int i, int j)
+    private static bool AttemptSpreadOuter(int i, int j)
     {
         bool spread = false;
         for (int k = i - 1; k <= i + 1; k++)
         {
             for (int l = j - 1; l <= j + 1; l++)
             {
-                var target = Main.tile[k, l];
-                if (WorldGen.InWorld(k, l - 1) && (TileID.Sets.PreventsTileRemovalIfOnTopOfIt[Main.tile[k, l - 1].TileType] || TileID.Sets.BasicChest[Main.tile[k, l - 1].TileType]))
+                if (Main.raining && Main.rand.NextBool() && l <= Main.worldSurface)
                 {
                     continue;
                 }
-                if (SuperAliveFire.Flammable[target.TileType])
-                {
-                    spread = true;
-                    WorldGen.KillTile(k, l, noItem: true);
-                    WorldGen.PlaceTile(k, l, ModContent.TileType<SuperAliveFire>(), true);
-                    WorldGen.KillWall(k, l, true);
-                    WorldGen.ConvertWall(i, j, 0);
-                    WorldGen.Reframe(k, l);
-                    NetMessage.SendTileSquare(-1, k, l, 1, 1);
-                }
-                else if (SuperAliveFire.FlammableWall[target.WallType])
-                {
-                    spread = true;
-                    WorldGen.KillWall(k, l, true);
-                    WorldGen.ConvertWall(i, j, 0);
-                    if (!Main.tile[i, j].HasTile)
-                    {
-                        WorldGen.PlaceTile(k, l, ModContent.TileType<SuperAliveFire>(), true);
-                    }
-                    WorldGen.Reframe(k, l);
-                    NetMessage.SendTileSquare(-1, k, l, 1, 1);
-                }
+                spread |= AttemptSpread(k, l);
             }
         }
         if (!spread)
@@ -176,5 +167,85 @@ public class SpreadFire : GlobalTile
         }
         return spread;
     }
+
+    public static bool AttemptSpread(int i, int j)
+    {
+        var target = Main.tile[i, j];
+        var spread = false;
+        if (WorldGen.InWorld(i, j - 1) && (TileID.Sets.PreventsTileRemovalIfOnTopOfIt[Main.tile[i, j - 1].TileType] || TileID.Sets.BasicChest[Main.tile[i, j - 1].TileType]))
+        {
+            return false;
+        }
+        if (SuperAliveFire.Flammable[target.TileType])
+        {
+            spread = true;
+            WorldGen.KillTile(i, j, noItem: true);
+            WorldGen.PlaceTile(i, j, ModContent.TileType<SuperAliveFire>(), true);
+            WorldGen.KillWall(i, j, true);
+            WorldGen.ConvertWall(i, j, 0);
+            WorldGen.Reframe(i, j);
+            NetMessage.SendTileSquare(-1, i, j, 1, 1);
+        }
+        else if (SuperAliveFire.FlammableWall[target.WallType])
+        {
+            spread = true;
+            WorldGen.KillWall(i, j, true);
+            WorldGen.ConvertWall(i, j, 0);
+            if (!Main.tile[i, j].HasTile)
+            {
+                WorldGen.PlaceTile(i, j, ModContent.TileType<SuperAliveFire>(), true);
+            }
+            WorldGen.Reframe(i, j);
+            NetMessage.SendTileSquare(-1, i, j, 1, 1);
+        }
+        if (TileID.Sets.Grass[target.TileType] || TileID.Sets.Snow[target.TileType])
+        {
+            spread = true;
+            WorldGen.ConvertTile(i, j, TileID.Dirt);
+        }
+        if (target.TileType == TileID.Explosives)
+        {
+            WorldGen.KillTile(i, j, fail: false, effectOnly: false, noItem: true);
+            NetMessage.SendTileSquare(-1, i, j);
+            Projectile.NewProjectile(Wiring.GetProjectileSource(i, j), i * 16 + 8, j * 16 + 8, 0f, 0f, 108, 500, 10f);
+        }
+        return spread;
+    }
 }
 
+public class BurnPlayers : ModPlayer
+{
+    public override void PreUpdateBuffs()
+    {
+        var tiles = Player.TouchedTiles;
+        foreach (Point tilePoint in tiles)
+        {
+            if (!WorldGen.InWorld(tilePoint.X, tilePoint.Y))
+            {
+                continue;
+            }
+            var tile = Main.tile[tilePoint.X, tilePoint.Y];
+            if (tile.TileType == ModContent.TileType<SuperAliveFire>())
+            {
+                Player.AddBuff(BuffID.OnFire, 120);
+            }
+        }
+    }
+}
+
+public class BurnNPCs : GlobalNPC
+{
+    public override void PostAI(NPC npc)
+    {
+        var npcCoords = npc.Center.ToTileCoordinates();
+        if (!WorldGen.InWorld(npcCoords.X, npcCoords.Y))
+        {
+            return;
+        }
+        var tile = Main.tile[npcCoords.X, npcCoords.Y];
+        if (tile.TileType == ModContent.TileType<SuperAliveFire>())
+        {
+            npc.AddBuff(BuffID.OnFire, 120);
+        }
+    }
+}

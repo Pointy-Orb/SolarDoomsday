@@ -27,6 +27,10 @@ public class ModifyShops : GlobalNPC
         {
             ModifySteampunkerShop(shop);
         }
+        if (shop.NpcType == NPCID.Demolitionist)
+        {
+            LEMONS(shop);
+        }
     }
 
     private void ModifyDryadShop(NPCShop shop)
@@ -82,6 +86,11 @@ public class ModifyShops : GlobalNPC
             shop.Add(ModContent.ItemType<DarkGreenSolution>(), SavedEverybodyCondition);
             shop.Add(ModContent.ItemType<CyanSolution>(), SavedEverybodyCondition);
         }
+    }
+
+    private void LEMONS(NPCShop shop)
+    {
+        shop.Add(ModContent.ItemType<CombustibleLemon>(), Condition.PlayerCarriesItem(ModContent.ItemType<CombustibleLemon>()));
     }
 
     public override void GetChat(NPC npc, ref string chat)
