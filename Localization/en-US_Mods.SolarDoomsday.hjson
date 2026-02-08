@@ -97,8 +97,8 @@ Items: {
 	CombustibleLemon: {
 		Tooltip:
 			'''
-			Can be thrown
-			A very small explosion that sets tiles on fire
+			Can be thrown or used as a rocket
+			A small explosion that sets tiles on fire
 			'Make life take the lemons BACK!'
 			'''
 		DisplayName: Combustible Lemon
@@ -124,6 +124,10 @@ Projectiles: {
 	DarkGreenSolutionProjectile.DisplayName: Dark Green Solution Projectile
 	CombustibleLemon.DisplayName: Combustible Lemon
 	CombustibleLemonRocket.DisplayName: Combustible Lemon Rocket
+	CombustibleLemonMine.DisplayName: Combustible Lemon Mine
+	CombustibleLemonGrenade.DisplayName: Combustible Lemon Grenade
+	CombustibleLemonSnowman.DisplayName: Combustible Lemon Snowman
+	CombustibleLemonCeleb2.DisplayName: Combustible Lemon Celeb2
 }
 
 DropConditions.WorldNotSavedCondition: Drops while the Solar Apocalypse is still ongoing

@@ -27,7 +27,7 @@ public class ModifyShops : GlobalNPC
         {
             ModifySteampunkerShop(shop);
         }
-        if (shop.NpcType == NPCID.Demolitionist)
+        if (shop.NpcType == NPCID.Demolitionist || shop.NpcType == NPCID.Cyborg)
         {
             LEMONS(shop);
         }

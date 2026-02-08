@@ -40,7 +40,7 @@ public class BurnEverybody : ModSystem
         }
         foreach (NPC npc in Main.ActiveNPCs)
         {
-            if (npc.buffImmune[BuffID.OnFire] || npc.buffImmune[BuffID.OnFire3] || npc.type == NPCID.OldMan || npc.type == NPCID.CultistArcherBlue || npc.aiStyle == NPCAIStyleID.LunaticDevote || NPCID.Sets.ProjectileNPC[npc.type])
+            if (npc.buffImmune[BuffID.OnFire] || npc.buffImmune[BuffID.OnFire3] || npc.type == NPCID.OldMan || npc.type == NPCID.CultistArcherBlue || npc.aiStyle == NPCAIStyleID.LunaticDevote || NPCID.Sets.ProjectileNPC[npc.type] || npc.dontTakeDamage)
             {
                 continue;
             }

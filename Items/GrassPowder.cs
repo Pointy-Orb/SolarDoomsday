@@ -116,7 +116,20 @@ public class GrassPowderProjectile : ModProjectile
                 {
                     vector57.X = num1032 * 16;
                     vector57.Y = num1043 * 16;
-                    if (!(Projectile.position.X + (float)Projectile.width > vector57.X) || !(Projectile.position.X < vector57.X + 16f) || !(Projectile.position.Y + (float)Projectile.height > vector57.Y) || !(Projectile.position.Y < vector57.Y + 16f) || !Main.tile[num1032, num1043].HasTile)
+                    if (!(Projectile.position.X + (float)Projectile.width > vector57.X) || !(Projectile.position.X < vector57.X + 16f) || !(Projectile.position.Y + (float)Projectile.height > vector57.Y) || !(Projectile.position.Y < vector57.Y + 16f))
+                    {
+                        continue;
+                    }
+                    if (Main.tile[num1032, num1043].WallType == WallID.DirtUnsafe || Main.tile[num1032, num1043].WallType == WallID.Dirt)
+                    {
+                        Main.tile[num1032, num1043].WallType = WallID.GrassUnsafe;
+                        WorldGen.SquareTileFrame(num1032, num1043);
+                        if (Main.netMode == 1)
+                        {
+                            NetMessage.SendTileSquare(-1, num1032, num1043);
+                        }
+                    }
+                    if (!Main.tile[num1032, num1043].HasTile)
                     {
                         continue;
                     }

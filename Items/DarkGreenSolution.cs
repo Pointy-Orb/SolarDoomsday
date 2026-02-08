@@ -101,8 +101,22 @@ public class DarkGreenSolutionConversion : ModBiomeConversion
         TileLoader.RegisterConversion(TileID.Dirt, Type, TileID.Mud);
         TileLoader.RegisterConversion(TileID.Grass, Type, TileID.JungleGrass);
 
-        WallLoader.RegisterConversion(WallID.DirtUnsafe, Type, WallID.MudUnsafe);
+        WallLoader.RegisterConversion(WallID.DirtUnsafe, Type, ConvertJungleWall);
         WallLoader.RegisterConversionFallback(WallID.Dirt, WallID.DirtUnsafe);
         WallLoader.RegisterConversionFallback(WallID.HardenedSand, WallID.DirtUnsafe);
+    }
+
+    public bool ConvertJungleWall(int i, int j, int type, int conversionType)
+    {
+        var aboveGround = j < Main.worldSurface;
+        if (aboveGround)
+        {
+            WorldGen.ConvertWall(i, j, WallID.MudUnsafe);
+        }
+        else
+        {
+            WorldGen.ConvertWall(i, j, WallID.JungleUnsafe);
+        }
+        return false;
     }
 }

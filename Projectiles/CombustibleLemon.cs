@@ -5,13 +5,54 @@ using Microsoft.Xna.Framework;
 using Terraria.Audio;
 using Terraria.ModLoader;
 using Terraria.ID;
+using Terraria.DataStructures;
 
 namespace SolarDoomsday.Projectiles;
 
+public enum LemonAIs
+{
+    Thrown,
+    Rocket,
+    Grenade,
+    Mine,
+    Snowman,
+    Celeb2
+}
+
+// AI 0: Used as timer before applying gravity when thrown 
+// AI 1: Used to determine the subtype of AI the lemon should use.
+// AI 2: When set to 1, the rocket won't be able to damage players. 
+// 	Gets its own AI so that the Celebration Mk2 can fire multiple types and have them all not hurt players.
 public class CombustibleLemon : ModProjectile
 {
     private const int DefaultWidthHeight = 16;
-    private const int ExplosionWidthHeight = 32;
+    private const int ExplosionWidthHeight = 64;
+
+    public LemonAIs LemonType
+    {
+        get
+        {
+            return (LemonAIs)Projectile.ai[1];
+        }
+        set
+        {
+            Projectile.ai[1] = (float)value;
+        }
+    }
+
+    public override void Load()
+    {
+        On_Projectile.BombsHurtPlayers += SnowLemonsDontHurtPlayers;
+    }
+
+    private static void SnowLemonsDontHurtPlayers(On_Projectile.orig_BombsHurtPlayers orig, Projectile self, Rectangle projRectangle, int j)
+    {
+        if (self.type == ModContent.ProjectileType<CombustibleLemon>() && self.ai[2] == 1)
+        {
+            return;
+        }
+        orig(self, projRectangle, j);
+    }
 
     public override void SetStaticDefaults()
     {
@@ -28,6 +69,7 @@ public class CombustibleLemon : ModProjectile
         Projectile.DamageType = DamageClass.Ranged;
 
         Projectile.timeLeft = 180;
+        DrawOriginOffsetY = -5;
     }
 
     public override void AI()
@@ -36,19 +78,49 @@ public class CombustibleLemon : ModProjectile
         {
             Projectile.timeLeft = 1;
         }
-        DoArson(Projectile.Center);
-        var dust = Dust.NewDustPerfect(Projectile.Center, DustID.Flare, Vector2.Zero);
-        dust.noGravity = true;
+
+        if (!(Projectile.velocity.X > -0.2f && Projectile.velocity.X < 0.2f && Projectile.velocity.Y > -0.2f && Projectile.velocity.Y < 0.2f))
+        {
+            DoArson(Projectile.Center);
+        }
+
+        if (Projectile.alpha < 5)
+        {
+            var dust = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, DustID.Flare);
+            dust.noGravity = true;
+        }
+
         if (Projectile.owner == Main.myPlayer && Projectile.timeLeft <= 3)
         {
             Projectile.PrepareBombToBlow();
         }
-        Projectile.ai[0] += 1f;
-        if (Projectile.ai[1] == 1)
+        else
         {
-            Projectile.ai[0] = 0;
+            switch (LemonType)
+            {
+                case LemonAIs.Thrown:
+                case LemonAIs.Grenade:
+                    ThrownPhysics();
+                    break;
+                case LemonAIs.Rocket:
+                    //Rockets don't have any special movement code
+                    break;
+                case LemonAIs.Mine:
+                    MinePhysics();
+                    break;
+                case LemonAIs.Snowman:
+                    SnowmanPhysics();
+                    break;
+            }
         }
-        if (Projectile.ai[0] > 10f && Projectile.ai[1] != 1)
+        // Rotation increased by velocity.X
+        Projectile.rotation += Projectile.velocity.X * 0.1f;
+    }
+
+    private void ThrownPhysics()
+    {
+        Projectile.ai[0] += 1f;
+        if (Projectile.ai[0] > 10f)
         {
             Projectile.ai[0] = 10f;
             // Roll speed dampening.
@@ -65,8 +137,93 @@ public class CombustibleLemon : ModProjectile
             // Delayed gravity
             Projectile.velocity.Y = Projectile.velocity.Y + 0.4f;
         }
-        // Rotation increased by velocity.X
-        Projectile.rotation += Projectile.velocity.X * 0.1f;
+    }
+
+    private void MinePhysics()
+    {
+        if (Projectile.velocity.X > -0.2f && Projectile.velocity.X < 0.2f && Projectile.velocity.Y > -0.2f && Projectile.velocity.Y < 0.2f)
+        {
+            Projectile.alpha += 2;
+            if (Projectile.alpha > 200)
+            {
+                Projectile.alpha = 200;
+            }
+        }
+        else
+        {
+            Projectile.alpha = 0;
+        }
+
+        Projectile.velocity.Y += 0.2f; // Make it fall down. Remember, positive Y is down.
+        Projectile.velocity *= 0.97f; // Make it slow down.
+
+        // If the mine is moving very slowly, just make it stop entirely.
+        if (Projectile.velocity.X > -0.1f && Projectile.velocity.X < 0.1f)
+        {
+            Projectile.velocity.X = 0f;
+        }
+
+        if (Projectile.velocity.Y > -0.1f && Projectile.velocity.Y < 0.1f)
+        {
+            Projectile.velocity.Y = 0f;
+        }
+    }
+
+    private void SnowmanPhysics()
+    {
+        Projectile.localAI[1]++;
+
+        if (Projectile.localAI[1] > 6f)
+        {
+            Projectile.alpha = 0;
+        }
+        else
+        {
+            Projectile.alpha = (int)(255f - 42f * Projectile.localAI[1]) + 100;
+            if (Projectile.alpha > 255)
+            {
+                Projectile.alpha = 255;
+            }
+        }
+
+        float projDestinationX = Projectile.position.X;
+        float projDestinationY = Projectile.position.Y;
+        float maxHomingDistance = 600f;
+
+        bool isHoming = false;
+        Projectile.ai[0]++;
+
+        if (Projectile.ai[0] > 15f)
+        {
+            Projectile.ai[0] = 15f;
+            for (int i = 0; i < Main.maxNPCs; i++)
+            {
+                NPC victim = Main.npc[i];
+                if (!victim.CanBeChasedBy(this) || victim.wet)
+                {
+                    continue;
+                }
+                float distanceFromProjToTarget = Math.Abs(Projectile.Center.X - victim.Center.X) + Math.Abs(Projectile.Center.Y - victim.Center.Y);
+                if (distanceFromProjToTarget < maxHomingDistance && Collision.CanHit(Projectile.position, Projectile.width, Projectile.height, victim.position, victim.width, victim.height))
+                {
+                    maxHomingDistance = distanceFromProjToTarget;
+                    projDestinationX = victim.Center.X;
+                    projDestinationY = victim.Center.Y;
+                    isHoming = true;
+                }
+            }
+        }
+
+        if (!isHoming)
+        {
+            projDestinationX = Projectile.Center.X + Projectile.velocity.X * 100f;
+            projDestinationY = Projectile.Center.Y + Projectile.velocity.Y * 100f;
+        }
+
+        float speed = 16f;
+
+        Vector2 finalVelocity = (new Vector2(projDestinationX, projDestinationY) - Projectile.Center).SafeNormalize(-Vector2.UnitY) * speed;
+        Projectile.velocity = Vector2.Lerp(Projectile.velocity, finalVelocity, 1f / 12f);
     }
 
     public override void PrepareBombToBlow()
@@ -77,8 +234,84 @@ public class CombustibleLemon : ModProjectile
         Projectile.Resize(ExplosionWidthHeight, ExplosionWidthHeight);
     }
 
+    public override void OnSpawn(IEntitySource source)
+    {
+        if (LemonType == LemonAIs.Grenade)
+        {
+            Projectile.velocity *= 0.77f;
+        }
+        if (LemonType == LemonAIs.Mine)
+        {
+            Projectile.timeLeft = 3600;
+            Projectile.velocity *= 0.5f;
+        }
+        if (LemonType == LemonAIs.Snowman)
+        {
+            Projectile.ai[2] = 1;
+            Projectile.scale = 0.9f;
+        }
+        if (LemonType == LemonAIs.Celeb2)
+        {
+            LemonType = LemonAIs.Rocket;
+            Projectile.ai[2] = 1;
+            Projectile.localAI[0] = 6f;
+            Projectile.scale *= Main.rand.NextFloat(0.8f, 1.25f);
+            if (Main.rand.NextBool())
+            {
+                Projectile.velocity.X *= Main.rand.NextFloat(0.5f, 2f);
+                Projectile.velocity.Y *= Main.rand.NextFloat(0.5f, 2f);
+            }
+            else
+            {
+                LemonType = LemonAIs.Snowman;
+                Projectile.velocity.X *= Main.rand.NextFloat(0.2f, 5f);
+                Projectile.velocity.Y *= Main.rand.NextFloat(0.2f, 5f);
+            }
+            if (Projectile.velocity.Length() > 16f)
+            {
+                Projectile.velocity /= 2;
+                Projectile.extraUpdates++;
+            }
+        }
+    }
+
+    public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers)
+    {
+        if ((LemonType == LemonAIs.Rocket || LemonType == LemonAIs.Snowman) && Projectile.timeLeft > 3)
+        {
+            modifiers.SourceDamage *= 2f;
+        }
+        if (LemonType == LemonAIs.Mine && Projectile.velocity.Length() < 0.5f)
+        {
+            modifiers.SourceDamage *= 3f;
+        }
+        if (LemonType == LemonAIs.Thrown && Main.expertMode)
+        {
+            if (target.type >= NPCID.EaterofWorldsHead && target.type <= NPCID.EaterofWorldsTail)
+            {
+                modifiers.FinalDamage /= 5f;
+            }
+        }
+        if (LemonType == LemonAIs.Snowman && target.type == NPCID.CultistBoss)
+        {
+            modifiers.FinalDamage *= 0.75f;
+        }
+    }
+
     public override bool OnTileCollide(Vector2 oldVelocity)
     {
+        if (LemonType == LemonAIs.Grenade || LemonType == LemonAIs.Mine)
+        {
+            if (Projectile.velocity.X != oldVelocity.X)
+            {
+                Projectile.velocity.X = oldVelocity.X * -0.4f;
+            }
+            if (Projectile.velocity.Y != oldVelocity.Y && oldVelocity.Y > 0.7f)
+            {
+                Projectile.velocity.Y = oldVelocity.Y * -0.4f;
+            }
+            return false;
+        }
         Projectile.velocity *= 0f;
         Projectile.timeLeft = 3;
         return false;
@@ -123,7 +356,7 @@ public class CombustibleLemon : ModProjectile
         Projectile.Resize(DefaultWidthHeight, DefaultWidthHeight);
         if (Projectile.owner == Main.myPlayer)
         {
-            int explosionRadius = 2;
+            int explosionRadius = 4;
             int minTileX = (int)(Projectile.Center.X / 16f - explosionRadius);
             int maxTileX = (int)(Projectile.Center.X / 16f + explosionRadius);
             int minTileY = (int)(Projectile.Center.Y / 16f - explosionRadius);
@@ -155,42 +388,14 @@ public class CombustibleLemon : ModProjectile
                     continue;
                 }
                 SpreadFire.AttemptSpread(i, j);
+                if (SuperAliveFire.Flammable[Main.tile[i, j].TileType] || Main.tileCut[Main.tile[i, j].TileType])
+                {
+                    WorldGen.KillTile(i, j, noItem: true);
+                }
                 if (!Main.tile[i, j].HasTile)
                 {
                     WorldGen.PlaceTile(i, j, ModContent.TileType<SuperAliveFire>(), true);
                 }
-                /*
-                if (!Main.tile[i, j].HasTile || Main.tileCut[Main.tile[i, j].TileType] || SuperAliveFire.Flammable[Main.tile[i, j].TileType])
-                {
-                    if (Main.tile[i, j].HasTile)
-                    {
-                        WorldGen.KillTile(i, j, noItem: true);
-                    }
-                    WorldGen.PlaceTile(i, j, ModContent.TileType<SuperAliveFire>(), true);
-                    if (Main.netMode != 0)
-                    {
-                        NetMessage.SendData(17, -1, -1, null, 0, i, j);
-                    }
-                }
-                if (TileID.Sets.Grass[Main.tile[i, j].TileType] || TileID.Sets.Snow[Main.tile[i, j].TileType])
-                {
-                    WorldGen.ConvertTile(i, j, TileID.Dirt);
-                }
-                for (int k = i; k <= i; k++)
-                {
-                    for (int l = j; l <= j; l++)
-                    {
-                        if (Main.tile[k, l] != null && SuperAliveFire.FlammableWall[Main.tile[k, l].WallType])
-                        {
-                            WorldGen.KillWall(k, l);
-                            if (Main.netMode != 0)
-                            {
-                                NetMessage.SendData(17, -1, -1, null, 2, k, l);
-                            }
-                        }
-                    }
-                }
-				*/
             }
         }
     }
@@ -198,10 +403,20 @@ public class CombustibleLemon : ModProjectile
     private void DoArson(Vector2 compareSpot)
     {
         var arsonPoint = compareSpot.ToTileCoordinates();
-        if (!WorldGen.InWorld(arsonPoint.X, arsonPoint.Y))
+        for (int i = arsonPoint.X - 1; i <= arsonPoint.X + 1; i++)
         {
-            return;
+            for (int j = arsonPoint.Y - 1; j <= arsonPoint.Y + 1; j++)
+            {
+                if (!WorldGen.InWorld(i, j))
+                {
+                    continue;
+                }
+                if (i != arsonPoint.X && j != arsonPoint.Y)
+                {
+                    continue;
+                }
+                SpreadFire.AttemptSpread(i, j);
+            }
         }
-        SpreadFire.AttemptSpread(arsonPoint.X, arsonPoint.Y);
     }
 }

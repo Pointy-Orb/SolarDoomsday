@@ -1,4 +1,6 @@
 using Terraria;
+using Terraria.Audio;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Terraria.ModLoader;
@@ -20,7 +22,7 @@ public class SuperAliveFire : ModTile
 
         DustType = DustID.Torch;
         AnimationFrameHeight = 90;
-        HitSound = SoundID.LiquidsWaterLava;
+        HitSound = new SoundStyle("SolarDoomsday/Assets/silence");
         AddMapEntry(new Color(LightColor));
 
         Flammable = new bool[TileLoader.TileCount];
@@ -153,6 +155,10 @@ public class SpreadFire : GlobalTile
         {
             for (int l = j - 1; l <= j + 1; l++)
             {
+                if (!WorldGen.InWorld(k, l))
+                {
+                    continue;
+                }
                 if (Main.raining && Main.rand.NextBool() && l <= Main.worldSurface)
                 {
                     continue;
@@ -164,6 +170,20 @@ public class SpreadFire : GlobalTile
         {
             WorldGen.KillTile(i, j);
             NetMessage.SendTileSquare(-1, i, j, 1, 1);
+            for (int k = i - 1; k <= i + 1; k++)
+            {
+                for (int l = j - 1; l <= j + 1; l++)
+                {
+                    if (!WorldGen.InWorld(k, l))
+                    {
+                        continue;
+                    }
+                    if (Main.tile[k, l].TileType == ModContent.TileType<SuperAliveFire>() && AttemptSpreadOuter(k, l))
+                    {
+                        return true;
+                    }
+                }
+            }
         }
         return spread;
     }
@@ -172,9 +192,40 @@ public class SpreadFire : GlobalTile
     {
         var target = Main.tile[i, j];
         var spread = false;
-        if (WorldGen.InWorld(i, j - 1) && (TileID.Sets.PreventsTileRemovalIfOnTopOfIt[Main.tile[i, j - 1].TileType] || TileID.Sets.BasicChest[Main.tile[i, j - 1].TileType]))
+        if (WorldGen.InWorld(i, j - 1) && ((TileID.Sets.PreventsTileRemovalIfOnTopOfIt[Main.tile[i, j - 1].TileType] && !TileID.Sets.IsATreeTrunk[Main.tile[i, j - 1].TileType]) || TileID.Sets.BasicChest[Main.tile[i, j - 1].TileType]))
         {
             return false;
+        }
+        if (TileID.Sets.IsATreeTrunk[target.TileType] && (!WorldGen.InWorld(i, j - 1) || TileID.Sets.IsATreeTrunk[Main.tile[i, j - 1].TileType]))
+        {
+            var y = j;
+            var markedTiles = new List<Point>();
+            while (WorldGen.InWorld(i, y) && TileID.Sets.IsATreeTrunk[Main.tile[i, y].TileType])
+            {
+                for (int x = i - 1; x <= i + 1; x++)
+                {
+                    if (!WorldGen.InWorld(x, y) || !TileID.Sets.IsATreeTrunk[Main.tile[x, y].TileType] || !Main.tile[x, y].HasTile)
+                    {
+                        continue;
+                    }
+                    markedTiles.Add(new Point(x, y));
+                }
+                y--;
+            }
+
+            //Order the way the tiles are destroyed so that the top tree parts can actually get burnt
+            markedTiles.Sort((left, right) => left.X == i ? 1 : 0);
+            markedTiles.Sort((left, right) => left.Y > right.Y ? 1 : left.Y < right.Y ? -1 : 0);
+            foreach (Point tile in markedTiles)
+            {
+                spread = true;
+                WorldGen.KillTile(tile.X, tile.Y, noItem: true);
+                WorldGen.PlaceTile(tile.X, tile.Y, ModContent.TileType<SuperAliveFire>(), true);
+                WorldGen.KillWall(tile.X, tile.Y, true);
+                WorldGen.ConvertWall(tile.X, tile.Y, 0);
+                WorldGen.Reframe(tile.X, tile.Y);
+                NetMessage.SendTileSquare(-1, tile.X, tile.Y, 1, 1);
+            }
         }
         if (SuperAliveFire.Flammable[target.TileType])
         {
@@ -203,6 +254,10 @@ public class SpreadFire : GlobalTile
             spread = true;
             WorldGen.ConvertTile(i, j, TileID.Dirt);
         }
+        if (WallID.Sets.Conversion.Grass[target.WallType] || target.WallType == WallID.SnowWallUnsafe)
+        {
+            WorldGen.ConvertWall(i, j, WallID.DirtUnsafe);
+        }
         if (target.TileType == TileID.Explosives)
         {
             WorldGen.KillTile(i, j, fail: false, effectOnly: false, noItem: true);
@@ -217,18 +272,15 @@ public class BurnPlayers : ModPlayer
 {
     public override void PreUpdateBuffs()
     {
-        var tiles = Player.TouchedTiles;
-        foreach (Point tilePoint in tiles)
+        var tilePoint = Player.Center.ToTileCoordinates();
+        if (!WorldGen.InWorld(tilePoint.X, tilePoint.Y))
         {
-            if (!WorldGen.InWorld(tilePoint.X, tilePoint.Y))
-            {
-                continue;
-            }
-            var tile = Main.tile[tilePoint.X, tilePoint.Y];
-            if (tile.TileType == ModContent.TileType<SuperAliveFire>())
-            {
-                Player.AddBuff(BuffID.OnFire, 120);
-            }
+            return;
+        }
+        var tile = Main.tile[tilePoint.X, tilePoint.Y];
+        if (tile.TileType == ModContent.TileType<SuperAliveFire>())
+        {
+            Player.AddBuff(BuffID.OnFire, 120);
         }
     }
 }
@@ -239,6 +291,10 @@ public class BurnNPCs : GlobalNPC
     {
         var npcCoords = npc.Center.ToTileCoordinates();
         if (!WorldGen.InWorld(npcCoords.X, npcCoords.Y))
+        {
+            return;
+        }
+        if (npc.type == NPCID.OldMan || npc.immortal || npc.dontTakeDamage)
         {
             return;
         }

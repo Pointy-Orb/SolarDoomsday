@@ -10,7 +10,11 @@ public class CombustibleLemon : ModItem
     {
         ItemID.Sets.ItemsThatCountAsBombsForDemolitionistToSpawn[Type] = true;
         AmmoID.Sets.IsSpecialist[Type] = true;
-        AmmoID.Sets.SpecificLauncherAmmoProjectileMatches[ItemID.RocketLauncher].Add(Type, ModContent.ProjectileType<Projectiles.CombustibleLemonRocket>());
+        AmmoID.Sets.SpecificLauncherAmmoProjectileMatches[ItemID.RocketLauncher].Add(Type, Mod.Find<ModProjectile>("CombustibleLemonRocket").Type);
+        AmmoID.Sets.SpecificLauncherAmmoProjectileMatches[ItemID.GrenadeLauncher].Add(Type, Mod.Find<ModProjectile>("CombustibleLemonGrenade").Type);
+        AmmoID.Sets.SpecificLauncherAmmoProjectileMatches[ItemID.ProximityMineLauncher].Add(Type, Mod.Find<ModProjectile>("CombustibleLemonMine").Type);
+        AmmoID.Sets.SpecificLauncherAmmoProjectileMatches[ItemID.SnowmanCannon].Add(Type, Mod.Find<ModProjectile>("CombustibleLemonSnowman").Type);
+        AmmoID.Sets.SpecificLauncherAmmoProjectileMatches[ItemID.Celeb2].Add(Type, Mod.Find<ModProjectile>("CombustibleLemonCeleb2").Type);
         Item.ResearchUnlockCount = 100;
     }
 
@@ -26,11 +30,11 @@ public class CombustibleLemon : ModItem
         Item.UseSound = SoundID.Item1;
         Item.useAnimation = 40;
         Item.useTime = 40;
-        Item.damage = 80;
+        Item.damage = 60;
         Item.knockBack = 8f;
         Item.noUseGraphic = true;
         Item.noMelee = true;
-        Item.value = Item.sellPrice(silver: 22, copper: 50);
+        Item.value = Item.buyPrice(copper: 75);
         Item.rare = ItemRarityID.Green;
         Item.ammo = AmmoID.Rocket;
         Item.DamageType = DamageClass.Ranged;
