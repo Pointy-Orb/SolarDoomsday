@@ -252,7 +252,7 @@ public class CombustibleLemon : ModProjectile
         }
         if (LemonType == LemonAIs.Celeb2)
         {
-            LemonType = LemonAIs.Rocket;
+            LemonType = LemonAIs.Thrown;
             Projectile.ai[2] = 1;
             Projectile.localAI[0] = 6f;
             Projectile.scale *= Main.rand.NextFloat(0.8f, 1.25f);
@@ -267,7 +267,7 @@ public class CombustibleLemon : ModProjectile
                 Projectile.velocity.X *= Main.rand.NextFloat(0.2f, 5f);
                 Projectile.velocity.Y *= Main.rand.NextFloat(0.2f, 5f);
             }
-            if (Projectile.velocity.Length() > 16f)
+            if (Projectile.velocity.Length() > 12f)
             {
                 Projectile.velocity /= 2;
                 Projectile.extraUpdates++;
@@ -388,7 +388,7 @@ public class CombustibleLemon : ModProjectile
                     continue;
                 }
                 SpreadFire.AttemptSpread(i, j);
-                if (SuperAliveFire.Flammable[Main.tile[i, j].TileType] || Main.tileCut[Main.tile[i, j].TileType])
+                if (SuperAliveFire.Flammable[Main.tile[i, j].TileType] || Main.tileCut[Main.tile[i, j].TileType] || TileID.Sets.BreakableWhenPlacing[Main.tile[i, j].TileType])
                 {
                     WorldGen.KillTile(i, j, noItem: true);
                 }

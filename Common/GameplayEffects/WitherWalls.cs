@@ -1,4 +1,6 @@
 using Terraria;
+using System.Threading;
+using System.Collections.Generic;
 using SolarDoomsday.Tiles;
 using SolarDoomsday.Walls;
 using System.Linq;
@@ -9,6 +11,22 @@ namespace SolarDoomsday.GameplayEffects;
 
 public class WitherWalls : GlobalWall
 {
+    private static List<UpdatingWall> convertQueue = new();
+
+    private record UpdatingWall
+    {
+        public int i;
+        public int j;
+        public int type;
+
+        public UpdatingWall(int i, int j, int type)
+        {
+            this.i = i;
+            this.j = j;
+            this.type = type;
+        }
+    }
+
     public override void RandomUpdate(int i, int j, int type)
     {
         if (DoomsdayManager.savedEverybody)
@@ -32,6 +50,25 @@ public class WitherWalls : GlobalWall
             return;
         }
 
+        if (convertQueue.Count < Main.desiredWorldTilesUpdateRate)
+        {
+            convertQueue.Add(new UpdatingWall(i, j, type));
+        }
+        else
+        {
+            foreach (UpdatingWall wall in convertQueue)
+            {
+                ThreadPool.QueueUserWorkItem(_ =>
+                {
+                    WitherTheWalls(wall.i, wall.j, wall.type);
+                });
+            }
+            convertQueue.Clear();
+        }
+    }
+
+    private static void WitherTheWalls(int i, int j, int type)
+    {
         bool didSomething = false;
         if (DoomsdayManager.sunDied && Main.rand.NextBool(90))
         {

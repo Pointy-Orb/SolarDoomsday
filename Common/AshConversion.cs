@@ -11,9 +11,15 @@ public class AshConversion : ModBiomeConversion
 {
     public override void PostSetupContent()
     {
+        FlammabilitySystem.MarkFlammability();
+
         for (int i = 0; i < TileLoader.TileCount; i++)
         {
-            if (TileID.Sets.Dirt[i] || TileID.Sets.Conversion.Dirt[i] || AshVictims.Contains(i) || TileID.Sets.Conversion.Sand[i] || TileID.Sets.Conversion.HardenedSand[i])
+            if (i == TileID.DirtiestBlock || i == TileID.Ash)
+            {
+                continue;
+            }
+            if (TileID.Sets.Dirt[i] || TileID.Sets.Conversion.Dirt[i] || AshVictims.Contains(i) || TileID.Sets.Conversion.Sand[i] || TileID.Sets.Conversion.HardenedSand[i] || TileID.Sets.CanBeDugByShovel[i])
             {
                 TileLoader.RegisterConversion(i, Type, TileID.Ash);
             }

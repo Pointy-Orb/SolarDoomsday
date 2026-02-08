@@ -25,35 +25,7 @@ public class SuperAliveFire : ModTile
         HitSound = new SoundStyle("SolarDoomsday/Assets/silence");
         AddMapEntry(new Color(LightColor));
 
-        Flammable = new bool[TileLoader.TileCount];
-        FlammableWall = new bool[WallLoader.WallCount];
         VanillaFallbackOnModDeletion = TileID.LivingFire;
-        for (int i = 0; i < TileLoader.TileCount; i++)
-        {
-            if (FlammableCore.Contains(i))
-            {
-                Flammable[i] = true;
-            }
-            if (TileID.Sets.IsATreeTrunk[i])
-            {
-                Flammable[i] = true;
-            }
-            if (TileID.Sets.IsVine[i])
-            {
-                Flammable[i] = true;
-            }
-        }
-        for (int i = 0; i < WallLoader.WallCount; i++)
-        {
-            if (FlammableWallCore.Contains(i))
-            {
-                FlammableWall[i] = true;
-                if (Main.wallBlend[i] > 0)
-                {
-                    FlammableWall[Main.wallBlend[i]] = true;
-                }
-            }
-        }
     }
 
     public override bool CanDrop(int i, int j)
@@ -87,8 +59,8 @@ public class SuperAliveFire : ModTile
 
     public static readonly int[] FlammableCore = new int[]
     {
+		/*
         TileID.WoodBlock,
-        TileID.LivingWood,
         TileID.Shadewood,
         TileID.Ebonwood,
         TileID.DynastyWood,
@@ -96,14 +68,18 @@ public class SuperAliveFire : ModTile
         TileID.PalmWood,
         TileID.BorealWood,
         TileID.Pearlwood,
+		TileID.LivingWood,
         TileID.LeafBlock,
         TileID.LivingMahoganyLeaves,
         TileID.LivingMahogany,
+		*/
         TileID.Rope,
         TileID.Cobweb,
         TileID.BorealBeam,
         TileID.RichMahoganyBeam,
-        TileID.WoodenBeam
+        TileID.WoodenBeam,
+        TileID.Cactus,
+        TileID.PumpkinBlock,
     };
 
     public static bool[] FlammableWall;
@@ -111,6 +87,7 @@ public class SuperAliveFire : ModTile
     public static readonly int[] FlammableWallCore = new int[]
     {
         WallID.Wood,
+        WallID.WoodenFence,
         WallID.LivingWood,
         WallID.LivingWoodUnsafe,
         WallID.Shadewood,
@@ -268,16 +245,112 @@ public class SpreadFire : GlobalTile
     }
 }
 
+public class FlammabilitySystem : ModSystem
+{
+    public static void MarkFlammability()
+    {
+        List<int> woods = GetWoods();
+        if (woods.Contains(TileID.AshWood))
+        {
+            woods.Remove(TileID.AshWood);
+        }
+
+        SuperAliveFire.Flammable = new bool[TileLoader.TileCount];
+        SuperAliveFire.FlammableWall = new bool[WallLoader.WallCount];
+        for (int i = 0; i < TileLoader.TileCount; i++)
+        {
+            if (SuperAliveFire.FlammableCore.Contains(i) || woods.Contains(i))
+            {
+                SuperAliveFire.Flammable[i] = true;
+            }
+            if (TileID.Sets.IsATreeTrunk[i] ||
+                    TileID.Sets.IsVine[i] ||
+                    TileID.Sets.TouchDamageDestroyTile[i] ||
+                    SolarDoomsday.extraFlammables.Contains(i)
+                    )
+            {
+                SuperAliveFire.Flammable[i] = true;
+            }
+        }
+        for (int i = 0; i < WallLoader.WallCount; i++)
+        {
+            if (SuperAliveFire.FlammableWallCore.Contains(i))
+            {
+                SuperAliveFire.FlammableWall[i] = true;
+                if (Main.wallBlend[i] > 0)
+                {
+                    SuperAliveFire.FlammableWall[Main.wallBlend[i]] = true;
+                }
+            }
+        }
+    }
+
+    private static List<int> GetWoods()
+    {
+        List<int> woods = new();
+        List<int> woodItems = new();
+
+        //Get wood items before adding them to tiles so that we can also get their variants
+        if (RecipeGroup.recipeGroupIDs.ContainsKey("Wood"))
+        {
+            int index = RecipeGroup.recipeGroupIDs["Wood"];
+            RecipeGroup group = RecipeGroup.recipeGroups[index];
+            foreach (int itemType in group.ValidItems)
+            {
+                woodItems.Add(itemType);
+            }
+        }
+        //Add woods that are woods because they become normal wood through Shimmer but can't be used for wood crafing, like Dynasty Wood
+        for (int i = 0; i < ItemLoader.ItemCount; i++)
+        {
+            if (woods.Contains(i))
+            {
+                continue;
+            }
+            var item = new Item(i);
+            if (ItemID.Sets.ShimmerTransformToItem[i] != ItemID.Wood)
+            {
+                continue;
+            }
+            if (item.createTile > -1 && !ItemID.Sets.IsLavaImmuneRegardlessOfRarity[i])
+            {
+                woods.Add(item.createTile);
+            }
+        }
+
+        //Add woods created by wands
+        for (int i = 0; i < ItemLoader.ItemCount; i++)
+        {
+            var item = new Item(i);
+            if (!woodItems.Contains(item.tileWand))
+            {
+                continue;
+            }
+            if (item.createTile > -1)
+            {
+                woods.Add(item.createTile);
+            }
+        }
+        //Add wood tiles
+        foreach (int itemType in woodItems)
+        {
+            var item = new Item(itemType);
+            if (item.createTile > -1 && !ItemID.Sets.IsLavaImmuneRegardlessOfRarity[itemType])
+            {
+                woods.Add(item.createTile);
+            }
+        }
+
+        return woods;
+    }
+}
+
+
 public class BurnPlayers : ModPlayer
 {
     public override void PreUpdateBuffs()
     {
-        var tilePoint = Player.Center.ToTileCoordinates();
-        if (!WorldGen.InWorld(tilePoint.X, tilePoint.Y))
-        {
-            return;
-        }
-        var tile = Main.tile[tilePoint.X, tilePoint.Y];
+        var tile = Framing.GetTileSafely(Player.Center);
         if (tile.TileType == ModContent.TileType<SuperAliveFire>())
         {
             Player.AddBuff(BuffID.OnFire, 120);
@@ -289,16 +362,11 @@ public class BurnNPCs : GlobalNPC
 {
     public override void PostAI(NPC npc)
     {
-        var npcCoords = npc.Center.ToTileCoordinates();
-        if (!WorldGen.InWorld(npcCoords.X, npcCoords.Y))
-        {
-            return;
-        }
         if (npc.type == NPCID.OldMan || npc.immortal || npc.dontTakeDamage)
         {
             return;
         }
-        var tile = Main.tile[npcCoords.X, npcCoords.Y];
+        var tile = Framing.GetTileSafely(npc.Center);
         if (tile.TileType == ModContent.TileType<SuperAliveFire>())
         {
             npc.AddBuff(BuffID.OnFire, 120);

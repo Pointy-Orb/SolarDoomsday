@@ -123,8 +123,8 @@ public class SolFireNPC : GlobalNPC
             return;
         }
         int dot = SolFire.DebuffDamage;
-        var point = npc.Center.ToTileCoordinates();
-        if (Main.tile[point.X, point.Y].WallType > 0)
+        var tile = Framing.GetTileSafely(npc.Center);
+        if (tile.WallType > 0)
         {
             dot /= 2;
         }
@@ -138,8 +138,8 @@ public class SolFireNPC : GlobalNPC
             return;
         }
         float scale = Utils.Remap(DoomsdayClock.PercentTimeLeft(), 1f / 3f, 0, 0.5f, 3f);
-        var point = npc.Center.ToTileCoordinates();
-        if (Main.tile[point.X, point.Y].WallType > 0)
+        var tile = Framing.GetTileSafely(npc.Center);
+        if (tile.WallType > 0)
         {
             scale /= 2;
         }

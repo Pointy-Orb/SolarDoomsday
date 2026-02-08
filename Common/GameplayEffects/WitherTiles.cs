@@ -1,4 +1,9 @@
 using Terraria;
+using System.Threading.Tasks;
+using System;
+using Microsoft.Xna.Framework;
+using System.Collections.Generic;
+using System.Threading;
 using SolarDoomsday.Tiles;
 using System.Linq;
 using Terraria.ModLoader;
@@ -54,15 +59,25 @@ public class WitherTiles : GlobalTile
         }
     }
 
+    private static List<UpdatingTile> convertQueue = new();
+
+    private record UpdatingTile
+    {
+        public int i;
+        public int j;
+        public int type;
+
+        public UpdatingTile(int i, int j, int type)
+        {
+            this.i = i;
+            this.j = j;
+            this.type = type;
+        }
+    }
+
     public override void RandomUpdate(int i, int j, int type)
     {
         if (DoomsdayManager.savedEverybody)
-        {
-            return;
-        }
-        //Reduce lag on large worlds by updating less often
-        var area = Main.maxTilesX * Main.maxTilesY;
-        if (area > 15000000 && Main.rand.NextBool())
         {
             return;
         }
@@ -78,6 +93,34 @@ public class WitherTiles : GlobalTile
         {
             return;
         }
+        var area = Main.maxTilesX * Main.maxTilesY;
+        if (area > 15000000 && !Main.rand.NextBool(3))
+        {
+            return;
+        }
+
+        if (convertQueue.Count <= Main.desiredWorldTilesUpdateRate)
+        {
+            convertQueue.Add(new UpdatingTile(i, j, type));
+        }
+        else
+        {
+            var queueSnapshot = new List<UpdatingTile>(convertQueue);
+            ThreadPool.QueueUserWorkItem(_ => ProcessTileQueue(queueSnapshot));
+            convertQueue.Clear();
+        }
+    }
+
+    private static void ProcessTileQueue(List<UpdatingTile> list)
+    {
+        foreach (UpdatingTile tile in list)
+        {
+            WitherTheTiles(tile.i, tile.j, tile.type);
+        }
+    }
+
+    public static void WitherTheTiles(int i, int j, int type)
+    {
         bool didSomething = false;
         if (DoomsdayManager.sunDied && Main.rand.NextBool(90))
         {
@@ -147,10 +190,6 @@ public class WitherTiles : GlobalTile
         }
         if (DoomsdayClock.TimeLeftInRange(3) && (Main.rand.NextBool(3) || DoomsdayClock.TimeLeftInRange(6)))
         {
-            if (area > 15000000 && !Main.rand.NextBool(4))
-            {
-                return;
-            }
             WorldGen.Convert(i, j, ModContent.GetInstance<AshConversion>().Type, 0, true, true);
             didSomething = true;
         }
@@ -212,7 +251,7 @@ public class WitherTiles : GlobalTile
                 WorldGen.KillTile(i, j);
             }
         }
-        if (DoomsdayClock.TimeLeftInRange(3) && SuperAliveFire.Flammable[type] &&
+        if (DoomsdayClock.TimeLeftInRange(3) && SuperAliveFire.Flammable[type] && Main.rand.NextBool(9) &&
                 !(WorldGen.InWorld(i, j - 1) && (TileID.Sets.PreventsTileRemovalIfOnTopOfIt[Main.tile[i, j - 1].TileType] || TileID.Sets.BasicChest[Main.tile[i, j - 1].TileType])))
         {
             WorldGen.KillTile(i, j, noItem: true);

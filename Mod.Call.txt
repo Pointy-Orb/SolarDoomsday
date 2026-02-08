@@ -1,0 +1,17 @@
+Mod.Call can be used with this mod to mark your specific modded tiles and walls as flammable or as fire-safe.
+
+You should do this in PostSetupContent, otherwise your call will just be ignored.
+
+The first argument corresponds to where you would like to mark the ID:
+"MakeTileFlammable" - Marks the tile as a tile that can burn
+"MakeTileMeltable" - Marks the tile as a tile that can melt*
+"MakeTileMeltImmune" - Marks the tile as a tile that cannot melt. Intended to undo the Stone melting clause
+
+"MakeWallFireSafe" - Marks the wall as a wall that grants immunity to Solar Flame and Heat Stroke when standing behind it.
+
+*Tiles in the "Stone" tileset have this set to true automatically, so if your tile is in that tileset you don't need to do this.
+
+
+The second argument should then be the ID of the tile or wall that you wish to mark. 
+This can be done with either TileID for vanilla or ModContent.TileType<>() for modded tiles, or whatever method you prefer for getting your tile types.
+

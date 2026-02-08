@@ -2,11 +2,24 @@ using Terraria;
 using Terraria.ModLoader;
 using Terraria.ID;
 using Microsoft.Xna.Framework;
+using System.Linq;
 
 namespace SolarDoomsday;
 
 public class BurnEverybody : ModSystem
 {
+    public override void PostAddRecipes()
+    {
+        safeWalls = new bool[TileLoader.TileCount];
+        for (int i = 0; i < TileLoader.TileCount; i++)
+        {
+            if (safeWallsCore.Contains(i))
+            {
+                safeWalls[i] = true;
+            }
+        }
+    }
+
     public override void PostUpdateTime()
     {
         if (!Main.IsItDay())
@@ -28,11 +41,21 @@ public class BurnEverybody : ModSystem
         }
     }
 
+    public static bool[] safeWalls = new bool[1];
+
+    private static readonly int[] safeWallsCore = new int[]
+    {
+        WallID.ObsidianBrick,
+        WallID.ObsidianBrickUnsafe,
+        WallID.AncientObsidianBrickWall
+    };
+
     private void IncinerateEveryone()
     {
         foreach (Player player in Main.ActivePlayers)
         {
-            if ((player.ZoneOverworldHeight || player.ZoneSkyHeight) && (!player.behindBackWall || DoomsdayClock.TimeLeftInRange(6)))
+            var wall = Framing.GetTileSafely(player.Center);
+            if ((player.ZoneOverworldHeight || player.ZoneSkyHeight) && (!player.behindBackWall || DoomsdayClock.TimeLeftInRange(6)) && !safeWalls[wall.WallType])
             {
                 player.AddBuff(ModContent.BuffType<Buffs.SolFire>(), 20);
                 continue;
@@ -45,7 +68,8 @@ public class BurnEverybody : ModSystem
                 continue;
             }
             Point npcSpot = npc.Center.ToTileCoordinates();
-            if (npcSpot.Y < Main.worldSurface && (Main.tile[npcSpot.X, npcSpot.Y].WallType == 0 || DoomsdayClock.TimeLeftInRange(6)))
+            Tile npcTile = Framing.GetTileSafely(npc.Center);
+            if (npcSpot.Y < Main.worldSurface && (npcTile.WallType == 0 || DoomsdayClock.TimeLeftInRange(6)) && !safeWalls[npcTile.WallType])
             {
                 npc.AddBuff(ModContent.BuffType<Buffs.SolFire>(), 10);
             }
