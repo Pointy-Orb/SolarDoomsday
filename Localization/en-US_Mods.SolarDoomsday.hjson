@@ -86,11 +86,17 @@ Items: {
 
 	SolarAccelerationPill: {
 		DisplayName: Solar Acceleration Pill
-		Tooltip: ""
+		Tooltip:
+			'''
+			Starts the solar apocalypse
+			Can only be used above ground during the daytime
+			Doesn't work if the sun is already dead
+			'Side effects include mass destruction'
+			'''
 	}
 
 	AshWallItem: {
-		DisplayName: Ash Wall Item
+		DisplayName: Ash Wall
 		Tooltip: ""
 	}
 
@@ -106,7 +112,7 @@ Items: {
 
 	Match: {
 		DisplayName: Match
-		Tooltip: ""
+		Tooltip: Starts fires
 	}
 }
 

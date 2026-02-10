@@ -1,3 +1,9 @@
 Test large world lag on a better computer
-Resprite the pill
 Make obsidian walls give immunity to sol burning
+Add screenshake for final day (and a config option to turn it off!)
+Think about how you want to handle the mod being used with pre-existing worlds
+	- Keep in mind how you want to convert this to a special seed in 1.4.5
+	- Also keep in mind how people will want to install this mod with the intent of seeing their old worlds burn
+	- Idea: expand the pill item to be multiple items, each with different apocalypse lengths and types. Have them be craftable for free at a demon altar. 
+	  - Try to implement this in a modular way
+Finish making the flammable tile list crossmod friendly

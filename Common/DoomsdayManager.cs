@@ -7,6 +7,7 @@ using Terraria.Audio;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using System.IO;
+using Microsoft.Xna.Framework;
 
 namespace SolarDoomsday;
 
@@ -31,6 +32,9 @@ public class DoomsdayManager : ModSystem
     public static int shaderTime = 0;
     private static int novaTime = 0;
 
+    public static int spookyBackTime = 0;
+    private static float effectTransition = 0;
+
     public override void Load()
     {
         On_Main.IsItDay += NotDayWhenSunIsDead;
@@ -42,6 +46,32 @@ public class DoomsdayManager : ModSystem
         sunDied = false;
         savedEverybody = false;
         sentTheMessage = false;
+    }
+
+    public override void ModifySunLightColor(ref Color tileColor, ref Color backgroundColor)
+    {
+        bool spooky = spookyBackTime > 0;
+        if (spooky)
+        {
+            spookyBackTime--;
+            effectTransition += 0.05f;
+        }
+        else
+        {
+            effectTransition -= 0.05f;
+        }
+
+        if (effectTransition > 1)
+        {
+            effectTransition = 1;
+        }
+        if (effectTransition < 0)
+        {
+            effectTransition = 0;
+        }
+
+        tileColor = Color.Lerp(tileColor, tileColor.MultiplyRGB(Color.Orange), effectTransition);
+        backgroundColor = Color.Lerp(backgroundColor, backgroundColor.MultiplyRGB(Color.DarkRed), effectTransition);
     }
 
     public override void PostUpdateTime()

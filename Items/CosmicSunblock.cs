@@ -30,7 +30,7 @@ public class CosmicSunblock : ModItem
         Item.useAnimation = 60;
         Item.UseSound = SoundID.Item120;
         Item.consumable = true;
-        Item.rare = ItemRarityID.Red;
+        Item.rare = ItemRarityID.Purple;
     }
 
     public override bool CanUseItem(Player player)
