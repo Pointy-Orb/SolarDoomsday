@@ -1,5 +1,6 @@
 using Terraria;
 using Terraria.Audio;
+using Terraria.DataStructures;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
@@ -114,15 +115,136 @@ public class SpreadFire : GlobalTile
                 {
                     continue;
                 }
-                if (Main.tile[k, l].TileType == ModContent.TileType<SuperAliveFire>())
+                if (Main.tile[k, l].TileType != ModContent.TileType<SuperAliveFire>())
                 {
-                    if (AttemptSpreadOuter(k, l))
+                    continue;
+                }
+                var fireBody = new List<Point>();
+                fireBody = GetFireBody(k, l, fireBody);
+                DoSpread(fireBody);
+                return;
+            }
+        }
+    }
+
+    private static void DoSpread(List<Point> fireBody)
+    {
+        List<bool> spreaded = new();
+        //Actual spreading logic
+        int edgeCount = 0;
+        for (int i = 0; i < fireBody.Count; i++)
+        {
+            if (IsEdgeFire(fireBody[i].X, fireBody[i].Y))
+            {
+                edgeCount++;
+            }
+        }
+        for (int i = 0; i < fireBody.Count; i++)
+        {
+            if (edgeCount < 6 || Main.rand.NextBool(edgeCount * 5 + 5, edgeCount * 6 + 5))
+            {
+                spreaded.Add(AttemptSpreadOuter(fireBody[i].X, fireBody[i].Y));
+            }
+            else
+            {
+                spreaded.Add(false);
+            }
+        }
+        //Determining who gets to live
+        List<Point> willDie = new();
+        List<Point> willLive = new();
+        bool anySpread = false;
+        for (int i = 0; i < fireBody.Count; i++)
+        {
+            anySpread |= spreaded[i];
+            if (!IsEdgeFire(fireBody[i].X, fireBody[i].Y))
+            {
+                continue;
+            }
+            for (int x = fireBody[i].X - 1; x <= fireBody[i].X + 1; x++)
+            {
+                for (int y = fireBody[i].Y - 1; y <= fireBody[i].Y + 1; y++)
+                {
+                    if (!WorldGen.InWorld(x, y))
                     {
-                        return;
+                        continue;
+                    }
+                    if (Main.tile[x, y].TileType != ModContent.TileType<SuperAliveFire>())
+                    {
+                        continue;
+                    }
+
+                    if (spreaded[i])
+                    {
+                        willLive.Add(new Point(x, y));
+                    }
+                    else
+                    {
+                        willDie.Add(new Point(x, y));
                     }
                 }
             }
         }
+        //Murdering
+        if (!anySpread)
+        {
+            foreach (Point fire in fireBody)
+            {
+                WorldGen.KillTile(fire.X, fire.Y);
+                NetMessage.SendTileSquare(-1, fire.X, fire.Y, 1, 1);
+            }
+            return;
+        }
+        foreach (Point fire in willDie)
+        {
+            if (willLive.Contains(fire))
+            {
+                continue;
+            }
+            WorldGen.KillTile(fire.X, fire.Y);
+            NetMessage.SendTileSquare(-1, fire.X, fire.Y, 1, 1);
+        }
+    }
+
+    private static bool IsEdgeFire(int x, int y)
+    {
+        for (int i = x - 1; i <= x + 1; i++)
+        {
+            for (int j = y - 1; j <= y + 1; j++)
+            {
+                if (!WorldGen.InWorld(i, j))
+                {
+                    continue;
+                }
+                if (Main.tile[i, j].TileType != ModContent.TileType<SuperAliveFire>())
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private static List<Point> GetFireBody(int x, int y, List<Point> fireBody)
+    {
+        for (int i = x - 1; i <= x + 1; i++)
+        {
+            for (int j = y - 1; j <= y + 1; j++)
+            {
+                if (!WorldGen.InWorld(i, j))
+                {
+                    continue;
+                }
+                var spot = new Point(i, j);
+                if (fireBody.Contains(spot) || Main.tile[i, j].TileType != ModContent.TileType<SuperAliveFire>())
+                {
+                    continue;
+                }
+                fireBody.Add(spot);
+                GetFireBody(i, j, fireBody);
+            }
+        }
+        return fireBody;
     }
 
     private static bool AttemptSpreadOuter(int i, int j)
@@ -141,25 +263,6 @@ public class SpreadFire : GlobalTile
                     continue;
                 }
                 spread |= AttemptSpread(k, l);
-            }
-        }
-        if (!spread)
-        {
-            WorldGen.KillTile(i, j);
-            NetMessage.SendTileSquare(-1, i, j, 1, 1);
-            for (int k = i - 1; k <= i + 1; k++)
-            {
-                for (int l = j - 1; l <= j + 1; l++)
-                {
-                    if (!WorldGen.InWorld(k, l))
-                    {
-                        continue;
-                    }
-                    if (Main.tile[k, l].TileType == ModContent.TileType<SuperAliveFire>() && AttemptSpreadOuter(k, l))
-                    {
-                        return true;
-                    }
-                }
             }
         }
         return spread;
@@ -350,11 +453,58 @@ public class BurnPlayers : ModPlayer
 {
     public override void PreUpdateBuffs()
     {
-        var tile = Framing.GetTileSafely(Player.Center);
-        if (tile.TileType == ModContent.TileType<SuperAliveFire>())
+        Collision.HurtTile result = Collision.HurtTiles(Player.position, Player.width, (!Player.mount.Active || !Player.mount.Cart) ? Player.height : (Player.height - 16), Player);
+        foreach (Point touchedTile in Player.TouchedTiles)
         {
-            Player.AddBuff(BuffID.OnFire, 120);
+            Tile tile = Main.tile[touchedTile.X, touchedTile.Y];
+            if (tile != null && tile.HasTile && tile.HasUnactuatedTile && !TileID.Sets.Suffocate[tile.TileType] && Collision.CanTileHurt(tile.TileType, touchedTile.X, touchedTile.Y, Player))
+            {
+                Collision.HurtTile result2 = default(Collision.HurtTile);
+                result2.type = tile.TileType;
+                result2.x = touchedTile.X;
+                result2.y = touchedTile.Y;
+                result = result2;
+            }
         }
+
+        if (result.type != ModContent.TileType<SuperAliveFire>())
+        {
+            return;
+        }
+        if (Player.lavaImmune)
+        {
+            return;
+        }
+        if (Player.lavaTime > 0)
+        {
+            Player.lavaTime -= 2;
+            return;
+        }
+        BurnPlayer();
+    }
+
+    private void BurnPlayer()
+    {
+        var hurtAmount = 40;
+        if (Player.lavaRose)
+        {
+            hurtAmount -= 20;
+        }
+        if (Player.ashWoodBonus)
+        {
+            hurtAmount -= 20;
+        }
+        if (Player.buffImmune[BuffID.OnFire])
+        {
+            hurtAmount -= 10;
+        }
+        if (hurtAmount <= 0)
+        {
+            return;
+        }
+        Player.AddBuff(BuffID.OnFire, 420);
+        Player.Hurt(PlayerDeathReason.ByOther(8), hurtAmount, 0, false, false, ImmunityCooldownID.Lava, false);
+        Player.GetModPlayer<Buffs.SolFirePlayer>().touchingFireBlock = true;
     }
 }
 
@@ -362,14 +512,19 @@ public class BurnNPCs : GlobalNPC
 {
     public override void PostAI(NPC npc)
     {
-        if (npc.type == NPCID.OldMan || npc.immortal || npc.dontTakeDamage)
+        if (npc.type == NPCID.OldMan || npc.immortal || npc.dontTakeDamage || npc.lavaImmune || npc.immune[255] != 0)
         {
             return;
         }
         var tile = Framing.GetTileSafely(npc.Center);
-        if (tile.TileType == ModContent.TileType<SuperAliveFire>())
+        if (tile.TileType != ModContent.TileType<SuperAliveFire>())
         {
-            npc.AddBuff(BuffID.OnFire, 120);
+            return;
         }
+        var hitInfo = new NPC.HitInfo();
+        npc.immune[255] = 30;
+        npc.AddBuff(BuffID.OnFire, 420);
+        npc.SimpleStrikeNPC(30, 0);
+        npc.GetGlobalNPC<Buffs.SolFireNPC>().touchingFireBlock = true;
     }
 }

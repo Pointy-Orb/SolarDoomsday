@@ -36,15 +36,18 @@ public class SolFire : ModBuff
 public class SolFirePlayer : ModPlayer
 {
     public bool onSolFire = false;
+    public bool touchingFireBlock = false;
 
     public override void ResetEffects()
     {
         onSolFire = false;
+        touchingFireBlock = false;
     }
 
     public override void UpdateDead()
     {
         onSolFire = false;
+        touchingFireBlock = false;
     }
 
     public override void PostUpdateBuffs()
@@ -81,7 +84,7 @@ public class SolFirePlayer : ModPlayer
 
     public override void DrawEffects(PlayerDrawSet drawInfo, ref float r, ref float g, ref float b, ref float a, ref bool fullBright)
     {
-        if (!onSolFire)
+        if (!onSolFire && !touchingFireBlock)
         {
             return;
         }
@@ -92,15 +95,28 @@ public class SolFirePlayer : ModPlayer
             {
                 scale /= 2;
             }
-            Dust dust6 = Dust.NewDustDirect(new Vector2(drawInfo.Position.X - 2f, drawInfo.Position.Y - 2f), Player.width + 4, Player.height + 4, 6, Player.velocity.X * 0.4f, Player.velocity.Y * 0.4f, 100, default(Color), scale);
-            dust6.noGravity = true;
-            dust6.velocity *= 1.8f;
-            dust6.velocity.Y -= 0.75f;
-            drawInfo.DustCache.Add(dust6.dustIndex);
+            if (touchingFireBlock)
+            {
+                scale = 3f;
+            }
+            for (int i = 0; i < (touchingFireBlock ? 4 : 1); i++)
+            {
+                Dust dust6 = Dust.NewDustDirect(new Vector2(drawInfo.Position.X - 2f, drawInfo.Position.Y - 2f), Player.width + 4, Player.height + 4, 6, Player.velocity.X * 0.4f, Player.velocity.Y * 0.4f, 100, default(Color), scale);
+                dust6.noGravity = true;
+                dust6.velocity *= 1.8f;
+                dust6.velocity.Y -= 0.75f;
+                drawInfo.DustCache.Add(dust6.dustIndex);
+            }
         }
         r = Utils.Remap(DoomsdayClock.PercentTimeLeft(), 1f / 3f, 0, r, 1f);
         g = Utils.Remap(DoomsdayClock.PercentTimeLeft(), 1f / 3f, 0, g, g * 0.5f);
         b = Utils.Remap(DoomsdayClock.PercentTimeLeft(), 1f / 3f, 0, b, b * 0.4f);
+        if (touchingFireBlock)
+        {
+            r = 1f;
+            g = 0.3f;
+            b = 0f;
+        }
     }
 }
 
@@ -109,10 +125,12 @@ public class SolFireNPC : GlobalNPC
     public override bool InstancePerEntity => true;
 
     public bool onSolFire = false;
+    public bool touchingFireBlock = false;
 
     public override void ResetEffects(NPC npc)
     {
         npc.GetGlobalNPC<SolFireNPC>().onSolFire = false;
+        npc.GetGlobalNPC<SolFireNPC>().touchingFireBlock = false;
         npc.buffImmune[ModContent.BuffType<SolFire>()] = npc.buffImmune[BuffID.OnFire] || npc.lavaImmune || (npc.wet && !npc.lavaWet);
     }
 
@@ -143,12 +161,25 @@ public class SolFireNPC : GlobalNPC
         {
             scale /= 2;
         }
-        Dust dust6 = Dust.NewDustDirect(new Vector2(npc.position.X - 2f, npc.position.Y - 2f), npc.width + 4, npc.height + 4, 6, npc.velocity.X * 0.4f, npc.velocity.Y * 0.4f, 100, default(Color), scale);
-        dust6.noGravity = true;
-        dust6.velocity *= 1.8f;
-        dust6.velocity.Y -= 0.75f;
+        if (touchingFireBlock)
+        {
+            scale = 3f;
+        }
+        for (int i = 0; i < (touchingFireBlock ? 4 : 1); i++)
+        {
+            Dust dust6 = Dust.NewDustDirect(new Vector2(npc.position.X - 2f, npc.position.Y - 2f), npc.width + 4, npc.height + 4, 6, npc.velocity.X * 0.4f, npc.velocity.Y * 0.4f, 100, default(Color), scale);
+            dust6.noGravity = true;
+            dust6.velocity *= 1.8f;
+            dust6.velocity.Y -= 0.75f;
+        }
         drawColor.R = (byte)Utils.Remap(DoomsdayClock.PercentTimeLeft(), 1f / 3f, 0, drawColor.R, byte.MaxValue);
         drawColor.G = (byte)Utils.Remap(DoomsdayClock.PercentTimeLeft(), 1f / 3f, 0, drawColor.G, byte.MaxValue);
         drawColor.B = (byte)Utils.Remap(DoomsdayClock.PercentTimeLeft(), 1f / 3f, 0, drawColor.B, byte.MaxValue);
+        if (touchingFireBlock)
+        {
+            drawColor.R = 255;
+            drawColor.G = (byte)(0.3f * 255);
+            drawColor.B = 0;
+        }
     }
 }
