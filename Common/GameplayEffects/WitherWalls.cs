@@ -1,8 +1,8 @@
 using Terraria;
 using System.Threading;
 using System.Collections.Generic;
-using SolarDoomsday.Tiles;
-using SolarDoomsday.Walls;
+using SolarDoomsday.Content.Tiles;
+using SolarDoomsday.Content.Walls;
 using System.Linq;
 using Terraria.ModLoader;
 using Terraria.ID;

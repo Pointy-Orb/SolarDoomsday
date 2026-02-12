@@ -2,7 +2,7 @@ using Terraria;
 using Terraria.ModLoader;
 using Terraria.ID;
 
-namespace SolarDoomsday.Items;
+namespace SolarDoomsday.Content.Items;
 
 public class Match : ModItem
 {

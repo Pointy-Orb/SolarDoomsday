@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework;
 using Terraria.ModLoader;
 using Terraria.ID;
 
-namespace SolarDoomsday.Items;
+namespace SolarDoomsday.Content.Items;
 
 public class DarkGreenSolution : ModItem
 {

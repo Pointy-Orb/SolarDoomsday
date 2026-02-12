@@ -1,6 +1,6 @@
 using Terraria;
 using Terraria.Localization;
-using SolarDoomsday.Items;
+using SolarDoomsday.Content.Items;
 using Terraria.ModLoader;
 using Terraria.ID;
 

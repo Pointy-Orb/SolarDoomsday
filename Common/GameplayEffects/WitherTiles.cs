@@ -4,7 +4,7 @@ using System;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 using System.Threading;
-using SolarDoomsday.Tiles;
+using SolarDoomsday.Content.Tiles;
 using System.Linq;
 using Terraria.ModLoader;
 using Terraria.ID;

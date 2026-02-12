@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework;
 using Terraria.ModLoader;
 using Terraria.ID;
 
-namespace SolarDoomsday.Walls;
+namespace SolarDoomsday.Content.Walls;
 
 public class AshWall : ModWall
 {

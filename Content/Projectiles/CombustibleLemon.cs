@@ -1,5 +1,5 @@
 using Terraria;
-using SolarDoomsday.Tiles;
+using SolarDoomsday.Content.Tiles;
 using System;
 using Microsoft.Xna.Framework;
 using Terraria.Audio;
@@ -7,7 +7,7 @@ using Terraria.ModLoader;
 using Terraria.ID;
 using Terraria.DataStructures;
 
-namespace SolarDoomsday.Projectiles;
+namespace SolarDoomsday.Content.Projectiles;
 
 public enum LemonAIs
 {

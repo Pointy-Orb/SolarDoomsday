@@ -9,7 +9,7 @@ using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ID;
 
-namespace SolarDoomsday.Items;
+namespace SolarDoomsday.Content.Items;
 
 public class SolarAccelerationPill : ModItem
 {

@@ -5,7 +5,7 @@ using Terraria.ModLoader;
 using Terraria.ID;
 using Terraria.DataStructures;
 
-namespace SolarDoomsday.Buffs;
+namespace SolarDoomsday.Content.Buffs;
 
 public class SolFire : ModBuff
 {

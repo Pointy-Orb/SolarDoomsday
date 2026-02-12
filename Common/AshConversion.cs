@@ -1,9 +1,9 @@
 using Terraria;
-using SolarDoomsday.Tiles;
+using SolarDoomsday.Content.Tiles;
 using System.Linq;
 using Terraria.ModLoader;
 using Terraria.ID;
-using SolarDoomsday.Walls;
+using SolarDoomsday.Content.Walls;
 
 namespace SolarDoomsday;
 

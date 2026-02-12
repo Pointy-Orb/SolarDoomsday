@@ -1,9 +1,9 @@
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace SolarDoomsday.Dusts;
+namespace SolarDoomsday.Content.Dusts;
 
-public class CyanSolutionDust : ModDust
+public class DarkGreenSolutionDust : ModDust
 {
     public override void SetStaticDefaults()
     {

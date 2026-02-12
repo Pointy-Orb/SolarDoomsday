@@ -17,6 +17,7 @@ public class TownNPCManagement : GlobalNPC
         IL_NPC.AI_007_TownEntities += IL_KeepNPCsInside;
     }
 
+    //This is to make sure that NPCs don't go out into the sun and kill themselves
     private static void IL_KeepNPCsInside(ILContext il)
     {
         try

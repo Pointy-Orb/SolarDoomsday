@@ -1,7 +1,7 @@
 using System;
 using Terraria;
 using System.Collections.Generic;
-using SolarDoomsday.Tiles;
+using SolarDoomsday.Content.Tiles;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;

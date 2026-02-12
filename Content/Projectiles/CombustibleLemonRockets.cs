@@ -4,7 +4,7 @@ using Terraria.ModLoader;
 using Terraria.ID;
 using Terraria.DataStructures;
 
-namespace SolarDoomsday.Projectiles;
+namespace SolarDoomsday.Content.Projectiles;
 
 public class AutoloadedLemonRocket : ModProjectile
 {

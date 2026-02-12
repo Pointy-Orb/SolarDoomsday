@@ -4,7 +4,7 @@ using Terraria.Audio;
 using Terraria.ModLoader;
 using Terraria.ID;
 
-namespace SolarDoomsday.Buffs;
+namespace SolarDoomsday.Content.Buffs;
 
 public class KamikazeSlime : ModBuff
 {

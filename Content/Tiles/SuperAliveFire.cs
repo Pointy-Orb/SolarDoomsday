@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework;
 using Terraria.ModLoader;
 using Terraria.ID;
 
-namespace SolarDoomsday.Tiles;
+namespace SolarDoomsday.Content.Tiles;
 
 public class SuperAliveFire : ModTile
 {

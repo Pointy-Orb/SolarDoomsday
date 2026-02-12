@@ -1,4 +1,5 @@
 using Terraria;
+using SolarDoomsday.Content.Buffs;
 using Terraria.ModLoader;
 using Terraria.ID;
 using Microsoft.Xna.Framework;
@@ -57,7 +58,7 @@ public class BurnEverybody : ModSystem
             var wall = Framing.GetTileSafely(player.Center);
             if ((player.ZoneOverworldHeight || player.ZoneSkyHeight) && (!player.behindBackWall || DoomsdayClock.TimeLeftInRange(6)) && !safeWalls[wall.WallType])
             {
-                player.AddBuff(ModContent.BuffType<Buffs.SolFire>(), 20);
+                player.AddBuff(ModContent.BuffType<SolFire>(), 20);
                 continue;
             }
         }
@@ -71,7 +72,7 @@ public class BurnEverybody : ModSystem
             Tile npcTile = Framing.GetTileSafely(npc.Center);
             if (npcSpot.Y < Main.worldSurface && (npcTile.WallType == 0 || DoomsdayClock.TimeLeftInRange(6)) && !safeWalls[npcTile.WallType])
             {
-                npc.AddBuff(ModContent.BuffType<Buffs.SolFire>(), 10);
+                npc.AddBuff(ModContent.BuffType<SolFire>(), 10);
             }
         }
     }
@@ -82,7 +83,7 @@ public class BurnEverybody : ModSystem
         {
             if ((player.ZoneOverworldHeight || player.ZoneSkyHeight) && (!player.behindBackWall || DoomsdayClock.TimeLeftInRange(2)))
             {
-                player.AddBuff(ModContent.BuffType<Buffs.HeatStroke>(), 5);
+                player.AddBuff(ModContent.BuffType<HeatStroke>(), 5);
                 continue;
             }
         }

@@ -42,7 +42,7 @@ Buffs: {
 	}
 
 	KamikazeSlime: {
-		Description: Mods.SolarDoomsday.Buffs.KamikazeSlime.Description
+		Description: Mods.SolarDoomsday.Content.Buffs.KamikazeSlime.Description
 		DisplayName: Kamikaze Slime
 	}
 }
