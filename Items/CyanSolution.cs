@@ -97,6 +97,7 @@ public class CyanSolutionConversion : ModBiomeConversion
     public override void PostSetupContent()
     {
         TileLoader.RegisterConversion(TileID.Ash, Type, ConvertAsh);
+        TileLoader.RegisterConversion(TileID.AshGrass, Type, ConvertAsh);
 
         TileLoader.RegisterConversion(TileID.Dirt, Type, CheckStone);
         TileLoader.RegisterConversion(TileID.Stone, Type, CheckStone);
@@ -172,7 +173,7 @@ public class CyanSolutionConversion : ModBiomeConversion
                 {
                     continue;
                 }
-                tile.LiquidAmount = 0;
+                WorldGen.EmptyLiquid(i, j);
                 foundIt = true;
                 if (!tile.HasTile)
                 {

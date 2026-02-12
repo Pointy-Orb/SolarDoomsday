@@ -11,3 +11,5 @@ Implement eclipse blocking on the final day!
 Find a way to get rid of the clouds once rain stops happening
 Learn how ITileData works and use it to overhaul the fire system
 Give cosmic sunscreen the cool moon tear effect
+Give config option that allows control for if rain should offer safety or not
+Add metabasalt and have it replace underground layer stone

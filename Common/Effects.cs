@@ -1,5 +1,5 @@
 using Terraria;
-using System.Reflection;
+using Terraria.Graphics.Light;
 using System.Linq;
 using System;
 using Microsoft.Xna.Framework.Graphics;
@@ -103,7 +103,10 @@ public class Effects : ModSystem
         {
             return;
         }
-        tileColor = Color.Lerp(tileColor, Color.OrangeRed.MultiplyRGB(tileColor), Utils.GetLerpValue(DoomsdayClock.DayCount, 0, DoomsdayClock.daysLeft, true));
+        if (Lighting.Mode != LightMode.Retro)
+        {
+            tileColor = Color.Lerp(tileColor, Color.OrangeRed.MultiplyRGB(tileColor), Utils.GetLerpValue(DoomsdayClock.DayCount, 0, DoomsdayClock.daysLeft, true));
+        }
         if (DoomsdayClock.TimeLeftInRange(2))
         {
             backgroundColor = defaultColor;

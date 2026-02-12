@@ -94,9 +94,13 @@ public class WitherTiles : GlobalTile
             return;
         }
         var area = Main.maxTilesX * Main.maxTilesY;
-        if (area > 15000000 && !Main.rand.NextBool(3))
+        var smallArea = WorldGen.WorldSizeSmallX * WorldGen.WorldSizeSmallY;
+        if (area > smallArea)
         {
-            return;
+            if (!Main.rand.NextBool(smallArea, area))
+            {
+                return;
+            }
         }
 
         if (convertQueue.Count <= Main.desiredWorldTilesUpdateRate)
