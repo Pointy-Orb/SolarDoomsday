@@ -29,9 +29,9 @@ public class BurntTree : ModTree
             }
         }
         GrowsOnTileId = dirts.ToArray();
-        texture = ModContent.Request<Texture2D>("SolarDoomsday.Content.Tiles/BurntTree");
-        branchesTexture = ModContent.Request<Texture2D>("SolarDoomsday.Content.Tiles/BurntTree_Branches");
-        topsTexture = ModContent.Request<Texture2D>("SolarDoomsday.Content.Tiles/BurntTree_Tops");
+        texture = ModContent.Request<Texture2D>("SolarDoomsday/Content/Tiles/BurntTree");
+        branchesTexture = ModContent.Request<Texture2D>("SolarDoomsday/Content/Tiles/BurntTree_Branches");
+        topsTexture = ModContent.Request<Texture2D>("SolarDoomsday/Content/Tiles/BurntTree_Tops");
     }
 
     public override bool CanDropAcorn()

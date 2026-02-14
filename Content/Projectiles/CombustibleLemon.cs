@@ -387,15 +387,7 @@ public class CombustibleLemon : ModProjectile
                 {
                     continue;
                 }
-                SpreadFire.AttemptSpread(i, j);
-                if (SuperAliveFire.Flammable[Main.tile[i, j].TileType] || Main.tileCut[Main.tile[i, j].TileType] || TileID.Sets.BreakableWhenPlacing[Main.tile[i, j].TileType])
-                {
-                    WorldGen.KillTile(i, j, noItem: true);
-                }
-                if (!Main.tile[i, j].HasTile)
-                {
-                    WorldGen.PlaceTile(i, j, ModContent.TileType<SuperAliveFire>(), true);
-                }
+                Fire.SetOnFire(i, j);
             }
         }
     }
@@ -411,11 +403,11 @@ public class CombustibleLemon : ModProjectile
                 {
                     continue;
                 }
-                if (i != arsonPoint.X && j != arsonPoint.Y)
+                if (!Main.tile[i, j].HasTile)
                 {
                     continue;
                 }
-                SpreadFire.AttemptSpread(i, j);
+                Fire.SetOnFire(i, j);
             }
         }
     }

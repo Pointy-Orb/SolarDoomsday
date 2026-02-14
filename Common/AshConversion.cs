@@ -39,7 +39,7 @@ public class AshConversion : ModBiomeConversion
             {
                 WallLoader.RegisterConversion(i, Type, WallID.LavaUnsafe1);
             }
-            else if (!SuperAliveFire.FlammableWall[i] && i != WallID.ObsidianBrick && i != WallID.LavaUnsafe1 && i != WallID.Lava1Echo && !Main.wallDungeon[i])
+            else if (FlammabilitySystem.FlammabilityWall[i] < 1 && i != WallID.ObsidianBrick && i != WallID.LavaUnsafe1 && i != WallID.Lava1Echo && !Main.wallDungeon[i])
             {
                 WallLoader.RegisterConversion(i, Type, WallID.LavaUnsafe3);
             }

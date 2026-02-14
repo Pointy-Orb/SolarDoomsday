@@ -9,6 +9,7 @@ using Terraria.ID;
 
 namespace SolarDoomsday.Content.Tiles;
 
+/*
 public class SuperAliveFire : ModTile
 {
     public override string Texture => "Terraria/Images/Tiles_336";
@@ -60,20 +61,6 @@ public class SuperAliveFire : ModTile
 
     public static readonly int[] FlammableCore = new int[]
     {
-		/*
-        TileID.WoodBlock,
-        TileID.Shadewood,
-        TileID.Ebonwood,
-        TileID.DynastyWood,
-        TileID.RichMahogany,
-        TileID.PalmWood,
-        TileID.BorealWood,
-        TileID.Pearlwood,
-		TileID.LivingWood,
-        TileID.LeafBlock,
-        TileID.LivingMahoganyLeaves,
-        TileID.LivingMahogany,
-		*/
         TileID.Rope,
         TileID.Cobweb,
         TileID.BorealBeam,
@@ -528,3 +515,4 @@ public class BurnNPCs : GlobalNPC
         npc.GetGlobalNPC<Buffs.SolFireNPC>().touchingFireBlock = true;
     }
 }
+*/

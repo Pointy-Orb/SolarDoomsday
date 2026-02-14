@@ -101,12 +101,9 @@ public class WitherWalls : GlobalWall
                 didSomething = true;
             }
         }
-        if (DoomsdayClock.TimeLeftInRange(3) && SuperAliveFire.FlammableWall[type])
+        if (DoomsdayClock.TimeLeftInRange(3) && FlammabilitySystem.FlammabilityWall[type] > 0)
         {
-            WorldGen.PlaceTile(i, j, ModContent.TileType<SuperAliveFire>(), true);
-            WorldGen.KillWall(i, j, true);
-            WorldGen.ConvertWall(i, j, 0);
-            WorldGen.Reframe(i, j);
+            Fire.SetOnFire(i, j);
             didSomething = true;
         }
         if (DoomsdayClock.TimeLeftInRange(3, 2) && (Main.rand.NextBool(3) || DoomsdayClock.TimeLeftInRange(3)))

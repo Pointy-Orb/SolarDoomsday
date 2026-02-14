@@ -187,7 +187,7 @@ public class WitherTiles : GlobalTile
             {
                 l--;
             }
-            Main.tile[k, l].TileType = (ushort)ModContent.TileType<SuperAliveFire>();
+            Fire.SetOnFire(k, l);
             didSomething = true;
             WorldGen.KillWall(k, l);
             WorldGen.Reframe(k, l);
@@ -255,13 +255,10 @@ public class WitherTiles : GlobalTile
                 WorldGen.KillTile(i, j);
             }
         }
-        if (DoomsdayClock.TimeLeftInRange(3) && SuperAliveFire.Flammable[type] && Main.rand.NextBool(9) &&
+        if (DoomsdayClock.TimeLeftInRange(3) && FlammabilitySystem.Flammability[type] > 0 && Main.rand.NextBool(9) &&
                 !(WorldGen.InWorld(i, j - 1) && (TileID.Sets.PreventsTileRemovalIfOnTopOfIt[Main.tile[i, j - 1].TileType] || TileID.Sets.BasicChest[Main.tile[i, j - 1].TileType])))
         {
-            WorldGen.KillTile(i, j, noItem: true);
-            WorldGen.PlaceTile(i, j, ModContent.TileType<SuperAliveFire>(), true);
-            WorldGen.KillWall(i, j);
-            WorldGen.Reframe(i, j);
+            Fire.SetOnFire(i, j);
             didSomething = true;
         }
         if (DoomsdayClock.TimeLeftInRange(3, 2) && (Main.rand.NextBool(6) || DoomsdayClock.TimeLeftInRange(2)))

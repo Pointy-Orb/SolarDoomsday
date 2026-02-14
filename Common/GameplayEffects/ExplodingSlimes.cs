@@ -1,4 +1,5 @@
 using Terraria;
+using SolarDoomsday.Content.Buffs;
 using System.Linq;
 using Terraria.ModLoader;
 using Terraria.ID;
@@ -52,7 +53,7 @@ public class ExplodingSlimes : GlobalNPC
         else
         {
             naughtyList.Remove(npc.whoAmI);
-            npc.AddBuff(ModContent.BuffType<Buffs.KamikazeSlime>(), 21600);
+            npc.AddBuff(ModContent.BuffType<KamikazeSlime>(), 21600);
         }
         foreach (int key in naughtyList.Keys)
         {

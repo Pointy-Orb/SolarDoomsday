@@ -151,14 +151,9 @@ public class GrassPowderProjectile : ModProjectile
                             NetMessage.SendTileSquare(-1, num1032, num1043);
                         }
                     }
-                    if (Main.tile[num1032, num1043].TileType == ModContent.TileType<Tiles.SuperAliveFire>())
+                    if (Main.tile[num1032, num1043].Get<FireTileData>().fireAmount > 0)
                     {
-                        WorldGen.KillTile(num1032, num1043);
-                        WorldGen.SquareTileFrame(num1032, num1043);
-                        if (Main.netMode == 1)
-                        {
-                            NetMessage.SendTileSquare(-1, num1032, num1043);
-                        }
+                        Main.tile[num1032, num1043].Get<FireTileData>().fireAmount = 0;
                     }
                 }
             }
