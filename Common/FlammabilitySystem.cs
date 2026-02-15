@@ -19,6 +19,10 @@ public class FlammabilitySystem : ModSystem
         TileID.WoodenBeam,
         TileID.Cactus,
         TileID.PumpkinBlock,
+        TileID.Hive,
+        TileID.Larva,
+        TileID.Torches,
+        TileID.HoneyBlock
     };
     public static readonly int[] FlammabilityWallCore = new int[]
     {
@@ -35,6 +39,8 @@ public class FlammabilitySystem : ModSystem
         WallID.BorealWood,
         WallID.Pearlwood,
         WallID.LivingLeaf,
+        WallID.HiveUnsafe,
+        WallID.Hive
     };
 
     public static void MarkFlammability()

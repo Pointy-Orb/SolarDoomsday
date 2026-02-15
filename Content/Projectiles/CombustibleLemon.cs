@@ -74,7 +74,7 @@ public class CombustibleLemon : ModProjectile
 
     public override void AI()
     {
-        if (Projectile.owner == Main.myPlayer && Projectile.wet)
+        if (Projectile.owner == Main.myPlayer && Projectile.wet && !Projectile.lavaWet && !Projectile.honeyWet)
         {
             Projectile.timeLeft = 1;
         }

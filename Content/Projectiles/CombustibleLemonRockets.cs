@@ -23,6 +23,10 @@ public class AutoloadedLemonRocket : ModProjectile
     public override void OnSpawn(IEntitySource source)
     {
         var lemon = Projectile.NewProjectileDirect(source, Projectile.position, Projectile.velocity, ModContent.ProjectileType<CombustibleLemon>(), Projectile.damage, Projectile.knockBack, Projectile.owner, ai1: variant);
+    }
+
+    public override void PostAI()
+    {
         Projectile.Kill();
     }
 }

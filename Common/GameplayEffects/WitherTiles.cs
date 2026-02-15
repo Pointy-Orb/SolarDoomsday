@@ -188,6 +188,7 @@ public class WitherTiles : GlobalTile
                 l--;
             }
             Fire.SetOnFire(k, l);
+            SolarDoomsday.RemoteSetFire(k, l);
             didSomething = true;
             WorldGen.KillWall(k, l);
             WorldGen.Reframe(k, l);
@@ -214,19 +215,13 @@ public class WitherTiles : GlobalTile
                 {
                     Main.tile[i, j].TileType = TileID.Dirt;
                 }
-                if (Main.sectionManager.SectionLoaded(i, j))
-                {
-                    WorldGen.Reframe(i, j);
-                }
+                WorldGen.Reframe(i, j);
                 didSomething = true;
             }
             if (TileID.Sets.Ices[Main.tile[i, j].TileType])
             {
                 Main.tile[i, j].TileType = TileID.Stone;
-                if (Main.sectionManager.SectionLoaded(i, j))
-                {
-                    WorldGen.Reframe(i, j);
-                }
+                WorldGen.Reframe(i, j);
                 didSomething = true;
             }
             if (type == TileID.BreakableIce)
@@ -244,10 +239,7 @@ public class WitherTiles : GlobalTile
             if (type == TileID.Mud)
             {
                 Main.tile[i, j].TileType = TileID.Dirt;
-                if (Main.sectionManager.SectionLoaded(i, j))
-                {
-                    WorldGen.Reframe(i, j);
-                }
+                WorldGen.Reframe(i, j);
                 NetMessage.SendTileSquare(-1, i, j, 1, 1);
             }
             if (TileID.Sets.Leaves[type])
@@ -259,6 +251,7 @@ public class WitherTiles : GlobalTile
                 !(WorldGen.InWorld(i, j - 1) && (TileID.Sets.PreventsTileRemovalIfOnTopOfIt[Main.tile[i, j - 1].TileType] || TileID.Sets.BasicChest[Main.tile[i, j - 1].TileType])))
         {
             Fire.SetOnFire(i, j);
+            SolarDoomsday.RemoteSetFire(i, j);
             didSomething = true;
         }
         if (DoomsdayClock.TimeLeftInRange(3, 2) && (Main.rand.NextBool(6) || DoomsdayClock.TimeLeftInRange(2)))

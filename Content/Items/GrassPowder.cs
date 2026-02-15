@@ -129,6 +129,10 @@ public class GrassPowderProjectile : ModProjectile
                             NetMessage.SendTileSquare(-1, num1032, num1043);
                         }
                     }
+                    if (Main.tile[num1032, num1043].Get<FireTileData>().fireAmount > 0)
+                    {
+                        Fire.PutOutFire(num1032, num1043);
+                    }
                     if (!Main.tile[num1032, num1043].HasTile)
                     {
                         continue;
@@ -150,10 +154,6 @@ public class GrassPowderProjectile : ModProjectile
                         {
                             NetMessage.SendTileSquare(-1, num1032, num1043);
                         }
-                    }
-                    if (Main.tile[num1032, num1043].Get<FireTileData>().fireAmount > 0)
-                    {
-                        Main.tile[num1032, num1043].Get<FireTileData>().fireAmount = 0;
                     }
                 }
             }
