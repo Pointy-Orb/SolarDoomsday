@@ -266,7 +266,7 @@ public class WitherTiles : GlobalTile
             {
                 for (int l = j - 2; l <= j + 2; l++)
                 {
-                    if (TileID.Sets.Grass[Main.tile[k, l].TileType])
+                    if (TileID.Sets.Conversion.Grass[Main.tile[k, l].TileType])
                     {
                         Main.tile[k, l].TileType = TileID.Dirt;
                         WorldGen.Reframe(k, l);

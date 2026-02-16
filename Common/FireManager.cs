@@ -1,4 +1,5 @@
 using Terraria;
+using System.Linq;
 using System.IO;
 using System;
 using Terraria.Map;
@@ -179,3 +180,4 @@ public class FireManager : ModSystem
         });
     }
 }
+

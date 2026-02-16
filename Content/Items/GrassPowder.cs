@@ -132,6 +132,7 @@ public class GrassPowderProjectile : ModProjectile
                     if (Main.tile[num1032, num1043].Get<FireTileData>().fireAmount > 0)
                     {
                         Fire.PutOutFire(num1032, num1043);
+                        SolarDoomsday.RemoteDelFire(num1032, num1043);
                     }
                     if (!Main.tile[num1032, num1043].HasTile)
                     {

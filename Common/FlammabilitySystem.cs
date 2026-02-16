@@ -22,7 +22,15 @@ public class FlammabilitySystem : ModSystem
         TileID.Hive,
         TileID.Larva,
         TileID.Torches,
-        TileID.HoneyBlock
+        TileID.HoneyBlock,
+        TileID.HayBlock
+    };
+    private static readonly int[] FlameResistantTiles = new int[]
+    {
+        TileID.ObsidianBrick,
+        TileID.Obsidian,
+        TileID.AncientObsidianBrick,
+        TileID.TreeAsh
     };
     public static readonly int[] FlammabilityWallCore = new int[]
     {
@@ -55,27 +63,28 @@ public class FlammabilitySystem : ModSystem
         FlammabilityWall = new int[WallLoader.WallCount];
         for (int i = 0; i < TileLoader.TileCount; i++)
         {
-            if (FlammabilityCore.Contains(i) || woods.Contains(i) || TileID.Sets.IsATreeTrunk[i])
+            Flammability[i] = -1;
+            if (FlammabilityCore.Contains(i) || woods.Contains(i) || TileID.Sets.IsATreeTrunk[i] && !(i >= TileID.TreeTopaz && i <= TileID.GemSaplings))
             {
                 Flammability[i] = 1;
-                continue;
             }
-            if (TileID.Sets.IsVine[i] || TileID.Sets.TouchDamageDestroyTile[i])
+            if (TileID.Sets.IsVine[i] || TileID.Sets.TouchDamageDestroyTile[i] || i == TileID.LivingMahoganyLeaves || i == TileID.LeafBlock)
             {
                 Flammability[i] = 2;
-                continue;
+            }
+            if (FlameResistantTiles.Contains(i))
+            {
+                Flammability[i] = -2;
             }
             //;)
             if (i == TileID.Explosives)
             {
                 Flammability[i] = 5;
-                continue;
             }
-            Flammability[i] = -1;
         }
         for (int i = 0; i < WallLoader.WallCount; i++)
         {
-            FlammabilityWall[i] = -1;
+            FlammabilityWall[i] = -2;
             if (FlammabilityWallCore.Contains(i))
             {
                 FlammabilityWall[i] = 1;

@@ -72,6 +72,8 @@ public class CombustibleLemon : ModProjectile
         DrawOriginOffsetY = -5;
     }
 
+    int timer = 5;
+
     public override void AI()
     {
         if (Projectile.owner == Main.myPlayer && Projectile.wet && !Projectile.lavaWet && !Projectile.honeyWet)
@@ -79,7 +81,11 @@ public class CombustibleLemon : ModProjectile
             Projectile.timeLeft = 1;
         }
 
-        if (!(Projectile.velocity.X > -0.2f && Projectile.velocity.X < 0.2f && Projectile.velocity.Y > -0.2f && Projectile.velocity.Y < 0.2f))
+        if (timer > 0)
+        {
+            timer--;
+        }
+        else if (!(Projectile.velocity.X > -0.2f && Projectile.velocity.X < 0.2f && Projectile.velocity.Y > -0.2f && Projectile.velocity.Y < 0.2f))
         {
             DoArson(Projectile.Center);
         }
@@ -319,7 +325,7 @@ public class CombustibleLemon : ModProjectile
 
     public override void OnKill(int timeLeft)
     {
-        if (Projectile.wet)
+        if (Projectile.wet && !Projectile.lavaWet && !Projectile.honeyWet)
         {
             return;
         }

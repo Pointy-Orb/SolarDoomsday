@@ -1,4 +1,8 @@
 using System;
+using MonoMod.Cil;
+using static Mono.Cecil.Cil.OpCodes;
+using Microsoft.Xna.Framework;
+using Terraria.Audio;
 using Terraria.ID;
 using Terraria;
 using System.Collections.Generic;
@@ -23,7 +27,8 @@ namespace SolarDoomsday
         {
             SetFire,
             PutOutFire,
-            FireBurnEffects
+            FireBurnEffects,
+            WaterFireSfx
         }
 
         public override void Load()
@@ -33,6 +38,7 @@ namespace SolarDoomsday
             {
                 Filters.Scene["SolarDoomsday:BigScaryFlashShader"] = new Filter(new BigScaryFlashShader("FilterBloodMoon"), EffectPriority.VeryHigh);
             }
+            IL_Main.UpdateTime_StartDay += IL_StopEclipse;
         }
 
         public override void HandlePacket(BinaryReader reader, int whoAmI)
@@ -68,6 +74,11 @@ namespace SolarDoomsday
                     i = reader.ReadInt32();
                     j = reader.ReadInt32();
                     Fire.BurnAudioVisual(i, j);
+                    break;
+                case MessageType.WaterFireSfx:
+                    i = reader.ReadInt32();
+                    j = reader.ReadInt32();
+                    SoundEngine.PlaySound(SoundID.LiquidsWaterLava, new Point(i, j).ToWorldCoordinates());
                     break;
             }
         }
@@ -111,6 +122,38 @@ namespace SolarDoomsday
             packet.Send();
         }
 
+        public static void WaterFireSfx(int i, int j)
+        {
+            if (Main.netMode == NetmodeID.SinglePlayer)
+            {
+                return;
+            }
+            var packet = mod.GetPacket();
+            packet.Write((byte)MessageType.WaterFireSfx);
+            packet.Write(i);
+            packet.Write(j);
+            packet.Send();
+        }
+
+        private static void IL_StopEclipse(ILContext il)
+        {
+            try
+            {
+                var c = new ILCursor(il);
+                var jumpLabel = il.DefineLabel();
+                c.GotoNext(i => i.MatchStsfld(typeof(Main).GetField(nameof(Main.eclipse))));
+                c.GotoPrev(MoveType.After, i => i.MatchBrtrue(out jumpLabel));
+                c.EmitDelegate<Func<bool>>(() =>
+                {
+                    return !DoomsdayClock.LastDay;
+                });
+                c.Emit(Brfalse_S, jumpLabel);
+            }
+            catch
+            {
+                MonoModHooks.DumpIL(mod, il);
+            }
+        }
         /*
         public override object Call(params object[] args)
         {

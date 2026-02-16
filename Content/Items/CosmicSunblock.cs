@@ -1,4 +1,7 @@
 using Terraria;
+using System;
+using Terraria.GameContent;
+using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 using Terraria.Chat;
 using Terraria.GameContent.ItemDropRules;
@@ -31,6 +34,7 @@ public class CosmicSunblock : ModItem
         Item.UseSound = SoundID.Item120;
         Item.consumable = true;
         Item.rare = ItemRarityID.Purple;
+        Item.maxStack = Item.CommonMaxStack;
     }
 
     public override bool CanUseItem(Player player)
@@ -110,6 +114,62 @@ public class CosmicSunblock : ModItem
             }
         }
         return true;
+    }
+
+    public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
+    {
+        var texture = TextureAssets.Item[Type];
+
+        float num7 = (float)Item.timeSinceItemSpawned / 240f + Main.GlobalTimeWrappedHourly * 0.04f;
+        float globalTimeWrappedHourly = Main.GlobalTimeWrappedHourly;
+        globalTimeWrappedHourly %= 4f;
+        globalTimeWrappedHourly /= 2f;
+        if (globalTimeWrappedHourly >= 1f)
+        {
+            globalTimeWrappedHourly = 2f - globalTimeWrappedHourly;
+        }
+        globalTimeWrappedHourly = globalTimeWrappedHourly * 0.5f + 0.5f;
+        //Vector2 drawOrigin = itemFrame.Size() / 2f;
+        Vector2 drawPosition = position;
+
+        for (float num8 = 0f; num8 < 1f; num8 += 0.25f)
+        {
+            spriteBatch.Draw(texture.Value, drawPosition + new Vector2(0f, 4f).RotatedBy((num8 + num7) * ((float)Math.PI * 2f)) * globalTimeWrappedHourly, frame, new Color(90, 70, 255, 50), 0, origin, scale, SpriteEffects.None, 0f);
+        }
+        for (float num9 = 0f; num9 < 1f; num9 += 0.34f)
+        {
+            spriteBatch.Draw(texture.Value, drawPosition + new Vector2(0f, 2f).RotatedBy((num9 + num7) * ((float)Math.PI * 2f)) * globalTimeWrappedHourly, frame, new Color(140, 120, 255, 77), 0, origin, scale, SpriteEffects.None, 0f);
+        }
+        return true;
+    }
+
+    public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
+    {
+        var texture = TextureAssets.Item[Type];
+
+        float num7 = (float)Item.timeSinceItemSpawned / 240f + Main.GlobalTimeWrappedHourly * 0.04f;
+        float globalTimeWrappedHourly = Main.GlobalTimeWrappedHourly;
+        globalTimeWrappedHourly %= 4f;
+        globalTimeWrappedHourly /= 2f;
+        if (globalTimeWrappedHourly >= 1f)
+        {
+            globalTimeWrappedHourly = 2f - globalTimeWrappedHourly;
+        }
+        globalTimeWrappedHourly = globalTimeWrappedHourly * 0.5f + 0.5f;
+        Main.GetItemDrawFrame(Item.type, out var itemTexture, out var itemFrame);
+        Vector2 drawOrigin = itemFrame.Size() / 2f;
+        Vector2 drawPosition = Item.Bottom - Main.screenPosition - new Vector2(0, drawOrigin.Y);
+
+        for (float num8 = 0f; num8 < 1f; num8 += 0.25f)
+        {
+            spriteBatch.Draw(texture.Value, drawPosition + new Vector2(0f, 4f).RotatedBy((num8 + num7) * ((float)Math.PI * 2f)) * globalTimeWrappedHourly, itemFrame, new Color(90, 70, 255, 50), rotation, drawOrigin, scale, SpriteEffects.None, 0f);
+        }
+        for (float num9 = 0f; num9 < 1f; num9 += 0.34f)
+        {
+            spriteBatch.Draw(texture.Value, drawPosition + new Vector2(0f, 2f).RotatedBy((num9 + num7) * ((float)Math.PI * 2f)) * globalTimeWrappedHourly, itemFrame, new Color(140, 120, 255, 77), rotation, drawOrigin, scale, SpriteEffects.None, 0f);
+        }
+        spriteBatch.Draw(texture.Value, drawPosition, itemFrame, Color.White, rotation, drawOrigin, scale, SpriteEffects.None, 0);
+        return false;
     }
 }
 

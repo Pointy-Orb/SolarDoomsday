@@ -32,10 +32,19 @@ public class Effects : ModSystem
         {
             return;
         }
+        for (int i = Main.maxClouds - 1; i >= (int)Utils.Remap(DoomsdayClock.PercentTimeLeft(), 1, 0.5f, Main.maxClouds - 1, 0); i--)
+        {
+            Main.cloud[i].active = false;
+            if (i < Main.numClouds)
+            {
+                Main.numClouds = i;
+            }
+        }
         if (!(DoomsdayClock.TimeLeftInRange(3, 2) && (Main.LocalPlayer.ZoneOverworldHeight || Main.LocalPlayer.ZoneSkyHeight || Main.LocalPlayer.ZoneDirtLayerHeight)))
         {
             return;
         }
+        Main.cloudBGActive = 0f;
         Main.LocalPlayer.ManageSpecialBiomeVisuals("HeatDistortion", Main.UseHeatDistortion && Main.IsItDay());
         Filters.Scene["HeatDistortion"].GetShader().UseIntensity((5f - DoomsdayClock.PercentTimeLeft() * 4) / (Main.LocalPlayer.behindBackWall ? 2 : 1));
         switch (Main.bgStyle)

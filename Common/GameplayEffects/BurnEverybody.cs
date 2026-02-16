@@ -81,7 +81,8 @@ public class BurnEverybody : ModSystem
     {
         foreach (Player player in Main.ActivePlayers)
         {
-            if ((player.ZoneOverworldHeight || player.ZoneSkyHeight) && (!player.behindBackWall || DoomsdayClock.TimeLeftInRange(2)))
+            var wall = Framing.GetTileSafely(player.Center);
+            if ((player.ZoneOverworldHeight || player.ZoneSkyHeight) && (!player.behindBackWall || DoomsdayClock.TimeLeftInRange(2)) && !safeWalls[wall.WallType])
             {
                 player.AddBuff(ModContent.BuffType<HeatStroke>(), 5);
                 continue;

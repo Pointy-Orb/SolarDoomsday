@@ -1,4 +1,6 @@
 using Terraria;
+using Terraria.Utilities;
+using Terraria.Graphics.Light;
 using System.IO;
 using System;
 using Microsoft.Xna.Framework;
@@ -21,6 +23,11 @@ public struct FireTileData : ITileData
 
 public class Fire : ModType
 {
+    public override void Load()
+    {
+        On_TileLightScanner.ApplyWallLight += GiveFireLight;
+    }
+
     protected sealed override void Register()
     {
         ModTypeLookup<Fire>.Register(this);
@@ -86,7 +93,7 @@ public class Fire : ModType
                 {
                     continue;
                 }
-                if (Main.tile[k, l].LiquidAmount > 0 && Main.tile[k, l].LiquidType != LiquidID.Lava && Main.tile[k, l].LiquidType != LiquidID.Honey)
+                if (Main.tile[i, j].HasTile && Main.tile[k, l].LiquidAmount > 0 && Main.tile[k, l].LiquidType != LiquidID.Lava && Main.tile[k, l].LiquidType != LiquidID.Honey)
                 {
                     return;
                 }
@@ -178,10 +185,6 @@ public class Fire : ModType
         }
         updateTimer = 0;
 
-        for (int i = 0; i < numFire; i++)
-        {
-            Lighting.AddLight(new Point(fires[i].x, fires[i].y).ToWorldCoordinates(), LightColor);
-        }
         if (Main.netMode != NetmodeID.MultiplayerClient)
         {
             for (int i = 0; i < numFire; i++)
@@ -204,6 +207,20 @@ public class Fire : ModType
                 }
             }
         }
+        else
+        {
+            for (int i = 0; i < numFire;)
+            {
+                if (Main.tile[fires[i].x, fires[i].y].Get<FireTileData>().fireAmount <= 0)
+                {
+                    DelFire(i);
+                }
+                else
+                {
+                    i++;
+                }
+            }
+        }
         if (numFire == prevNumFire)
         {
             prevNumFire = numFire;
@@ -216,25 +233,40 @@ public class Fire : ModType
         prevNumFire = numFire;
     }
 
-    private static readonly Vector3 LightColor = new(0.85f, 0.5f, 0.3f);
+    public static readonly Vector3 LightColor = new(0.85f, 0.5f, 0.3f);
     public void Update()
     {
         Tile tile = Main.tile[x, y];
+        bool tileWet = false;
         for (int k = x - 1; k <= x + 1; k++)
         {
+            if (tileWet)
+            {
+                break;
+            }
             for (int l = y - 1; l <= y + 1; l++)
             {
                 if (!WorldGen.InWorld(k, l))
                 {
                     continue;
                 }
-                if (Main.tile[k, l].LiquidAmount > 0 && Main.tile[k, l].LiquidType != LiquidID.Lava && Main.tile[k, l].LiquidType != LiquidID.Honey)
+                if (Main.tile[x, y].HasTile && Main.tile[k, l].LiquidAmount > 0 && Main.tile[k, l].LiquidType != LiquidID.Lava && Main.tile[k, l].LiquidType != LiquidID.Honey)
                 {
-                    FireLevel = 0;
-                    SoundEngine.PlaySound(SoundID.LiquidsWaterLava, new Point(x, y).ToWorldCoordinates());
-                    return;
+                    tileWet = true;
+                    break;
                 }
             }
+        }
+        if (tile.LiquidAmount > 0 && tile.LiquidType != LiquidID.Lava && tile.LiquidType != LiquidID.Honey)
+        {
+            tileWet = true;
+        }
+        if (tileWet)
+        {
+            FireLevel = 0;
+            SoundEngine.PlaySound(SoundID.LiquidsWaterLava, new Point(x, y).ToWorldCoordinates());
+            SolarDoomsday.WaterFireSfx(x, y);
+            return;
         }
         if (tile.TileType == TileID.Larva)
         {
@@ -251,6 +283,19 @@ public class Fire : ModType
         if (!tile.HasTile && tile.LiquidAmount > 0 && tile.LiquidType == LiquidID.Honey)
         {
             fireChangeRate = Math.Max(1, fireChangeRate);
+        }
+        bool chicken = false;
+        if (Main.raining && y < Main.worldSurface && tile.WallType == 0)
+        {
+            if (Main.rand.NextBool())
+            {
+                fireChangeRate *= 2;
+                fireChangeRate = -Math.Abs(fireChangeRate);
+            }
+            if (Main.rand.NextBool(2, 3))
+            {
+                chicken = true;
+            }
         }
 
         if ((int)FireLevel + (int)fireChangeRate > 255)
@@ -270,7 +315,7 @@ public class Fire : ModType
             AttemptSpread(x, y);
         }
 
-        if (!Main.rand.NextBool((int)((float)FireLevel / 255f * 16f), 160))
+        if (!Main.rand.NextBool((int)((float)FireLevel / 255f * 16f), 160) || chicken)
         {
             return;
         }
@@ -413,9 +458,14 @@ public class Fire : ModType
         }
         var target = Main.tile[i, j];
         bool charred = false;
-        if (TileID.Sets.Grass[target.TileType] || TileID.Sets.Snow[target.TileType])
+        if (TileID.Sets.Conversion.Grass[target.TileType] || TileID.Sets.Snow[target.TileType])
         {
             WorldGen.ConvertTile(i, j, TileID.Dirt);
+            charred = true;
+        }
+        if (TileID.Sets.Conversion.JungleGrass[target.TileType])
+        {
+            WorldGen.ConvertTile(i, j, TileID.Mud);
             charred = true;
         }
         if (WallID.Sets.Conversion.Grass[target.WallType] || target.WallType == WallID.SnowWallUnsafe)
@@ -439,11 +489,21 @@ public class Fire : ModType
 
     public static void RecieveTileData(Tile tile, BinaryReader reader, int i, int j)
     {
-        bool wasOnFire = tile.Get<FireTileData>().fireAmount > 0;
+        //bool wasOnFire = tile.Get<FireTileData>().fireAmount > 0;
         tile.Get<FireTileData>().fireAmount = reader.ReadByte();
-        if (tile.Get<FireTileData>().fireAmount > 0 && !wasOnFire)
+        if (tile.Get<FireTileData>().fireAmount > 0)
         {
             AddFire(i, j);
         }
+    }
+
+    private static void GiveFireLight(On_TileLightScanner.orig_ApplyWallLight orig, TileLightScanner self, Tile tile, int x, int y, ref FastRandom localRandom, ref Vector3 lightColor)
+    {
+        orig(self, tile, x, y, ref localRandom, ref lightColor);
+        if (tile.Get<FireTileData>().fireAmount <= 0)
+        {
+            return;
+        }
+        lightColor += LightColor;
     }
 }
