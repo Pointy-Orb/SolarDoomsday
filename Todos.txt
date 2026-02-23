@@ -7,4 +7,8 @@ Think about how you want to handle the mod being used with pre-existing worlds
 	  - Try to implement this in a modular way
 Finish making the flammable tile list crossmod friendly
 Give config option that allows control for if rain should offer safety or not
-Add metabasalt and have it replace underground layer stone
+Have it so that spawn gets pushed downwards once Phase 3 begins, so that players don't get spawnkilled by the sun.
+Fix trees being weird
+
+CURRENT:
+Finish making pill essences

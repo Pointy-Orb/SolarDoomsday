@@ -98,6 +98,7 @@ public class CyanSolutionConversion : ModBiomeConversion
     {
         TileLoader.RegisterConversion(TileID.Ash, Type, ConvertAsh);
         TileLoader.RegisterConversion(TileID.AshGrass, Type, ConvertAsh);
+        TileLoader.RegisterConversion(ModContent.TileType<Content.Tiles.Hornfels>(), Type, ConvertHornfels);
 
         TileLoader.RegisterConversion(TileID.Dirt, Type, CheckStone);
         TileLoader.RegisterConversion(TileID.Stone, Type, CheckStone);
@@ -123,6 +124,13 @@ public class CyanSolutionConversion : ModBiomeConversion
             return false;
         }
         WorldGen.ConvertTile(i, j, TileID.Dirt);
+        CheckVicinityForLava(i, j);
+        return false;
+    }
+
+    public bool ConvertHornfels(int i, int j, int type, int conversionType)
+    {
+        WorldGen.ConvertTile(i, j, TileID.Stone);
         CheckVicinityForLava(i, j);
         return false;
     }

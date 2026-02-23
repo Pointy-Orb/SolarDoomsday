@@ -85,14 +85,33 @@ Items: {
 	}
 
 	SolarAccelerationPill: {
-		DisplayName: Solar Acceleration Pill
+		DisplayName: Solar {0} Pill ({1}-day)
 		Tooltip:
 			'''
 			Starts the solar apocalypse
 			Can only be used above ground during the daytime
 			Doesn't work if the sun is already dead
-			'Side effects include mass destruction'
+
 			'''
+		TooltipStagnation:
+			'''
+			{$Items.SolarAccelerationPill.Tooltip}
+			World will end up existing in state of last day indefinitely
+			{$Items.SolarAccelerationPill.FunnyQuip}
+			'''
+		TooltipDissipation:
+			'''
+			{$Items.SolarAccelerationPill.Tooltip}
+			Sun will burn out after last day
+			{$Items.SolarAccelerationPill.FunnyQuip}
+			'''
+		TooltipNova:
+			'''
+			{$Items.SolarAccelerationPill.Tooltip}
+			Sun will explode and destroy everything after last day
+			{$Items.SolarAccelerationPill.FunnyQuip}
+			'''
+		FunnyQuip: "'Side effects include mass destruction'"
 	}
 
 	AshWallItem: {
@@ -113,6 +132,71 @@ Items: {
 	Match: {
 		DisplayName: Match
 		Tooltip: Starts fires
+	}
+
+	HornfelsItem: {
+		Tooltip: ""
+		DisplayName: Hornfels
+	}
+
+	12DayStagnationPill: {
+		Tooltip: ""
+		DisplayName: 12 Day Stagnation Pill
+	}
+
+	30DayStagnationPill: {
+		DisplayName: 30 Day Stagnation Pill
+		Tooltip: ""
+	}
+
+	60DayStagnationPill: {
+		DisplayName: 60 Day Stagnation Pill
+		Tooltip: ""
+	}
+
+	100DayStagnationPill: {
+		DisplayName: 100 Day Stagnation Pill
+		Tooltip: ""
+	}
+
+	12DayDissipationPill: {
+		DisplayName: 12 Day Dissipation Pill
+		Tooltip: ""
+	}
+
+	30DayDissipationPill: {
+		DisplayName: 30 Day Dissipation Pill
+		Tooltip: ""
+	}
+
+	60DayDissipationPill: {
+		DisplayName: 60 Day Dissipation Pill
+		Tooltip: ""
+	}
+
+	100DayDissipationPill: {
+		DisplayName: 100 Day Dissipation Pill
+		Tooltip: ""
+	}
+
+	12DayNovaPill: {
+		DisplayName: 12 Day Nova Pill
+		Tooltip: ""
+	}
+
+	30DayNovaPill: {
+		DisplayName: 30 Day Nova Pill
+		Tooltip: ""
+	}
+
+	60DayNovaPill: {
+		DisplayName: 60 Day Nova Pill
+		Tooltip: ""
+	}
+
+	100DayNovaPill: {
+		DisplayName: 100 Day Nova Pill
+		Tooltip: ""
 	}
 }
 
@@ -144,3 +228,15 @@ Conditions: {
 }
 
 TerraformingKitMessage: I'm working on a terraforming kit that can help us fix up the surface after the sun stops blasting it!
+
+Biomes: {
+	ScorchedUnderground: {
+		TownNPCDialogueName: the Scorched Underground
+		DisplayName: Scorched Underground
+	}
+
+	ScorchedUndergroundSurface: {
+		DisplayName: Scorched Underground Surface
+		TownNPCDialogueName: the Scorched Underground Surface
+	}
+}

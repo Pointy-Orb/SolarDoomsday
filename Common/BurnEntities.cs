@@ -1,4 +1,5 @@
 using Terraria;
+using SolarDoomsday.Content.Tiles;
 using Terraria.DataStructures;
 using Terraria.ModLoader;
 using SolarDoomsday.Content.Buffs;
@@ -9,40 +10,10 @@ namespace SolarDoomsday;
 
 public class BurnPlayers : ModPlayer
 {
-    public override void PreUpdateBuffs()
+    public override void Load()
     {
-        bool onFire = false;
-        var worldPos = Player.position.ToTileCoordinates();
-        for (int i = worldPos.X - 1; i <= worldPos.X + (Player.width / 16) + 1; i++)
-        {
-            if (onFire)
-            {
-                break;
-            }
-            for (int j = worldPos.Y - 1; j <= worldPos.Y + (Player.height / 16) + 1; j++)
-            {
-                if (!WorldGen.InWorld(i, j))
-                {
-                    continue;
-                }
-                onFire |= Main.tile[i, j].Get<FireTileData>().fireAmount > 0;
-            }
-        }
-
-        if (!onFire)
-        {
-            return;
-        }
-        if (Player.lavaImmune)
-        {
-            return;
-        }
-        if (Player.lavaTime > 0)
-        {
-            Player.lavaTime -= 2;
-            return;
-        }
-        BurnPlayer();
+        On_Player.ApplyTouchDamage += GetBurning;
+        On_Collision.CanTileHurt += FireHurts;
     }
 
     private void BurnPlayer()
@@ -67,6 +38,39 @@ public class BurnPlayers : ModPlayer
         Player.AddBuff(BuffID.OnFire, 420);
         Player.Hurt(PlayerDeathReason.ByOther(8), hurtAmount, 0, false, false, ImmunityCooldownID.Lava, false);
         Player.GetModPlayer<SolFirePlayer>().touchingFireBlock = true;
+    }
+
+    private static void GetBurning(On_Player.orig_ApplyTouchDamage orig, Player self, int tileId, int x, int y)
+    {
+        orig(self, tileId, x, y);
+        if (tileId != ModContent.TileType<Hornfels>() && Main.tile[x, y].Get<FireTileData>().fireAmount <= 0)
+        {
+            return;
+        }
+        if (self.lavaImmune)
+        {
+            return;
+        }
+        if (self.lavaTime > 0)
+        {
+            self.lavaTime -= 2;
+            return;
+        }
+        self.GetModPlayer<BurnPlayers>().BurnPlayer();
+    }
+
+    private static bool FireHurts(On_Collision.orig_CanTileHurt orig, ushort type, int i, int j, Player player)
+    {
+        if (orig(type, i, j, player))
+        {
+            return true;
+        }
+        Tile tile = Main.tile[i, j];
+        if (tile.Get<FireTileData>().fireAmount > 0)
+        {
+            return true;
+        }
+        return type == ModContent.TileType<Hornfels>();
     }
 }
 

@@ -48,17 +48,25 @@ public class AshConversion : ModBiomeConversion
 
     private bool MeltTile(int i, int j, int type, int conversionType)
     {
-        if (WorldGen.InWorld(i, j - 1) && (TileID.Sets.PreventsTileRemovalIfOnTopOfIt[Main.tile[i, j - 1].TileType] || TileID.Sets.BasicChest[Main.tile[i, j - 1].TileType]))
+        bool aboveGround = j < Main.worldSurface;
+        if (aboveGround && WorldGen.InWorld(i, j - 1) && (TileID.Sets.PreventsTileRemovalIfOnTopOfIt[Main.tile[i, j - 1].TileType] || TileID.Sets.BasicChest[Main.tile[i, j - 1].TileType]))
         {
             return false;
         }
-        if (!(j < Main.worldSurface || Main.rand.NextBool(3) || DoomsdayClock.LastDay))
+        if (aboveGround && Main.rand.NextBool(3))
         {
             return false;
         }
         Tile tile = Main.tile[i, j];
-        tile.HasTile = false;
-        WorldGen.PlaceLiquid(i, j, (byte)LiquidID.Lava, 255);
+        if (aboveGround)
+        {
+            tile.HasTile = false;
+            WorldGen.PlaceLiquid(i, j, (byte)LiquidID.Lava, 255);
+        }
+        else
+        {
+            tile.TileType = (ushort)ModContent.TileType<Hornfels>();
+        }
         WorldGen.Reframe(i, j);
         return false;
     }

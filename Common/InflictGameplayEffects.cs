@@ -27,11 +27,12 @@ public class FireMonsters : GlobalNPC
         {
             return;
         }
-        if (spawnInfo.SpawnTileY > Main.worldSurface)
+        bool inScorched = spawnInfo.Player.InModBiome<Content.Biomes.ScorchedUnderground>();
+        if (spawnInfo.SpawnTileY > Main.worldSurface && !inScorched)
         {
             return;
         }
-        if (!Main.IsItDay())
+        if (!Main.IsItDay() && !inScorched)
         {
             return;
         }
@@ -43,12 +44,15 @@ public class FireMonsters : GlobalNPC
         {
             pool[key] = 0f;
         }
+        if (!inScorched)
+        {
+            pool[NPCID.FireImp] = 0.5f;
+        }
         pool[NPCID.Hellbat] = 0.6f;
         pool[NPCID.LavaSlime] = 0.5f;
         pool[NPCID.RedSlime] = 0.7f;
-        pool[NPCID.FireImp] = 0.5f;
         pool[NPCID.BlazingWheel] = 0.1f;
-        if (!Main.hardMode)
+        if (!Main.hardMode && inScorched)
         {
             return;
         }

@@ -1,4 +1,5 @@
 using Terraria;
+using SolarDoomsday.Content.Biomes;
 using Terraria.Graphics.Light;
 using System.Linq;
 using System;
@@ -40,7 +41,12 @@ public class Effects : ModSystem
                 Main.numClouds = i;
             }
         }
-        if (!(DoomsdayClock.TimeLeftInRange(3, 2) && (Main.LocalPlayer.ZoneOverworldHeight || Main.LocalPlayer.ZoneSkyHeight || Main.LocalPlayer.ZoneDirtLayerHeight)))
+        if (Main.LocalPlayer.InModBiome<ScorchedUnderground>())
+        {
+            Main.LocalPlayer.ManageSpecialBiomeVisuals("HeatDistortion", Main.UseHeatDistortion);
+            Filters.Scene["HeatDistortion"].GetShader().UseIntensity(3);
+        }
+        if (!(DoomsdayClock.TimeLeftInRange(3, 2) && (Main.LocalPlayer.ZoneOverworldHeight || Main.LocalPlayer.ZoneSkyHeight)))
         {
             return;
         }

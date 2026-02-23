@@ -122,7 +122,12 @@ public class GrassPowderProjectile : ModProjectile
                     }
                     if (Main.tile[num1032, num1043].WallType == WallID.DirtUnsafe || Main.tile[num1032, num1043].WallType == WallID.Dirt)
                     {
-                        Main.tile[num1032, num1043].WallType = WallID.GrassUnsafe;
+                        var wallID = WallID.GrassUnsafe;
+                        if (Main.player[Projectile.owner].ZoneJungle)
+                        {
+                            wallID = WallID.JungleUnsafe;
+                        }
+                        Main.tile[num1032, num1043].WallType = wallID;
                         WorldGen.SquareTileFrame(num1032, num1043);
                         if (Main.netMode == 1)
                         {

@@ -93,26 +93,7 @@ public class WitherTiles : GlobalTile
         {
             return;
         }
-        var area = Main.maxTilesX * Main.maxTilesY;
-        var smallArea = WorldGen.WorldSizeSmallX * WorldGen.WorldSizeSmallY;
-        if (area > smallArea)
-        {
-            if (!Main.rand.NextBool(smallArea, area))
-            {
-                return;
-            }
-        }
-
-        if (convertQueue.Count <= Main.desiredWorldTilesUpdateRate)
-        {
-            convertQueue.Add(new UpdatingTile(i, j, type));
-        }
-        else
-        {
-            var queueSnapshot = new List<UpdatingTile>(convertQueue);
-            ThreadPool.QueueUserWorkItem(_ => ProcessTileQueue(queueSnapshot));
-            convertQueue.Clear();
-        }
+        WitherTheTiles(i, j, type);
     }
 
     private static void ProcessTileQueue(List<UpdatingTile> list)
@@ -183,7 +164,7 @@ public class WitherTiles : GlobalTile
         if (TileID.Sets.IsATreeTrunk[type] && DoomsdayClock.TimeLeftInRange(2))
         {
             WorldGen.GetTreeBottom(i, j, out var k, out var l);
-            while (WorldGen.InWorld(k, l - 1) && TileID.Sets.IsATreeTrunk[Main.tile[k, l - 1].TileType])
+            while (WorldGen.InWorld(k, l - 1) && TileID.Sets.IsATreeTrunk[Main.tile[k, l - 1].TileType] && Main.tile[k, l].HasTile)
             {
                 l--;
             }

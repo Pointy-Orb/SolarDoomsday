@@ -120,7 +120,7 @@ public class CosmicSunblock : ModItem
     {
         var texture = TextureAssets.Item[Type];
 
-        float num7 = (float)Item.timeSinceItemSpawned / 240f + Main.GlobalTimeWrappedHourly * 0.04f;
+        float num7 = (float)Main.GlobalTimeWrappedHourly * 0.16f;
         float globalTimeWrappedHourly = Main.GlobalTimeWrappedHourly;
         globalTimeWrappedHourly %= 4f;
         globalTimeWrappedHourly /= 2f;
@@ -147,7 +147,7 @@ public class CosmicSunblock : ModItem
     {
         var texture = TextureAssets.Item[Type];
 
-        float num7 = (float)Item.timeSinceItemSpawned / 240f + Main.GlobalTimeWrappedHourly * 0.04f;
+        float num7 = (float)Main.GlobalTimeWrappedHourly * 0.16f;
         float globalTimeWrappedHourly = Main.GlobalTimeWrappedHourly;
         globalTimeWrappedHourly %= 4f;
         globalTimeWrappedHourly /= 2f;

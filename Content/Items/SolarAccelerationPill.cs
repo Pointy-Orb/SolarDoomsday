@@ -1,4 +1,5 @@
 using Terraria;
+using ReLogic.Content;
 using Terraria.DataStructures;
 using System;
 using Terraria.GameContent;
@@ -13,6 +14,30 @@ namespace SolarDoomsday.Content.Items;
 
 public class SolarAccelerationPill : ModItem
 {
+    public override string Texture => "SolarDoomsday/Content/Items/SolarAccelerationPill";
+
+    public DoomsdayOptions WorldEndMethod { get; private set; }
+    public int DayCount { get; private set; }
+    public Color frontColor;
+
+    public static readonly Color[] auraColor = new Color[] { new Color(150, 0, 0, 30), new Color(250, 250, 255, 30), new Color(150, 110, 0, 30) };
+
+    private static Asset<Texture2D> aura;
+    private static Asset<Texture2D> front;
+
+    public override string Name => $"{DayCount}Day{WorldEndMethod.ToString()}Pill";
+
+    public override LocalizedText DisplayName => Language.GetText("Mods.SolarDoomsday.Items.SolarAccelerationPill.DisplayName").WithFormatArgs(WorldEndMethod.ToString(), DayCount);
+
+    public override LocalizedText Tooltip => Language.GetText($"Mods.SolarDoomsday.Items.SolarAccelerationPill.Tooltip{WorldEndMethod.ToString()}");
+
+    public SolarAccelerationPill(DoomsdayOptions worldEndMethod, int dayCount, Color frontColor)
+    {
+        WorldEndMethod = worldEndMethod;
+        DayCount = dayCount;
+        this.frontColor = frontColor;
+    }
+
     private static LocalizedText apocalypseAgain;
 
     public override void SetStaticDefaults()
@@ -21,11 +46,15 @@ public class SolarAccelerationPill : ModItem
         ItemID.Sets.AnimatesAsSoul[Type] = true;
 
         apocalypseAgain = Language.GetOrRegister("Mods.SolarDoomsday.Announcements.ApocalypseAgain");
+        aura = ModContent.Request<Texture2D>("SolarDoomsday/Content/Items/Pills/Aura");
+        front = ModContent.Request<Texture2D>("SolarDoomsday/Content/Items/Pills/Front");
     }
+
+    protected override bool CloneNewInstances => true;
 
     public override void SetDefaults()
     {
-        Item.rare = ItemRarityID.Purple;
+        Item.rare = ItemRarityID.Master;
         Item.width = 20;
         Item.height = 18;
         Item.useStyle = ItemUseStyleID.HoldUp;
@@ -57,8 +86,10 @@ public class SolarAccelerationPill : ModItem
     {
         Item.consumable = !DoomsdayManager.sunDied;
         DoomsdayManager.savedEverybody = false;
+        DoomsdayClock.SetDayCount(DayCount);
         DoomsdayClock.daysLeft = DoomsdayClock.DayCount;
         DoomsdayManager.spookyBackTime = 120;
+        DoomsdayManager.worldEndChoice = WorldEndMethod;
         if (Main.netMode == NetmodeID.MultiplayerClient)
         {
             return true;
@@ -99,7 +130,7 @@ public class SolarAccelerationPill : ModItem
         var drawPos = position;
         drawPos.X += Main.rand.NextFloat(-0.5f, 0.5f) * scale;
         drawPos.Y += Main.rand.NextFloat(-0.5f, 0.5f) * scale;
-        spriteBatch.Draw(texture.Value, drawPos, frame, new Color(255, 40, 0, 30), 0, origin, globalTimeWrappedHourly * scale, SpriteEffects.None, 0f);
+        spriteBatch.Draw(texture.Value, drawPos, frame, auraColor[(int)WorldEndMethod], 0, origin, globalTimeWrappedHourly * scale, SpriteEffects.None, 0f);
         /*
         for (float num8 = 0f; num8 < 1f; num8 += 0.25f)
         {
@@ -110,6 +141,8 @@ public class SolarAccelerationPill : ModItem
         }
 		*/
         spriteBatch.Draw(texture.Value, drawPos, frame, drawColor, 0f, origin, scale, SpriteEffects.None, 0);
+        spriteBatch.Draw(aura.Value, drawPos, frame, auraColor[(int)WorldEndMethod], 0f, origin, scale, SpriteEffects.None, 0);
+        spriteBatch.Draw(front.Value, drawPos, frame, drawColor.MultiplyRGB(frontColor), 0f, origin, scale, SpriteEffects.None, 0);
         return false;
     }
 
@@ -132,8 +165,31 @@ public class SolarAccelerationPill : ModItem
         drawPosition.X += Main.rand.NextFloat(-0.5f, 0.5f) * scale;
         drawPosition.Y += Main.rand.NextFloat(-0.5f, 0.5f) * scale;
 
-        spriteBatch.Draw(texture.Value, drawPosition, itemFrame, new Color(255, 40, 0, 30), 0, drawOrigin, globalTimeWrappedHourly * scale, SpriteEffects.None, 0f);
+        spriteBatch.Draw(texture.Value, drawPosition, itemFrame, auraColor[(int)WorldEndMethod], 0, drawOrigin, globalTimeWrappedHourly * scale, SpriteEffects.None, 0f);
         spriteBatch.Draw(texture.Value, drawPosition, itemFrame, Color.White, rotation, drawOrigin, scale, SpriteEffects.None, 0);
+        spriteBatch.Draw(aura.Value, drawPosition, itemFrame, auraColor[(int)WorldEndMethod], rotation, drawOrigin, scale, SpriteEffects.None, 0);
+        spriteBatch.Draw(front.Value, drawPosition, itemFrame, frontColor, rotation, drawOrigin, scale, SpriteEffects.None, 0);
         return false;
+    }
+}
+
+public class PillLoader : ILoadable
+{
+    private static readonly int[] dayCounts = new int[] { 12, 30, 60, 100 };
+    private static readonly Color[] dayColors = new Color[] { Color.Magenta, Color.LimeGreen, Color.LightBlue, Color.Gray };
+
+    public void Load(Mod mod)
+    {
+        foreach (DoomsdayOptions option in Enum.GetValues(typeof(DoomsdayOptions)))
+        {
+            for (int i = 0; i < dayCounts.Length; i++)
+            {
+                mod.AddContent(new SolarAccelerationPill(option, dayCounts[i], dayColors[i]));
+            }
+        }
+    }
+
+    public void Unload()
+    {
     }
 }
