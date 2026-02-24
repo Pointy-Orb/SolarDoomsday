@@ -4,20 +4,31 @@ DeathReasons: {
 	Sun2: "{0} was violently vaporized"
 }
 
+WorldEndSettings: {
+	Stagnation: Stagnation
+	Dissipation: Dissipation
+	Nova: Nova
+}
+
 DoomsdaySelection: {
 	Stagnation: {
-		Title: Stagnation
+		Title: "{$WorldEndSettings.Stagnation}"
 		Description: Your world will remain at the state of the last day after time runs out.
 	}
 
 	Dissipation: {
-		Title: Dissipation
+		Title: "{$WorldEndSettings.Dissipation}"
 		Description: The sun will die peacefully after time runs out.
 	}
 
 	Nova: {
-		Title: Nova
+		Title: "{$WorldEndSettings.Nova}"
 		Description: The sun will explode and take your world with it after time runs out.
+	}
+
+	Enabling: {
+		Title: Enable Solar Apocalypse
+		Description: Clicking will doom your world to a fate of slow incineration!
 	}
 
 	DaysLeft: {
@@ -89,29 +100,41 @@ Items: {
 		Tooltip:
 			'''
 			Starts the solar apocalypse
-			Can only be used above ground during the daytime
+			Can only be used during the daytime
 			Doesn't work if the sun is already dead
 
 			'''
 		TooltipStagnation:
 			'''
 			{$Items.SolarAccelerationPill.Tooltip}
-			World will end up existing in state of last day indefinitely
+			{$Items.SolarAccelerationPill.TooltipStagnationInner}
 			{$Items.SolarAccelerationPill.FunnyQuip}
 			'''
 		TooltipDissipation:
 			'''
 			{$Items.SolarAccelerationPill.Tooltip}
-			Sun will burn out after last day
+			{$Items.SolarAccelerationPill.TooltipDissipationInner}
 			{$Items.SolarAccelerationPill.FunnyQuip}
 			'''
 		TooltipNova:
 			'''
 			{$Items.SolarAccelerationPill.Tooltip}
-			Sun will explode and destroy everything after last day
+			{$Items.SolarAccelerationPill.TooltipNovaInner}
 			{$Items.SolarAccelerationPill.FunnyQuip}
 			'''
 		FunnyQuip: "'Side effects include mass destruction'"
+		TooltipStagnationInner: World will end up existing in state of last day indefinitely
+		TooltipDissipationInner: Sun will burn out after last day
+		TooltipNovaInner: Sun will explode and destroy everything after last day
+	}
+
+	PillEssences: {
+		DisplayName: Solar {0} Essence
+		Tooltip:
+			'''
+			Can create pills which start the solar apocalypse
+			{0}
+			'''
 	}
 
 	AshWallItem: {
@@ -138,73 +161,13 @@ Items: {
 		Tooltip: ""
 		DisplayName: Hornfels
 	}
-
-	12DayStagnationPill: {
-		Tooltip: ""
-		DisplayName: 12 Day Stagnation Pill
-	}
-
-	30DayStagnationPill: {
-		DisplayName: 30 Day Stagnation Pill
-		Tooltip: ""
-	}
-
-	60DayStagnationPill: {
-		DisplayName: 60 Day Stagnation Pill
-		Tooltip: ""
-	}
-
-	100DayStagnationPill: {
-		DisplayName: 100 Day Stagnation Pill
-		Tooltip: ""
-	}
-
-	12DayDissipationPill: {
-		DisplayName: 12 Day Dissipation Pill
-		Tooltip: ""
-	}
-
-	30DayDissipationPill: {
-		DisplayName: 30 Day Dissipation Pill
-		Tooltip: ""
-	}
-
-	60DayDissipationPill: {
-		DisplayName: 60 Day Dissipation Pill
-		Tooltip: ""
-	}
-
-	100DayDissipationPill: {
-		DisplayName: 100 Day Dissipation Pill
-		Tooltip: ""
-	}
-
-	12DayNovaPill: {
-		DisplayName: 12 Day Nova Pill
-		Tooltip: ""
-	}
-
-	30DayNovaPill: {
-		DisplayName: 30 Day Nova Pill
-		Tooltip: ""
-	}
-
-	60DayNovaPill: {
-		DisplayName: 60 Day Nova Pill
-		Tooltip: ""
-	}
-
-	100DayNovaPill: {
-		DisplayName: 100 Day Nova Pill
-		Tooltip: ""
-	}
 }
 
 Announcements: {
 	ApocalypseEnd: The apocalypse is over...
 	ApocalypseEndLate: but the post-apocalypse has just begun...
 	TooLate: You were too late...
-	ApocalypseAgain: The apocalypse begins again...
+	ApocalypseAgain: The apocalypse begins...
 }
 
 Projectiles: {

@@ -1,14 +1,7 @@
 Test large world lag on a better computer
 Add screenshake for final day (and a config option to turn it off!)
-Think about how you want to handle the mod being used with pre-existing worlds
-	- Keep in mind how you want to convert this to a special seed in 1.4.5
-	- Also keep in mind how people will want to install this mod with the intent of seeing their old worlds burn
-	- Idea: expand the pill item to be multiple items, each with different apocalypse lengths and types. Have them be craftable for free at a demon altar. 
-	  - Try to implement this in a modular way
 Finish making the flammable tile list crossmod friendly
 Give config option that allows control for if rain should offer safety or not
 Have it so that spawn gets pushed downwards once Phase 3 begins, so that players don't get spawnkilled by the sun.
 Fix trees being weird
-
-CURRENT:
-Finish making pill essences
+Make hornfels become "inactive" when it isn't daytime, or see if that is even a good idea

@@ -47,6 +47,10 @@ public class WeatherRadio : GlobalInfoDisplay
         {
             return;
         }
+        if (DoomsdayManager.thisWorldNeverSawTerror)
+        {
+            return;
+        }
         if (_currentTemperature != _targetTemperature)
         {
             if (Main.rand.NextBool(Int32.Clamp(Math.Abs(_currentTemperature - _targetTemperature) / 2, 1, 120), 120))

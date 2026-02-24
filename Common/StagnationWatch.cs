@@ -14,6 +14,10 @@ public class StagnationWatch : GlobalInfoDisplay
         {
             return;
         }
+        if (DoomsdayManager.thisWorldNeverSawTerror || DoomsdayManager.savedEverybody)
+        {
+            return;
+        }
         if (DoomsdayManager.worldEndChoice != DoomsdayOptions.Stagnation && !DoomsdayManager.sunDied)
         {
             return;

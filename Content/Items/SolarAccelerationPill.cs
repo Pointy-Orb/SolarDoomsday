@@ -27,7 +27,7 @@ public class SolarAccelerationPill : ModItem
 
     public override string Name => $"{DayCount}Day{WorldEndMethod.ToString()}Pill";
 
-    public override LocalizedText DisplayName => Language.GetText("Mods.SolarDoomsday.Items.SolarAccelerationPill.DisplayName").WithFormatArgs(WorldEndMethod.ToString(), DayCount);
+    public override LocalizedText DisplayName => Language.GetText("Mods.SolarDoomsday.Items.SolarAccelerationPill.DisplayName").WithFormatArgs(Language.GetTextValue($"Mods.SolarDoomsday.WorldEndSettings.{WorldEndMethod.ToString()}"), DayCount);
 
     public override LocalizedText Tooltip => Language.GetText($"Mods.SolarDoomsday.Items.SolarAccelerationPill.Tooltip{WorldEndMethod.ToString()}");
 
@@ -67,10 +67,6 @@ public class SolarAccelerationPill : ModItem
 
     public override bool CanUseItem(Player player)
     {
-        if (player.ZoneDirtLayerHeight || player.ZoneRockLayerHeight || player.ZoneUnderworldHeight)
-        {
-            return false;
-        }
         if (!Main.IsItDay())
         {
             return false;
@@ -86,6 +82,7 @@ public class SolarAccelerationPill : ModItem
     {
         Item.consumable = !DoomsdayManager.sunDied;
         DoomsdayManager.savedEverybody = false;
+        DoomsdayManager.thisWorldNeverSawTerror = false;
         DoomsdayClock.SetDayCount(DayCount);
         DoomsdayClock.daysLeft = DoomsdayClock.DayCount;
         DoomsdayManager.spookyBackTime = 120;
@@ -108,9 +105,8 @@ public class SolarAccelerationPill : ModItem
     public override void AddRecipes()
     {
         CreateRecipe()
-            .AddIngredient(ItemID.FragmentSolar, 20)
-            .AddIngredient(ItemID.LunarOre, 5)
-            .AddTile(TileID.LunarCraftingStation)
+            .AddIngredient(Mod.Find<ModItem>($"Solar{WorldEndMethod.ToString()}Essence").Type)
+            .AddTile(TileID.DemonAltar)
             .Register();
     }
 

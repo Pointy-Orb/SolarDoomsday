@@ -18,7 +18,7 @@ public class DoomsdayClock : ModSystem
 
     public const float doomsdayTime = 16.5f;
 
-    public static bool Ongoing => !DoomsdayManager.sunDied && !DoomsdayManager.savedEverybody;
+    public static bool Ongoing => !DoomsdayManager.sunDied && !DoomsdayManager.savedEverybody && !DoomsdayManager.thisWorldNeverSawTerror;
 
     public static bool LastDay => daysLeft == 1 && DoomsdayManager.worldEndChoice != DoomsdayOptions.Stagnation && Ongoing;
 
@@ -66,6 +66,10 @@ public class DoomsdayClock : ModSystem
     public override void SaveWorldHeader(TagCompound tag)
     {
         tag["daysLeft"] = daysLeft;
+        if (!DoomsdayManager.thisWorldNeverSawTerror)
+        {
+            tag["knowsTrueFear"] = !DoomsdayManager.thisWorldNeverSawTerror;
+        }
         if (DayCount != 30)
         {
             tag["DayCount"] = DayCount;
@@ -98,7 +102,11 @@ public class DoomsdayClock : ModSystem
 
     public override void PostUpdateTime()
     {
-        if (DoomsdayManager.savedEverybody)
+        if (DoomsdayManager.sunDied || DayCount != daysLeft)
+        {
+            DoomsdayManager.thisWorldNeverSawTerror = false;
+        }
+        if (DoomsdayManager.savedEverybody || DoomsdayManager.thisWorldNeverSawTerror)
         {
             return;
         }

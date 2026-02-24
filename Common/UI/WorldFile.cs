@@ -26,10 +26,12 @@ public class WorldFile : ModSystem
         int daysLeft = 30;
         int DayCount = 30;
         bool savedEverybody = false;
+        bool apocalypseEver = false;
         DoomsdayOptions worldEndChoice = DoomsdayOptions.Dissipation;
         if (data)
         {
             daysLeft = _data.GetInt("daysLeft");
+            apocalypseEver = _data.GetBool("knowsTrueFear");
             savedEverybody = _data.GetBool("savedEverybody");
             if (_data.ContainsKey("DayCount"))
             {
@@ -39,6 +41,10 @@ public class WorldFile : ModSystem
             {
                 worldEndChoice = (DoomsdayOptions)_data.GetInt("worldEndChoice");
             }
+        }
+        if (!apocalypseEver)
+        {
+            return;
         }
         var displayMaxDays = !(daysLeft <= 0 || worldEndChoice == DoomsdayOptions.Stagnation) || savedEverybody;
         var text = Language.GetTextValue("Mods.SolarDoomsday.WorldFileLabel", (DayCount - daysLeft + 1).ToString() + (displayMaxDays ? $"/{DayCount}" : ""));

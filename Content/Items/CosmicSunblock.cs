@@ -200,7 +200,7 @@ public class SunblockDropping : GlobalNPC
 
         public bool CanShowItemDropInUI()
         {
-            return true;
+            return !DoomsdayManager.thisWorldNeverSawTerror;
         }
 
         public string GetConditionDescription()

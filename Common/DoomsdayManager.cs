@@ -20,6 +20,9 @@ public enum DoomsdayOptions
 
 public class DoomsdayManager : ModSystem
 {
+    public bool ApocalypseEnabledMenu = false;
+    public static bool thisWorldNeverSawTerror = true;
+
     public DoomsdayOptions SelectedDoomsdayOption { get; set; } = DoomsdayOptions.Stagnation;
     public static DoomsdayOptions worldEndChoice = DoomsdayOptions.Dissipation;
     public static int chosenDayNumber = 30;
@@ -46,6 +49,7 @@ public class DoomsdayManager : ModSystem
         sunDied = false;
         savedEverybody = false;
         sentTheMessage = false;
+        thisWorldNeverSawTerror = true;
     }
 
     public override void ModifySunLightColor(ref Color tileColor, ref Color backgroundColor)
@@ -116,6 +120,10 @@ public class DoomsdayManager : ModSystem
         {
             tag["savedEverybody"] = savedEverybody;
         }
+        if (!thisWorldNeverSawTerror)
+        {
+            tag["knowsTrueFear"] = true;
+        }
     }
 
     public override void LoadWorldData(TagCompound tag)
@@ -126,10 +134,12 @@ public class DoomsdayManager : ModSystem
         }
         sunDied = tag.GetBool("sunDied");
         savedEverybody = tag.GetBool("savedEverybody");
+        thisWorldNeverSawTerror = !tag.GetBool("knowsTrueFear");
     }
 
     public override void PreWorldGen()
     {
+        thisWorldNeverSawTerror = !ApocalypseEnabledMenu;
         worldEndChoice = SelectedDoomsdayOption;
         DoomsdayClock.SetDayCount(chosenDayNumber);
     }

@@ -26,12 +26,16 @@ namespace SolarDoomsday;
 //TODO: Add IL gamepad support
 public class WorldGenPage : ModSystem
 {
+    internal static WorldCreationVars vars = new();
+
     static UIState worldCreationState;
 
     static UICharacterNameButton characterNameButton;
 
     private static readonly GroupOptionButton<DoomsdayOptions>[] DoomsdayButtons =
         new GroupOptionButton<DoomsdayOptions>[Enum.GetValues<DoomsdayOptions>().Length];
+
+    private static GroupOptionButton<Enabling> enableButton;
 
     public override void Load()
     {
@@ -84,12 +88,12 @@ public class WorldGenPage : ModSystem
                 float accumulatedHeight,
                 float usableWidthPercent
             ) =>
-                AddDoomsdayOptions(
+                AddEnableButton(
                     self,
                     container,
                     accumulatedHeight,
-                    ClickInfectFirstOption,
-                    "doomsday",
+                    ClickEnableButton,
+                    "doomsdayEnable",
                     usableWidthPercent
                 )
         );
@@ -110,7 +114,7 @@ public class WorldGenPage : ModSystem
         c.EmitDelegate(
             (LocalizedText localizedText, UIElement listeningElement) =>
                 listeningElement is not GroupOptionButton<DoomsdayOptions> doomsdayButton
-                    ? localizedText
+                    ? (listeningElement is not GroupOptionButton<Enabling> enabling ? localizedText : enabling.Description)
                     : doomsdayButton.Description
         );
         c.Emit(Stloc_0);
@@ -235,12 +239,9 @@ public class WorldGenPage : ModSystem
     public void OnSetDefaults(On_UIWorldCreation.orig_SetDefaultOptions orig, UIWorldCreation self)
     {
         orig.Invoke(self);
-        ModContent.GetInstance<DoomsdayManager>().SelectedDoomsdayOption =
-            DoomsdayOptions.Stagnation;
-        foreach (GroupOptionButton<DoomsdayOptions> doomsdayButton in DoomsdayButtons)
-        {
-            doomsdayButton.SetCurrentOption(DoomsdayOptions.Stagnation);
-        }
+        ModContent.GetInstance<DoomsdayManager>().SelectedDoomsdayOption = DoomsdayOptions.Stagnation;
+        ModContent.GetInstance<DoomsdayManager>().ApocalypseEnabledMenu = false;
+        enableButton.SetCurrentOption(Enabling.no);
     }
 
     public static LocalizedText[] titles =
@@ -254,6 +255,9 @@ public class WorldGenPage : ModSystem
         Language.GetText(
             SolarDoomsday.mod.GetLocalizationKey("DoomsdaySelection.Nova.Title")
         ),
+        Language.GetText(
+            SolarDoomsday.mod.GetLocalizationKey("DoomsdaySelection.Enabling.Title")
+        ),
     };
 
 
@@ -262,7 +266,8 @@ public class WorldGenPage : ModSystem
         ModContent.Request<Texture2D>("SolarDoomsday/Common/IconStagnation"),
         ModContent.Request<Texture2D>("SolarDoomsday/Common/IconDissipation"),
         ModContent.Request<Texture2D>("SolarDoomsday/Common/IconNova"),
-        ModContent.Request<Texture2D>("SolarDoomsday/Common/IconPeaceful")
+        ModContent.Request<Texture2D>("SolarDoomsday/Common/IconPeaceful"),
+        ModContent.Request<Texture2D>("SolarDoomsday/Common/IconGeneral")
     };
 
     private static void AddDoomsdayOptions(
@@ -331,12 +336,61 @@ public class WorldGenPage : ModSystem
         }
     }
 
+    private static void AddEnableButton(
+        UIWorldCreation self,
+        UIElement container,
+        float accumulatedHeight,
+        UIElement.MouseEvent clickEvent,
+        string tagGroup,
+        float usableWidthPercent
+    )
+    {
+        vars.self = self;
+        vars.container = container;
+        vars.accumulatedHeight = accumulatedHeight;
+        vars.useableWidthPercent = usableWidthPercent;
+        vars.tagGroup = "doomsday";
+
+        var groupOptionButton =
+            new global::SolarDoomsday.GroupOptionButton<Enabling>(
+                Enabling.e,
+                titles[3],
+                Language.GetText(SolarDoomsday.mod.GetLocalizationKey("DoomsdaySelection.Enabling.Description")),
+                Color.LightCoral,
+                icons[4],
+                1f,
+                1f,
+                16f
+            )
+            {
+                Width = StyleDimension.FromPixelsAndPercent(-1, 1),
+                Left = StyleDimension.FromPercent(1f - usableWidthPercent),
+                HAlign = 0,
+            };
+        groupOptionButton.Top.Set(accumulatedHeight, 0f);
+        groupOptionButton.OnLeftMouseDown += clickEvent;
+        groupOptionButton.OnMouseOver += self.ShowOptionDescription;
+        groupOptionButton.OnMouseOut += self.ClearOptionDescription;
+        groupOptionButton.SetSnapPoint(tagGroup, 0);
+        container.Append(groupOptionButton);
+        enableButton = groupOptionButton;
+    }
+
+    private static void ClickEnableButton(UIMouseEvent evt, UIElement listeningElement)
+    {
+        ModContent.GetInstance<DoomsdayManager>().ApocalypseEnabledMenu = true;
+        AddDoomsdayOptions(vars.self, vars.container, vars.accumulatedHeight, ClickInfectFirstOption, vars.tagGroup, vars.useableWidthPercent);
+        listeningElement.Remove();
+        foreach (GroupOptionButton<DoomsdayOptions> doomsdayButton in DoomsdayButtons)
+        {
+            doomsdayButton.SetCurrentOption(DoomsdayOptions.Stagnation);
+        }
+    }
+
     private static void ClickInfectFirstOption(UIMouseEvent evt, UIElement listeningElement)
     {
         var groupOptionButton = (GroupOptionButton<DoomsdayOptions>)listeningElement;
-        ModContent.GetInstance<DoomsdayManager>().SelectedDoomsdayOption =
-            groupOptionButton.OptionValue;
-
+        ModContent.GetInstance<DoomsdayManager>().SelectedDoomsdayOption = groupOptionButton.OptionValue;
         foreach (GroupOptionButton<DoomsdayOptions> doomsdayButton in DoomsdayButtons)
         {
             doomsdayButton.SetCurrentOption(groupOptionButton.OptionValue);
