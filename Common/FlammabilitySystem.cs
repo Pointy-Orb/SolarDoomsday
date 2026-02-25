@@ -48,7 +48,10 @@ public class FlammabilitySystem : ModSystem
         WallID.Pearlwood,
         WallID.LivingLeaf,
         WallID.HiveUnsafe,
-        WallID.Hive
+        WallID.Planked,
+        WallID.Hive,
+        WallID.SpiderUnsafe,
+        WallID.SpiderEcho
     };
 
     public static void MarkFlammability()

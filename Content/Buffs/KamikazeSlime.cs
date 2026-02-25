@@ -61,7 +61,7 @@ public class BlowUpSlime : GlobalNPC
     public override void PostAI(NPC npc)
     {
         npc.GetGlobalNPC<BlowUpSlime>().blowCooldown--;
-        npc.buffImmune[ModContent.BuffType<KamikazeSlime>()] = Main.raining;
+        npc.buffImmune[ModContent.BuffType<KamikazeSlime>()] = DoomsdayManager.RainingAndSafe;
     }
 }
 

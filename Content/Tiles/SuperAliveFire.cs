@@ -245,7 +245,7 @@ public class SpreadFire : GlobalTile
                 {
                     continue;
                 }
-                if (Main.raining && Main.rand.NextBool() && l <= Main.worldSurface)
+                if (DoomsdayManager.RainingAndSafe && Main.rand.NextBool() && l <= Main.worldSurface)
                 {
                     continue;
                 }

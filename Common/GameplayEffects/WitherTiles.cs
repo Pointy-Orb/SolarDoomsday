@@ -34,7 +34,7 @@ public class WitherTiles : GlobalTile
         {
             return;
         }
-        if (!Main.IsItDay() || Main.raining)
+        if (!Main.IsItDay() || DoomsdayManager.RainingAndSafe)
         {
             return;
         }
@@ -50,7 +50,7 @@ public class WitherTiles : GlobalTile
             }
             if (DoomsdayClock.TimeLeftInRange(2))
             {
-                tile.LiquidAmount -= byte.Min(tile.LiquidAmount, 2);
+                tile.LiquidAmount -= byte.Min(tile.LiquidAmount, 10);
             }
             if (DoomsdayClock.TimeLeftInRange(3))
             {
@@ -149,7 +149,7 @@ public class WitherTiles : GlobalTile
         {
             goto serverSync;
         }
-        if (!Main.IsItDay() || (Main.raining && DoomsdayClock.DayCount >= 9))
+        if (!Main.IsItDay() || (DoomsdayManager.RainingAndSafe && DoomsdayClock.DayCount >= 9))
         {
             goto serverSync;
         }
@@ -164,7 +164,7 @@ public class WitherTiles : GlobalTile
         if (TileID.Sets.IsATreeTrunk[type] && DoomsdayClock.TimeLeftInRange(2))
         {
             WorldGen.GetTreeBottom(i, j, out var k, out var l);
-            while (WorldGen.InWorld(k, l - 1) && TileID.Sets.IsATreeTrunk[Main.tile[k, l - 1].TileType] && Main.tile[k, l].HasTile)
+            while (WorldGen.InWorld(k, l - 1) && TileID.Sets.IsATreeTrunk[Main.tile[k, l - 1].TileType] && Main.tile[k, l - 1].HasTile)
             {
                 l--;
             }
@@ -228,8 +228,7 @@ public class WitherTiles : GlobalTile
                 WorldGen.KillTile(i, j);
             }
         }
-        if (DoomsdayClock.TimeLeftInRange(3) && FlammabilitySystem.Flammability[type] > 0 && Main.rand.NextBool(9) &&
-                !(WorldGen.InWorld(i, j - 1) && (TileID.Sets.PreventsTileRemovalIfOnTopOfIt[Main.tile[i, j - 1].TileType] || TileID.Sets.BasicChest[Main.tile[i, j - 1].TileType])))
+        if (DoomsdayClock.TimeLeftInRange(3) && FlammabilitySystem.Flammability[type] > 0 && Main.rand.NextBool(9) && (DoomsdayClock.TimeLeftInRange(6) || j < Main.worldSurface))
         {
             Fire.SetOnFire(i, j);
             SolarDoomsday.RemoteSetFire(i, j);

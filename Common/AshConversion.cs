@@ -9,9 +9,12 @@ namespace SolarDoomsday;
 
 public class AshConversion : ModBiomeConversion
 {
+    public static bool[] CanMelt;
+
     public override void PostSetupContent()
     {
         FlammabilitySystem.MarkFlammability();
+        CanMelt = new bool[TileLoader.TileCount];
 
         for (int i = 0; i < TileLoader.TileCount; i++)
         {
@@ -30,6 +33,7 @@ public class AshConversion : ModBiomeConversion
             if (TileID.Sets.Stone[i] || TileID.Sets.Ore[i] || TileID.Sets.Conversion.Stone[i] || TileID.Sets.Conversion.Sandstone[i] || MeltVictims.Contains(i))
             {
                 TileLoader.RegisterConversion(i, Type, MeltTile);
+                CanMelt[i] = true;
             }
         }
 

@@ -80,7 +80,7 @@ public class TemperatureSystem : ModSystem
         {
             dayVariance = Main.rand.Next(-8, 9);
         }
-        int rainDiff = Main.raining ? -20 : 0;
+        int rainDiff = DoomsdayManager.RainingAndSafe ? -20 : 0;
         if (Main.IsItDay())
         {
             if (!DoomsdayClock.TimeLeftInRange(3, 2))

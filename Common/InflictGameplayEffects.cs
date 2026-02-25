@@ -12,7 +12,7 @@ public class Weather : ModSystem
 {
     public override void PostUpdateTime()
     {
-        if (DoomsdayClock.TimeLeftInRange(2) && Main.raining && !CreativePowerManager.Instance.GetPower<CreativePowers.FreezeRainPower>().Enabled && Main.IsItDay())
+        if (DoomsdayClock.TimeLeftInRange(2) && DoomsdayManager.RainingAndSafe && !CreativePowerManager.Instance.GetPower<CreativePowers.FreezeRainPower>().Enabled && Main.IsItDay())
         {
             Main.StopRain();
         }

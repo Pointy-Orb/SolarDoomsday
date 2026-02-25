@@ -246,7 +246,7 @@ public class MakeAtmosphereHellish : ModSceneEffect
             {
                 return !Main.swapMusic == Main.drunkWorld && !Main.remixWorld ? MusicID.OtherworldlyEerie : MusicID.Hell;
             }
-            else if (DoomsdayClock.TimeLeftInRange(3, 2) && !Main.raining)
+            else if (DoomsdayClock.TimeLeftInRange(3, 2) && !DoomsdayManager.RainingAndSafe)
             {
                 return !Main.swapMusic == Main.drunkWorld && !Main.remixWorld ? MusicID.OtherworldlyUnderworld : MusicID.Eerie;
             }

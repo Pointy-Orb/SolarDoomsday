@@ -55,7 +55,7 @@ public class HeatStrokePlayer : ModPlayer
 
     public override void PostUpdateBuffs()
     {
-        Player.buffImmune[ModContent.BuffType<HeatStroke>()] = Player.buffImmune[BuffID.OnFire] || (Player.wet && !Player.lavaWet) || Main.raining;
+        Player.buffImmune[ModContent.BuffType<HeatStroke>()] = Player.buffImmune[BuffID.OnFire] || (Player.wet && !Player.lavaWet) || DoomsdayManager.RainingAndSafe;
         if (!heatStroke)
         {
             return;

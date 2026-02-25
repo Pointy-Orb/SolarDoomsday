@@ -17,6 +17,8 @@ public class Hornfels : ModTile
 
         MineResist = 2f;
 
+        TileID.Sets.CanBeClearedDuringOreRunner[Type] = true;
+
         HitSound = SoundID.Tink;
         DustType = DustID.MeteorHead;
         AddMapEntry(new Color(84, 0, 0));

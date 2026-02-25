@@ -285,7 +285,7 @@ public class Fire : ModType
             fireChangeRate = Math.Max(1, fireChangeRate);
         }
         bool chicken = false;
-        if (Main.raining && y < Main.worldSurface && tile.WallType == 0)
+        if (DoomsdayManager.RainingAndSafe && y < Main.worldSurface && tile.WallType == 0)
         {
             if (Main.rand.NextBool())
             {
@@ -337,6 +337,10 @@ public class Fire : ModType
                 continue;
             }
             if (Main.tile[i, j].Get<FireTileData>().fireAmount > 0)
+            {
+                fail = true;
+            }
+            if (!Main.tile[i, j].HasTile && FlammabilitySystem.FlammabilityWall[Main.tile[i, j].WallType] < 0)
             {
                 fail = true;
             }
@@ -399,6 +403,10 @@ public class Fire : ModType
         if (FlammabilitySystem.Flammability[target.TileType] > 0)
         {
             spread = true;
+            if (TileID.Sets.IsATreeTrunk[target.TileType])
+            {
+                WorldGen.CheckTree(i, j);
+            }
             if (safeMode)
             {
                 target.TileType = TileID.Ash;

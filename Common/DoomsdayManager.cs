@@ -23,6 +23,8 @@ public class DoomsdayManager : ModSystem
     public bool ApocalypseEnabledMenu = false;
     public static bool thisWorldNeverSawTerror = true;
 
+    public static bool RainingAndSafe => Main.raining && ModContent.GetInstance<ServerConfig>().RainGivesSafety;
+
     public DoomsdayOptions SelectedDoomsdayOption { get; set; } = DoomsdayOptions.Stagnation;
     public static DoomsdayOptions worldEndChoice = DoomsdayOptions.Dissipation;
     public static int chosenDayNumber = 30;
@@ -33,10 +35,12 @@ public class DoomsdayManager : ModSystem
     public static bool sentTheMessage = false;
 
     public static int shaderTime = 0;
-    private static int novaTime = 0;
+    public static int novaTime { get; private set; } = 0;
 
     public static int spookyBackTime = 0;
     private static float effectTransition = 0;
+
+    public static bool ScreenShakeActive { get; private set; } = false;
 
     public override void Load()
     {
@@ -84,9 +88,19 @@ public class DoomsdayManager : ModSystem
         {
             shaderTime--;
         }
-        if (!Main.dedServ)
+        if (Main.dedServ)
         {
-            Main.LocalPlayer.ManageSpecialBiomeVisuals("SolarDoomsday:BigScaryFlashShader", shaderTime > 60 && (Main.LocalPlayer.ZoneOverworldHeight || Main.LocalPlayer.ZoneSkyHeight || worldEndChoice == DoomsdayOptions.Nova));
+            return;
+        }
+        Main.LocalPlayer.ManageSpecialBiomeVisuals("SolarDoomsday:BigScaryFlashShader", shaderTime > 60 && (Main.LocalPlayer.ZoneOverworldHeight || Main.LocalPlayer.ZoneSkyHeight || worldEndChoice == DoomsdayOptions.Nova));
+        if (!ScreenShakeActive && ScreenShake.ScreenShakeConditions)
+        {
+            Main.instance.CameraModifiers.Add(new ScreenShake(10, FullName));
+            ScreenShakeActive = true;
+        }
+        if (!ScreenShake.ScreenShakeConditions)
+        {
+            ScreenShakeActive = false;
         }
     }
 
@@ -102,6 +116,40 @@ public class DoomsdayManager : ModSystem
             if (novaTime <= 0)
             {
                 DestroyWorldNova();
+            }
+        }
+        if (DoomsdayClock.TimeLeftInRange(3) && Main.spawnTileY < Main.worldSurface + 30)
+        {
+            while (Main.spawnTileY < Main.worldSurface + 10 || (Main.spawnTileY < Main.rockLayer && (Main.tile[Main.spawnTileX, Main.spawnTileY - 1].HasTile || !Main.tile[Main.spawnTileX, Main.spawnTileY].HasTile)))
+            {
+                Main.spawnTileY++;
+            }
+            for (int i = Main.spawnTileX - 5; i <= Main.spawnTileX + 5; i++)
+            {
+                for (int j = Main.spawnTileY - 5; j <= Main.spawnTileY + 5; j++)
+                {
+                    if (!WorldGen.InWorld(i, j))
+                    {
+                        continue;
+                    }
+                    Tile tile = Main.tile[i, j];
+                    if (AshConversion.CanMelt[tile.TileType])
+                    {
+                        WorldGen.ConvertTile(i, j, TileID.Dirt);
+                    }
+                    if (tile.TileType == ModContent.TileType<Content.Tiles.Hornfels>())
+                    {
+                        WorldGen.ConvertTile(i, j, TileID.Ash);
+                    }
+                    tile.LiquidAmount = 0;
+                }
+            }
+            for (int i = Main.spawnTileX - 2; i <= Main.spawnTileX + 2; i++)
+            {
+                for (int j = Main.spawnTileY - 3; j < Main.spawnTileY; j++)
+                {
+                    WorldGen.KillTile(i, j, noItem: true);
+                }
             }
         }
     }
@@ -181,6 +229,7 @@ public class DoomsdayManager : ModSystem
                 tile.LiquidAmount = 0;
             }
         }
+        WorldGen.WaterCheck();
         Main.worldSurface = Math.Max(Main.UnderworldLayer - 300, Main.worldSurface);
         Main.rockLayer = Math.Max(Main.UnderworldLayer - 200, Main.rockLayer);
         if (Main.dedServ)

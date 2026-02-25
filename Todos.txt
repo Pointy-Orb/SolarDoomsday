@@ -1,7 +1,5 @@
 Test large world lag on a better computer
-Add screenshake for final day (and a config option to turn it off!)
 Finish making the flammable tile list crossmod friendly
-Give config option that allows control for if rain should offer safety or not
 Have it so that spawn gets pushed downwards once Phase 3 begins, so that players don't get spawnkilled by the sun.
-Fix trees being weird
 Make hornfels become "inactive" when it isn't daytime, or see if that is even a good idea
+Give an option to replace the day counter with screen text or just get rid of it.

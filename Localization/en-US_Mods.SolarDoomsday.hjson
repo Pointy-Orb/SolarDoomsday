@@ -203,3 +203,27 @@ Biomes: {
 		TownNPCDialogueName: the Scorched Underground Surface
 	}
 }
+
+Configs: {
+	ServerConfig: {
+		DisplayName: Gameplay Settings
+
+		RainGivesSafety: {
+			Label: Rain Gives Safety
+			Tooltip:
+				'''
+				When enabled, rain will negate any active negative effects of the apocalypse.
+				Your world will still reach a point where it can no longer rain, though!
+				'''
+		}
+	}
+
+	ClientConfig: {
+		DisplayName: Visual Settings
+
+		ScreenShakeStrength: {
+			Label: Screen Shake Strength
+			Tooltip: "On the last day of a Nova world, the screen will have ambient shaking\nthat becomes more intense the closer to the end it gets.\nThis lets you customize how strong you want that shaking to be."
+		}
+	}
+}
