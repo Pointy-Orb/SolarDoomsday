@@ -161,7 +161,7 @@ public class WitherTiles : GlobalTile
         {
             return;
         }
-        if (TileID.Sets.IsATreeTrunk[type] && DoomsdayClock.TimeLeftInRange(2))
+        if (TileID.Sets.IsATreeTrunk[type] && DoomsdayClock.TimeLeftInRange(2) && FlammabilitySystem.Flammability[type] > -1)
         {
             WorldGen.GetTreeBottom(i, j, out var k, out var l);
             while (WorldGen.InWorld(k, l - 1) && TileID.Sets.IsATreeTrunk[Main.tile[k, l - 1].TileType] && Main.tile[k, l - 1].HasTile)
@@ -172,9 +172,14 @@ public class WitherTiles : GlobalTile
             SolarDoomsday.RemoteSetFire(k, l);
             didSomething = true;
             WorldGen.KillWall(k, l);
-            WorldGen.Reframe(k, l);
+            WorldGen.SquareTileFrame(k, l);
         }
         if (DoomsdayClock.TimeLeftInRange(3) && (Main.rand.NextBool(3) || DoomsdayClock.TimeLeftInRange(6)))
+        {
+            WorldGen.Convert(i, j, ModContent.GetInstance<AshConversion>().Type, 0, true, true);
+            didSomething = true;
+        }
+        else if ((float)(DoomsdayClock.daysLeft - 1) / (float)DoomsdayClock.DayCount <= 1f / 3f && Main.rand.NextBool(200) && TileID.Sets.Dirt[type])
         {
             WorldGen.Convert(i, j, ModContent.GetInstance<AshConversion>().Type, 0, true, true);
             didSomething = true;
@@ -196,13 +201,13 @@ public class WitherTiles : GlobalTile
                 {
                     Main.tile[i, j].TileType = TileID.Dirt;
                 }
-                WorldGen.Reframe(i, j);
+                WorldGen.SquareTileFrame(i, j);
                 didSomething = true;
             }
             if (TileID.Sets.Ices[Main.tile[i, j].TileType])
             {
                 Main.tile[i, j].TileType = TileID.Stone;
-                WorldGen.Reframe(i, j);
+                WorldGen.SquareTileFrame(i, j);
                 didSomething = true;
             }
             if (type == TileID.BreakableIce)
@@ -220,7 +225,7 @@ public class WitherTiles : GlobalTile
             if (type == TileID.Mud)
             {
                 Main.tile[i, j].TileType = TileID.Dirt;
-                WorldGen.Reframe(i, j);
+                WorldGen.SquareTileFrame(i, j);
                 NetMessage.SendTileSquare(-1, i, j, 1, 1);
             }
             if (TileID.Sets.Leaves[type])
@@ -239,7 +244,7 @@ public class WitherTiles : GlobalTile
             if (type == TileID.JungleGrass)
             {
                 Main.tile[i, j].TileType = TileID.Grass;
-                WorldGen.Reframe(i, j);
+                WorldGen.SquareTileFrame(i, j);
                 NetMessage.SendTileSquare(-1, i, j, 1, 1);
             }
             for (int k = i - 2; k <= i + 2; k++)
@@ -249,7 +254,7 @@ public class WitherTiles : GlobalTile
                     if (TileID.Sets.Conversion.Grass[Main.tile[k, l].TileType])
                     {
                         Main.tile[k, l].TileType = TileID.Dirt;
-                        WorldGen.Reframe(k, l);
+                        WorldGen.SquareTileFrame(k, l);
                     }
                 }
             }

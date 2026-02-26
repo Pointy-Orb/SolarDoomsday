@@ -19,6 +19,8 @@ public class Hornfels : ModTile
 
         TileID.Sets.CanBeClearedDuringOreRunner[Type] = true;
 
+        VanillaFallbackOnModDeletion = TileID.Stone;
+
         HitSound = SoundID.Tink;
         DustType = DustID.MeteorHead;
         AddMapEntry(new Color(84, 0, 0));

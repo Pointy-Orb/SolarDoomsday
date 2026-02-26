@@ -118,7 +118,7 @@ public class DoomsdayManager : ModSystem
                 DestroyWorldNova();
             }
         }
-        if (DoomsdayClock.TimeLeftInRange(3) && Main.spawnTileY < Main.worldSurface + 30)
+        if (DoomsdayClock.TimeLeftInRange(6) && Main.spawnTileY < Main.worldSurface + 30 && !sunDied)
         {
             while (Main.spawnTileY < Main.worldSurface + 10 || (Main.spawnTileY < Main.rockLayer && (Main.tile[Main.spawnTileX, Main.spawnTileY - 1].HasTile || !Main.tile[Main.spawnTileX, Main.spawnTileY].HasTile)))
             {
@@ -199,7 +199,7 @@ public class DoomsdayManager : ModSystem
             case DoomsdayOptions.Stagnation:
                 break;
             case DoomsdayOptions.Dissipation:
-                SoundEngine.PlaySound(new SoundStyle("SolarDoomsday/Assets/sunsplosion"));
+                //SoundEngine.PlaySound(new SoundStyle("SolarDoomsday/Assets/sunsplosion"));
                 shaderTime = 440;
                 sunDied = true;
                 break;
@@ -229,6 +229,7 @@ public class DoomsdayManager : ModSystem
                 tile.LiquidAmount = 0;
             }
         }
+        Liquid.numLiquid = 0;
         WorldGen.WaterCheck();
         Main.worldSurface = Math.Max(Main.UnderworldLayer - 300, Main.worldSurface);
         Main.rockLayer = Math.Max(Main.UnderworldLayer - 200, Main.rockLayer);

@@ -1,5 +1,5 @@
-Test large world lag on a better computer
+Find out how to make the start of Phase 3 less laggy
 Finish making the flammable tile list crossmod friendly
-Have it so that spawn gets pushed downwards once Phase 3 begins, so that players don't get spawnkilled by the sun.
-Make hornfels become "inactive" when it isn't daytime, or see if that is even a good idea
 Give an option to replace the day counter with screen text or just get rid of it.
+
+Make a better mod icon: ff3700 is the color to use for GIMP supernova filter

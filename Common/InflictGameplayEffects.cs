@@ -52,7 +52,7 @@ public class FireMonsters : GlobalNPC
         pool[NPCID.LavaSlime] = 0.5f;
         pool[NPCID.RedSlime] = 0.7f;
         pool[NPCID.BlazingWheel] = 0.1f;
-        if (!Main.hardMode && inScorched)
+        if (!Main.hardMode || inScorched)
         {
             return;
         }

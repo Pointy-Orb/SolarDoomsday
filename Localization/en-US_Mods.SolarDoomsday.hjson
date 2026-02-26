@@ -1,5 +1,5 @@
 DeathReasons: {
-	Sun0: "{0} turned into a fine atomic goo"
+	Sun0: "{0} became a fine atomic goo"
 	Sun1: "{0} got some fun in the sun"
 	Sun2: "{0} was violently vaporized"
 }
@@ -223,7 +223,12 @@ Configs: {
 
 		ScreenShakeStrength: {
 			Label: Screen Shake Strength
-			Tooltip: "On the last day of a Nova world, the screen will have ambient shaking\nthat becomes more intense the closer to the end it gets.\nThis lets you customize how strong you want that shaking to be."
+			Tooltip:
+				'''
+				On the last day of a Nova world, the screen will have ambient shaking
+				that becomes more intense the closer to the end it gets.
+				This lets you customize how strong you want that shaking to be.
+				'''
 		}
 	}
 }

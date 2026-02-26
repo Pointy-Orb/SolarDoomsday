@@ -234,13 +234,13 @@ public class MakeAtmosphereHellish : ModSceneEffect
     {
         get
         {
+            if (DoomsdayClock.LastDay || DoomsdayManager.novaTime > 0)
+            {
+                return !Main.swapMusic == Main.drunkWorld && !Main.remixWorld ? MusicID.OtherworldlyTowers : MusicID.Boss2;
+            }
             if (DoomsdayManager.sunDied)
             {
                 return Main.dayTime ? MusicID.SpaceDay : MusicID.Space;
-            }
-            if (DoomsdayClock.LastDay)
-            {
-                return !Main.swapMusic == Main.drunkWorld && !Main.remixWorld ? MusicID.OtherworldlyTowers : MusicID.Boss2;
             }
             if (DoomsdayClock.PercentTimeLeft() <= (1f / 3f))
             {

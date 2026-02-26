@@ -58,6 +58,10 @@ public class WeatherRadio : GlobalInfoDisplay
                 var negative = _currentTemperature < _targetTemperature ? 1 : -1;
                 _currentTemperature += Main.rand.Next(1, 2) * negative;
             }
+            if (_targetTemperature > 1000000)
+            {
+                _currentTemperature += 41;
+            }
         }
         else
         {
@@ -103,6 +107,14 @@ public class TemperatureSystem : ModSystem
             {
                 WeatherRadio.CurrentTemperature = 80 + dayVariance * 2;
             }
+        }
+        else if (DoomsdayManager.novaTime > 0)
+        {
+            WeatherRadio.CurrentTemperature = 3000000;
+        }
+        else if (DoomsdayManager.sunDied)
+        {
+            WeatherRadio.CurrentTemperature = -16 + dayVariance;
         }
         else
         {

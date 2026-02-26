@@ -50,6 +50,8 @@ public class WitherWalls : GlobalWall
             return;
         }
 
+        WitherTheWalls(i, j, type);
+        /*
         if (convertQueue.Count < Main.desiredWorldTilesUpdateRate)
         {
             convertQueue.Add(new UpdatingWall(i, j, type));
@@ -65,6 +67,7 @@ public class WitherWalls : GlobalWall
             }
             convertQueue.Clear();
         }
+		*/
     }
 
     private static void WitherTheWalls(int i, int j, int type)

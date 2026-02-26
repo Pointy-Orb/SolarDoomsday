@@ -18,7 +18,7 @@ public class ScorchedUnderground : ModBiome
 
     public override bool IsBiomeActive(Player player)
     {
-        return player.ZoneDirtLayerHeight && ModContent.GetInstance<ScorchedTileCount>().scorchedTileCount >= 400;
+        return player.ZoneDirtLayerHeight && ModContent.GetInstance<ScorchedTileCount>().scorchedTileCount >= 500;
     }
 }
 
@@ -40,6 +40,6 @@ public class ScorchedTileCount : ModSystem
 
     public override void TileCountsAvailable(ReadOnlySpan<int> tileCounts)
     {
-        scorchedTileCount = tileCounts[ModContent.TileType<Tiles.Hornfels>()] + tileCounts[TileID.Ash];
+        scorchedTileCount = tileCounts[ModContent.TileType<Tiles.Hornfels>()];
     }
 }

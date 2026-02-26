@@ -375,7 +375,7 @@ public class Fire : ModType
         {
             spread = true;
             WorldGen.ConvertWall(i, j, 0);
-            WorldGen.Reframe(i, j);
+            WorldGen.SquareWallFrame(i, j);
         }
         if (!target.HasTile && target.LiquidAmount > 0 && target.LiquidType == LiquidID.Honey)
         {
@@ -414,17 +414,7 @@ public class Fire : ModType
             else
             {
                 target.HasTile = false;
-                for (int k = i - 1; k <= i + 1; k++)
-                {
-                    for (int l = j - 1; l <= j + 1; l++)
-                    {
-                        if (!WorldGen.InWorld(k, l))
-                        {
-                            continue;
-                        }
-                        WorldGen.Reframe(k, l);
-                    }
-                }
+                WorldGen.SquareTileFrame(i, j);
             }
         }
         if (spread)

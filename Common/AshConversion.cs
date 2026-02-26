@@ -18,7 +18,7 @@ public class AshConversion : ModBiomeConversion
 
         for (int i = 0; i < TileLoader.TileCount; i++)
         {
-            if (i == TileID.DirtiestBlock || i == TileID.Ash)
+            if (i == TileID.DirtiestBlock || i == TileID.Ash || i == TileID.AshGrass)
             {
                 continue;
             }
@@ -41,13 +41,31 @@ public class AshConversion : ModBiomeConversion
         {
             if (WallID.Sets.Conversion.Dirt[i] || WallID.Sets.Conversion.HardenedSand[i])
             {
-                WallLoader.RegisterConversion(i, Type, WallID.LavaUnsafe1);
+                WallLoader.RegisterConversion(i, Type, ConvertDirtWall);
             }
             else if (FlammabilitySystem.FlammabilityWall[i] < 1 && i != WallID.ObsidianBrick && i != WallID.LavaUnsafe1 && i != WallID.Lava1Echo && !Main.wallDungeon[i])
             {
-                WallLoader.RegisterConversion(i, Type, WallID.LavaUnsafe3);
+                WallLoader.RegisterConversion(i, Type, ConvertOtherWall);
             }
         }
+    }
+
+    private bool ConvertDirtWall(int i, int j, int type, int conversionType)
+    {
+        if (j < Main.worldSurface || !Main.wallHouse[type])
+        {
+            WorldGen.ConvertWall(i, j, WallID.LavaUnsafe1);
+        }
+        return false;
+    }
+
+    private bool ConvertOtherWall(int i, int j, int type, int conversionType)
+    {
+        if (j < Main.worldSurface || !Main.wallHouse[type])
+        {
+            WorldGen.ConvertWall(i, j, WallID.LavaUnsafe3);
+        }
+        return false;
     }
 
     private bool MeltTile(int i, int j, int type, int conversionType)
@@ -71,7 +89,7 @@ public class AshConversion : ModBiomeConversion
         {
             tile.TileType = (ushort)ModContent.TileType<Hornfels>();
         }
-        WorldGen.Reframe(i, j);
+        WorldGen.SquareTileFrame(i, j);
         return false;
     }
 
