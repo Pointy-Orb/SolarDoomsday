@@ -74,8 +74,11 @@ public class CosmicSunblock : ModItem
     public override bool? UseItem(Player player)
     {
         Item.consumable = !DoomsdayManager.sunDied;
-        DoomsdayManager.savedEverybody = true;
-        DoomsdayManager.shaderTime = 120;
+        if (!DoomsdayManager.sunDied)
+        {
+            DoomsdayManager.savedEverybody = true;
+            DoomsdayManager.shaderTime = 120;
+        }
         if (Main.netMode == NetmodeID.MultiplayerClient)
         {
             return true;

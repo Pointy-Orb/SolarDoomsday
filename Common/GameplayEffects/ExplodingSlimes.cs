@@ -18,7 +18,12 @@ public class ExplodingSlimes : GlobalNPC
         {
             return;
         }
-        if (!Main.IsItDay() || DoomsdayManager.savedEverybody || npc.position.Y / 16 > Main.worldSurface)
+        if (!Main.IsItDay() || DoomsdayManager.savedEverybody)
+        {
+            return;
+        }
+        var tileY = npc.position.Y / 16;
+        if ((tileY > Main.worldSurface && !DoomsdayClock.TimeLeftInRange(3)) || tileY > Main.rockLayer)
         {
             return;
         }

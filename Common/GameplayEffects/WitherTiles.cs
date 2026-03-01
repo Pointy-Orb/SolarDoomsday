@@ -151,7 +151,7 @@ public class WitherTiles : GlobalTile
             WorldGen.KillWall(k, l);
             WorldGen.SquareTileFrame(k, l);
         }
-        else if ((float)(DoomsdayClock.daysLeft - 1) / (float)DoomsdayClock.DayCount <= 1f / 3f && Main.rand.NextBool(200) && TileID.Sets.Dirt[type])
+        if ((float)(DoomsdayClock.daysLeft - 1) / (float)DoomsdayClock.DayCount <= 1f / 3f && Main.rand.NextBool(200) && TileID.Sets.Dirt[type] && !DoomsdayClock.TimeLeftInRange(3))
         {
             WorldGen.Convert(i, j, ModContent.GetInstance<AshConversion>().Type, 0, true, true);
             didSomething = true;
@@ -205,6 +205,11 @@ public class WitherTiles : GlobalTile
                 WorldGen.KillTile(i, j);
             }
         }
+        if (DoomsdayClock.TimeLeftInRange(3, 2) && type == TileID.WaterDrip)
+        {
+            WorldGen.KillTile(i, j);
+            didSomething = true;
+        }
         if (DoomsdayClock.TimeLeftInRange(3) && FlammabilitySystem.Flammability[type] > 0 && Main.rand.NextBool(9) && (DoomsdayClock.TimeLeftInRange(6) || j < Main.worldSurface))
         {
             Fire.SetOnFire(i, j);
@@ -253,6 +258,10 @@ public class AshifyEverything : ModSystem
             return;
         }
         if (!DoomsdayClock.TimeLeftInRange(3))
+        {
+            return;
+        }
+        if (!Main.IsItDay())
         {
             return;
         }
