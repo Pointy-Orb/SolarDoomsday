@@ -27,6 +27,13 @@ public class Effects : ModSystem
         On_Main.DrawSunAndMoon += ControlSunColor;
     }
 
+    public override void Unload()
+    {
+        IL_Main.DrawSunAndMoon -= IL_BiggerSun;
+
+        On_Main.DrawSunAndMoon -= ControlSunColor;
+    }
+
     public override void PostUpdateTime()
     {
         if (DoomsdayManager.savedEverybody)
@@ -228,6 +235,12 @@ public class MakeAtmosphereHellish : ModSceneEffect
     {
         On_Main.UpdateBGVisibility_FrontLayer += RemoveFrontLayerOverTime;
         On_Main.DrawBG_ModifyBGFarBackLayerAlpha += RemoveOceanBackground;
+    }
+
+    public override void Unload()
+    {
+        On_Main.UpdateBGVisibility_FrontLayer -= RemoveFrontLayerOverTime;
+        On_Main.DrawBG_ModifyBGFarBackLayerAlpha -= RemoveOceanBackground;
     }
 
     public override int Music

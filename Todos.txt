@@ -1,5 +1,1 @@
 Find out how to make the start of Phase 3 less laggy
-Finish making the flammable tile list crossmod friendly
-Give an option to replace the day counter with screen text or just get rid of it.
-
-Make a better mod icon: ff3700 is the color to use for GIMP supernova filter

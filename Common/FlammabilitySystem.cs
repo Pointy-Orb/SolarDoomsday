@@ -18,6 +18,7 @@ public class FlammabilitySystem : ModSystem
         TileID.RichMahoganyBeam,
         TileID.WoodenBeam,
         TileID.Cactus,
+        TileID.CactusBlock,
         TileID.PumpkinBlock,
         TileID.Hive,
         TileID.Larva,
@@ -34,29 +35,20 @@ public class FlammabilitySystem : ModSystem
     };
     public static readonly int[] FlammabilityWallCore = new int[]
     {
-        WallID.Wood,
-        WallID.WoodenFence,
-        WallID.LivingWood,
         WallID.LivingWoodUnsafe,
-        WallID.Shadewood,
-        WallID.Ebonwood,
-        WallID.BlueDynasty,
-        WallID.WhiteDynasty,
-        WallID.RichMaogany,
-        WallID.PalmWood,
-        WallID.BorealWood,
-        WallID.Pearlwood,
-        WallID.LivingLeaf,
         WallID.HiveUnsafe,
-        WallID.Planked,
         WallID.Hive,
         WallID.SpiderUnsafe,
-        WallID.SpiderEcho
+        WallID.SpiderEcho,
+        WallID.Cactus
     };
+
+    public static List<int> FlammablePlatformStyles = new();
 
     public static void MarkFlammability()
     {
-        List<int> woods = GetWoods();
+        List<int> flammableItems = GetWoodItems();
+        List<int> woods = GetWoods(flammableItems);
         if (woods.Contains(TileID.AshWood))
         {
             woods.Remove(TileID.AshWood);
@@ -85,39 +77,38 @@ public class FlammabilitySystem : ModSystem
                 Flammability[i] = 5;
             }
         }
+
+        List<int> woodWalls = GetWoodWalls(flammableItems);
         for (int i = 0; i < WallLoader.WallCount; i++)
         {
             FlammabilityWall[i] = -2;
-            if (FlammabilityWallCore.Contains(i))
+            if (FlammabilityWallCore.Contains(i) || woodWalls.Contains(i))
             {
                 FlammabilityWall[i] = 1;
-                if (Main.wallBlend[i] > 0)
-                {
-                    FlammabilityWall[Main.wallBlend[i]] = 1;
-                }
             }
         }
+
+        FlammablePlatformStyles.Clear();
+        GetFlammablePlatforms(flammableItems);
     }
 
-    private static List<int> GetWoods()
+    private static List<int> GetWoodItems()
     {
-        List<int> woods = new();
-        List<int> woodItems = new();
+        List<int> flammableItems = new();
 
-        //Get wood items before adding them to tiles so that we can also get their variants
         if (RecipeGroup.recipeGroupIDs.ContainsKey("Wood"))
         {
             int index = RecipeGroup.recipeGroupIDs["Wood"];
             RecipeGroup group = RecipeGroup.recipeGroups[index];
             foreach (int itemType in group.ValidItems)
             {
-                woodItems.Add(itemType);
+                flammableItems.Add(itemType);
             }
         }
-        //Add woods that are woods because they become normal wood through Shimmer but can't be used for wood crafing, like Dynasty Wood
+
         for (int i = 0; i < ItemLoader.ItemCount; i++)
         {
-            if (woods.Contains(i))
+            if (flammableItems.Contains(i))
             {
                 continue;
             }
@@ -128,15 +119,48 @@ public class FlammabilitySystem : ModSystem
             }
             if (item.createTile > -1 && !ItemID.Sets.IsLavaImmuneRegardlessOfRarity[i])
             {
-                woods.Add(item.createTile);
+                flammableItems.Add(i);
             }
         }
+
+        return flammableItems;
+    }
+
+    private static void GetFlammablePlatforms(List<int> flammableItems)
+    {
+        for (int i = 0; i < Recipe.numRecipes; i++)
+        {
+            var recipe = Main.recipe[i];
+            if (recipe.createItem.createTile != TileID.Platforms)
+            {
+                continue;
+            }
+            bool usesWood = false;
+            foreach (int woodItem in flammableItems)
+            {
+                if (recipe.HasIngredient(woodItem))
+                {
+                    usesWood = true;
+                    break;
+                }
+            }
+            if (!usesWood)
+            {
+                continue;
+            }
+            FlammablePlatformStyles.Add(recipe.createItem.placeStyle);
+        }
+    }
+
+    private static List<int> GetWoods(List<int> flammableItems)
+    {
+        List<int> woods = new();
 
         //Add woods created by wands
         for (int i = 0; i < ItemLoader.ItemCount; i++)
         {
             var item = new Item(i);
-            if (!woodItems.Contains(item.tileWand))
+            if (!flammableItems.Contains(item.tileWand))
             {
                 continue;
             }
@@ -146,7 +170,7 @@ public class FlammabilitySystem : ModSystem
             }
         }
         //Add wood tiles
-        foreach (int itemType in woodItems)
+        foreach (int itemType in flammableItems)
         {
             var item = new Item(itemType);
             if (item.createTile > -1 && !ItemID.Sets.IsLavaImmuneRegardlessOfRarity[itemType])
@@ -156,5 +180,45 @@ public class FlammabilitySystem : ModSystem
         }
 
         return woods;
+    }
+
+    private static List<int> GetWoodWalls(List<int> flammableItems)
+    {
+        List<int> woodWalls = new();
+
+        for (int i = 0; i < Recipe.numRecipes; i++)
+        {
+            var recipe = Main.recipe[i];
+            if (recipe.createItem.createWall <= -1)
+            {
+                continue;
+            }
+            bool usesWood = false;
+            foreach (int woodItem in flammableItems)
+            {
+                if (recipe.HasIngredient(woodItem))
+                {
+                    usesWood = true;
+                    break;
+                }
+            }
+            if (!usesWood)
+            {
+                continue;
+            }
+            woodWalls.Add(recipe.createItem.createWall);
+            if (ItemID.Sets.ShimmerTransformToItem[recipe.createItem.type] <= 0)
+            {
+                continue;
+            }
+            var item = new Item(ItemID.Sets.ShimmerTransformToItem[recipe.createItem.type]);
+            if (item.createWall <= -1)
+            {
+                continue;
+            }
+            woodWalls.Add(item.createWall);
+        }
+
+        return woodWalls;
     }
 }

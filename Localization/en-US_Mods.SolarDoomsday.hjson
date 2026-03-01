@@ -4,6 +4,11 @@ DeathReasons: {
 	Sun2: "{0} was violently vaporized"
 }
 
+DaysUIText: {
+	DaysLeft: days left
+	HoursLeft: hours left
+}
+
 WorldEndSettings: {
 	Stagnation: Stagnation
 	Dissipation: Dissipation
@@ -186,6 +191,7 @@ Projectiles: {
 DropConditions.WorldNotSavedCondition: Drops while the Solar Apocalypse is still ongoing
 
 Conditions: {
+	WhileApocalypseInactive: Not while the Solar Apocalypse is active
 	WhenApocalypseOver: When the Solar Apocalypse has been stopped
 	HasCombustibleLemon: While a Combustible Lemon is in your inventory
 }
@@ -229,6 +235,35 @@ Configs: {
 				that becomes more intense the closer to the end it gets.
 				This lets you customize how strong you want that shaking to be.
 				'''
+		}
+
+		dayCounterDisplay: {
+			Label: Day Counter Display
+			Tooltip: Controls how the day counter on Dissipation and Stagnation worlds look
+		}
+	}
+
+	DayCounterDisplay: {
+		Fancy: {
+			Label: Fancy
+			Tooltip: ""
+		}
+
+		Tooltip: ""
+
+		Minimal: {
+			Label: Minimal
+			Tooltip: ""
+		}
+
+		None: {
+			Label: None
+			Tooltip: ""
+		}
+
+		Plain: {
+			Label: Plain
+			Tooltip: ""
 		}
 	}
 }

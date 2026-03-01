@@ -1,4 +1,5 @@
 using Terraria;
+using Terraria.ObjectData;
 using Terraria.Utilities;
 using Terraria.Graphics.Light;
 using System.IO;
@@ -26,6 +27,11 @@ public class Fire : ModType
     public override void Load()
     {
         On_TileLightScanner.ApplyWallLight += GiveFireLight;
+    }
+
+    public override void Unload()
+    {
+        On_TileLightScanner.ApplyWallLight -= GiveFireLight;
     }
 
     protected sealed override void Register()
@@ -275,6 +281,10 @@ public class Fire : ModType
         }
         //FireFraming.ReframeFireInner(x, y);
         int tileFireChangeRate = tile.HasTile ? FlammabilitySystem.Flammability[tile.TileType] : -10;
+        if (tile.TileType == TileID.Platforms && FlammabilitySystem.FlammablePlatformStyles.Contains(TileObjectData.GetTileStyle(tile)))
+        {
+            tileFireChangeRate = 1;
+        }
         int fireChangeRate = Math.Max(tileFireChangeRate, FlammabilitySystem.FlammabilityWall[tile.WallType]);
         if (!tile.HasTile && tile.WallType == 0)
         {
@@ -357,6 +367,10 @@ public class Fire : ModType
             FireLevel = (byte)Math.Min((int)byte.MaxValue, (int)FireLevel + 30);
         }
         int tileFlammability = victim.HasTile ? FlammabilitySystem.Flammability[victim.TileType] : -10;
+        if (victim.TileType == TileID.Platforms && FlammabilitySystem.FlammablePlatformStyles.Contains(TileObjectData.GetTileStyle(victim)))
+        {
+            tileFlammability = 1;
+        }
         var flammability = Math.Max(tileFlammability, FlammabilitySystem.FlammabilityWall[victim.WallType]);
         bool tileHoney = victim.LiquidAmount > 0 && victim.LiquidType == LiquidID.Honey;
         flammability = Math.Max(flammability, tileHoney ? 1 : flammability);
@@ -400,7 +414,7 @@ public class Fire : ModType
             WorldGen.KillTile(i, j, fail: false, effectOnly: false, noItem: true);
             Projectile.NewProjectile(Wiring.GetProjectileSource(i, j), i * 16 + 8, j * 16 + 8, 0f, 0f, 108, 500, 10f);
         }
-        if (FlammabilitySystem.Flammability[target.TileType] > 0)
+        if (FlammabilitySystem.Flammability[target.TileType] > 0 || (target.TileType == TileID.Platforms && FlammabilitySystem.FlammablePlatformStyles.Contains(TileObjectData.GetTileStyle(target))))
         {
             spread = true;
             if (TileID.Sets.IsATreeTrunk[target.TileType])
@@ -414,8 +428,8 @@ public class Fire : ModType
             else
             {
                 target.HasTile = false;
-                WorldGen.SquareTileFrame(i, j);
             }
+            WorldGen.SquareTileFrame(i, j);
         }
         if (spread)
         {

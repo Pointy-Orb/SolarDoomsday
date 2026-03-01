@@ -18,10 +18,22 @@ public class ServerConfig : ModConfig
     public bool RainGivesSafety { get; set; }
 }
 
+public enum DayCounterDisplay
+{
+    Fancy,
+    Plain,
+    Minimal,
+    None
+}
+
 public class ClientConfig : ModConfig
 {
     public override ConfigScope Mode => ConfigScope.ClientSide;
 
     [DefaultValue(1f)]
     public float ScreenShakeStrength { get; set; }
+
+    [DefaultValue(DayCounterDisplay.Fancy)]
+    [Dropdown]
+    public DayCounterDisplay dayCounterDisplay { get; set; }
 }

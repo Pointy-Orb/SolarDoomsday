@@ -41,6 +41,11 @@ namespace SolarDoomsday
             IL_Main.UpdateTime_StartDay += IL_StopEclipse;
         }
 
+        public override void Unload()
+        {
+            IL_Main.UpdateTime_StartDay -= IL_StopEclipse;
+        }
+
         public override void HandlePacket(BinaryReader reader, int whoAmI)
         {
             var messageType = (MessageType)reader.ReadByte();

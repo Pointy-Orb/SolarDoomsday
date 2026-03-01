@@ -50,7 +50,10 @@ public class WorldGenPage : ModSystem
 
     public override void Unload()
     {
-        //On_UIWorldListItem.DrawSelf -= DrawWorldSelectIcon;
+        IL_UIWorldCreation.BuildPage -= BiggerBuildPage;
+        IL_UIWorldCreation.MakeInfoMenu -= CustomInfoMenu;
+        IL_UIWorldCreation.ShowOptionDescription -= ShowModOptionDescription;
+        On_UIWorldCreation.SetDefaultOptions -= OnSetDefaults;
     }
 
     private static void BiggerBuildPage(ILContext il)
@@ -267,7 +270,7 @@ public class WorldGenPage : ModSystem
         ModContent.Request<Texture2D>("SolarDoomsday/Common/IconDissipation"),
         ModContent.Request<Texture2D>("SolarDoomsday/Common/IconNova"),
         ModContent.Request<Texture2D>("SolarDoomsday/Common/IconPeaceful"),
-        ModContent.Request<Texture2D>("SolarDoomsday/Common/IconGeneral")
+        ModContent.Request<Texture2D>("SolarDoomsday/icon_small")
     };
 
     private static void AddDoomsdayOptions(

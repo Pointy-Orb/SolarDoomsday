@@ -55,6 +55,7 @@ public class PillEssences : ModItem
     {
         CreateRecipe()
             .AddTile(TileID.DemonAltar)
+            .AddCondition(Language.GetText("Mods.SolarDoomsday.Conditions.WhileApocalypseInactive"), () => !DoomsdayClock.Ongoing && !DoomsdayManager.sunDied)
             .Register();
     }
 

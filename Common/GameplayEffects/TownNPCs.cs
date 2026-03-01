@@ -17,6 +17,11 @@ public class TownNPCManagement : GlobalNPC
         IL_NPC.AI_007_TownEntities += IL_KeepNPCsInside;
     }
 
+    public override void Unload()
+    {
+        IL_NPC.AI_007_TownEntities -= IL_KeepNPCsInside;
+    }
+
     //This is to make sure that NPCs don't go out into the sun and kill themselves
     private static void IL_KeepNPCsInside(ILContext il)
     {
@@ -25,7 +30,7 @@ public class TownNPCManagement : GlobalNPC
             var c = new ILCursor(il);
             int desirableIndex = 1;
             var usurperLabel = il.DefineLabel();
-            c.GotoNext(i => i.MatchLdsfld(typeof(Main).GetField(nameof(DoomsdayManager.RainingAndSafe))));
+            c.GotoNext(i => i.MatchLdsfld(typeof(Main).GetField(nameof(Main.raining))));
             c.GotoNext(MoveType.After, i => i.MatchStloc(out desirableIndex));
             c.Emit(Ldarg_0);
             c.Emit(Ldfld, typeof(NPC).GetField(nameof(NPC.position)));

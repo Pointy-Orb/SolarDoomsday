@@ -18,6 +18,11 @@ public class WitherTiles : GlobalTile
         On_Liquid.Update += EvaporateWater;
     }
 
+    public override void Unload()
+    {
+        On_Liquid.Update -= EvaporateWater;
+    }
+
     private static void EvaporateWater(On_Liquid.orig_Update orig, Liquid self)
     {
         orig(self);
@@ -44,10 +49,7 @@ public class WitherTiles : GlobalTile
         }
         if (DoomsdayClock.TimeLeftInRange(6, 5))
         {
-            if (Main.rand.NextBool(4))
-            {
-                tile.LiquidAmount -= byte.Min(tile.LiquidAmount, 2);
-            }
+            tile.LiquidAmount -= byte.Min(tile.LiquidAmount, 2);
             if (DoomsdayClock.TimeLeftInRange(2))
             {
                 tile.LiquidAmount -= byte.Min(tile.LiquidAmount, 10);
@@ -59,25 +61,13 @@ public class WitherTiles : GlobalTile
         }
     }
 
-    private static List<UpdatingTile> convertQueue = new();
-
-    private record UpdatingTile
-    {
-        public int i;
-        public int j;
-        public int type;
-
-        public UpdatingTile(int i, int j, int type)
-        {
-            this.i = i;
-            this.j = j;
-            this.type = type;
-        }
-    }
-
     public override void RandomUpdate(int i, int j, int type)
     {
         if (DoomsdayManager.savedEverybody)
+        {
+            return;
+        }
+        if (DoomsdayManager.thisWorldNeverSawTerror)
         {
             return;
         }
@@ -93,19 +83,6 @@ public class WitherTiles : GlobalTile
         {
             return;
         }
-        WitherTheTiles(i, j, type);
-    }
-
-    private static void ProcessTileQueue(List<UpdatingTile> list)
-    {
-        foreach (UpdatingTile tile in list)
-        {
-            WitherTheTiles(tile.i, tile.j, tile.type);
-        }
-    }
-
-    public static void WitherTheTiles(int i, int j, int type)
-    {
         bool didSomething = false;
         if (DoomsdayManager.sunDied && Main.rand.NextBool(90))
         {
@@ -173,11 +150,6 @@ public class WitherTiles : GlobalTile
             didSomething = true;
             WorldGen.KillWall(k, l);
             WorldGen.SquareTileFrame(k, l);
-        }
-        if (DoomsdayClock.TimeLeftInRange(3) && (Main.rand.NextBool(3) || DoomsdayClock.TimeLeftInRange(6)))
-        {
-            WorldGen.Convert(i, j, ModContent.GetInstance<AshConversion>().Type, 0, true, true);
-            didSomething = true;
         }
         else if ((float)(DoomsdayClock.daysLeft - 1) / (float)DoomsdayClock.DayCount <= 1f / 3f && Main.rand.NextBool(200) && TileID.Sets.Dirt[type])
         {
@@ -251,6 +223,10 @@ public class WitherTiles : GlobalTile
             {
                 for (int l = j - 2; l <= j + 2; l++)
                 {
+                    if (!WorldGen.InWorld(k, l))
+                    {
+                        continue;
+                    }
                     if (TileID.Sets.Conversion.Grass[Main.tile[k, l].TileType])
                     {
                         Main.tile[k, l].TileType = TileID.Dirt;
@@ -264,6 +240,51 @@ public class WitherTiles : GlobalTile
         if (didSomething)
         {
             NetMessage.SendTileSquare(-1, i, j, 1, 1);
+        }
+    }
+}
+
+public class AshifyEverything : ModSystem
+{
+    public override void PostUpdateWorld()
+    {
+        if (DoomsdayManager.savedEverybody)
+        {
+            return;
+        }
+        if (!DoomsdayClock.TimeLeftInRange(3))
+        {
+            return;
+        }
+        var surfaceUpdateNum = (int)((float)Main.maxTilesX * (float)Main.maxTilesY * 4.5635E-06f);
+        for (int i = 0; i < surfaceUpdateNum; i++)
+        {
+            int chosenTileX = Main.rand.Next(Main.maxTilesX);
+            int chosenTileY = Main.rand.Next((int)Main.worldSurface);
+            if (!WorldGen.InWorld(chosenTileX, chosenTileY))
+            {
+                continue;
+            }
+            if (!Main.tile[chosenTileX, chosenTileY].HasTile)
+            {
+                continue;
+            }
+            WorldGen.Convert(chosenTileX, chosenTileY, ModContent.GetInstance<AshConversion>().Type, 0, true, true);
+        }
+        var undergroundUpdateNum = (int)((float)Main.maxTilesX * (float)Main.maxTilesY * 1.1905E-06f);
+        for (int i = 0; i < undergroundUpdateNum; i++)
+        {
+            int chosenTileX = Main.rand.Next(Main.maxTilesX);
+            int chosenTileY = Main.rand.Next((int)Main.worldSurface - 1, (int)Main.rockLayer + 10);
+            if (!WorldGen.InWorld(chosenTileX, chosenTileY))
+            {
+                continue;
+            }
+            if (!Main.tile[chosenTileX, chosenTileY].HasTile)
+            {
+                continue;
+            }
+            WorldGen.Convert(chosenTileX, chosenTileY, ModContent.GetInstance<AshConversion>().Type, 0, true, true);
         }
     }
 }

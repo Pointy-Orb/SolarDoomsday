@@ -23,6 +23,13 @@ public class FireManager : ModSystem
         IL_NetMessage.DecompressTileBlock_Inner += RecieveTileData;
     }
 
+    public override void Unload()
+    {
+        IL_MapHelper.CreateMapTile -= MapEdit;
+        IL_NetMessage.CompressTileBlock_Inner -= SendTileData;
+        IL_NetMessage.DecompressTileBlock_Inner -= RecieveTileData;
+    }
+
     public override void PostUpdateTime()
     {
         Fire.UpdateFire();

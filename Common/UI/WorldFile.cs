@@ -19,6 +19,11 @@ public class WorldFile : ModSystem
         On_UIWorldListItem.DrawSelf += WriteDaysLeft;
     }
 
+    public override void Unload()
+    {
+        On_UIWorldListItem.DrawSelf -= WriteDaysLeft;
+    }
+
     private static void WriteDaysLeft(On_UIWorldListItem.orig_DrawSelf orig, UIWorldListItem self, SpriteBatch spriteBatch)
     {
         orig(self, spriteBatch);

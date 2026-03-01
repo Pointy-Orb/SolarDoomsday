@@ -47,6 +47,11 @@ public class DoomsdayManager : ModSystem
         On_Main.IsItDay += NotDayWhenSunIsDead;
     }
 
+    public override void Unload()
+    {
+        On_Main.IsItDay -= NotDayWhenSunIsDead;
+    }
+
     public override void ClearWorld()
     {
         worldEndChoice = DoomsdayOptions.Dissipation;
