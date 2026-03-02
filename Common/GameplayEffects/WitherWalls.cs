@@ -122,10 +122,6 @@ public class WitherWalls : GlobalWall
                 didSomething = true;
             }
         }
-        if (DoomsdayClock.TimeLeftInRange(3) && !Main.wallDungeon[type] && (Main.rand.NextBool(3) || DoomsdayClock.TimeLeftInRange(6)))
-        {
-            WorldGen.Convert(i, j, ModContent.GetInstance<AshConversion>().Type, 0, false, true);
-        }
 
     serverSync:
         if (Main.dedServ && didSomething)

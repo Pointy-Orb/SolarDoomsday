@@ -49,10 +49,10 @@ public class FireMonsters : GlobalNPC
         {
             Phase3Monsters(pool, spawnInfo);
         }
-        else if ((float)(DoomsdayClock.daysLeft + 1) / (float)DoomsdayClock.DayCount <= 2f / 3f && spawnInfo.SpawnTileY < Main.worldSurface)
+        else if ((float)(DoomsdayClock.daysLeft + 1) / (float)DoomsdayClock.DayCount <= 2f / 3f && spawnInfo.SpawnTileY < Main.worldSurface && (!WorldGen.InWorld(spawnInfo.SpawnTileX, spawnInfo.SpawnTileY - 1) || Main.tile[spawnInfo.SpawnTileX, spawnInfo.SpawnTileY - 1].WallType <= 0))
         {
-            pool[NPCID.BloodZombie] = 0.1f;
-            pool[NPCID.Drippler] = 0.1f;
+            pool[NPCID.BloodZombie] = Utils.Remap(DoomsdayClock.PercentTimeLeft(), 2f / 3f, 1f / 3f, 0.1f, 0.3f);
+            pool[NPCID.Drippler] = Utils.Remap(DoomsdayClock.PercentTimeLeft(), 2f / 3f, 1f / 3f, 0.1f, 0.3f);
         }
     }
 

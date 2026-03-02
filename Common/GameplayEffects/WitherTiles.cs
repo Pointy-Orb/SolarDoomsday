@@ -265,7 +265,7 @@ public class AshifyEverything : ModSystem
         {
             return;
         }
-        var surfaceUpdateNum = (int)((float)Main.maxTilesX * (float)Main.maxTilesY * 4.5635E-06f);
+        var surfaceUpdateNum = (int)((float)Main.maxTilesX * (float)Main.maxTilesY * 4.5635E-06f * Main.desiredWorldTilesUpdateRate);
         for (int i = 0; i < surfaceUpdateNum; i++)
         {
             int chosenTileX = Main.rand.Next(Main.maxTilesX);
@@ -274,13 +274,13 @@ public class AshifyEverything : ModSystem
             {
                 continue;
             }
-            if (!Main.tile[chosenTileX, chosenTileY].HasTile)
+            if (!Main.tile[chosenTileX, chosenTileY].HasTile && Main.tile[chosenTileX, chosenTileY].WallType <= 0)
             {
                 continue;
             }
             WorldGen.Convert(chosenTileX, chosenTileY, ModContent.GetInstance<AshConversion>().Type, 0, true, true);
         }
-        var undergroundUpdateNum = (int)((float)Main.maxTilesX * (float)Main.maxTilesY * 1.1905E-06f);
+        var undergroundUpdateNum = (int)((float)Main.maxTilesX * (float)Main.maxTilesY * 1.1905E-06f * Main.desiredWorldTilesUpdateRate);
         for (int i = 0; i < undergroundUpdateNum; i++)
         {
             int chosenTileX = Main.rand.Next(Main.maxTilesX);
@@ -289,7 +289,7 @@ public class AshifyEverything : ModSystem
             {
                 continue;
             }
-            if (!Main.tile[chosenTileX, chosenTileY].HasTile)
+            if (!Main.tile[chosenTileX, chosenTileY].HasTile && Main.tile[chosenTileX, chosenTileY].WallType <= 0)
             {
                 continue;
             }
