@@ -79,6 +79,10 @@ public class AshConversion : ModBiomeConversion
         {
             return false;
         }
+        if (!aboveGround && NoHornfels.Contains(type))
+        {
+            return false;
+        }
         Tile tile = Main.tile[i, j];
         if (aboveGround)
         {
@@ -103,6 +107,38 @@ public class AshConversion : ModBiomeConversion
     };
 
     private readonly int[] MeltVictims = new int[]
+    {
+        TileID.GrayBrick,
+        TileID.SandstoneBrick,
+        TileID.IridescentBrick,
+        TileID.CopperBrick,
+        TileID.AncientCopperBrick,
+        TileID.TinBrick,
+        TileID.IronBrick,
+        TileID.LeadBrick,
+        TileID.SilverBrick,
+        TileID.AncientSilverBrick,
+        TileID.TungstenBrick,
+        TileID.GoldBrick,
+        TileID.AncientGoldBrick,
+        TileID.PlatinumBrick,
+        TileID.EbonstoneBrick,
+        TileID.CrimstoneBrick,
+        TileID.PearlstoneBrick,
+        TileID.ArgonMoss,
+        TileID.BlueMoss,
+        TileID.BrownMoss,
+        TileID.GreenMoss,
+        TileID.KryptonMoss,
+        TileID.LavaMoss,
+        TileID.PurpleMoss,
+        TileID.RainbowMoss,
+        TileID.RedMoss,
+        TileID.VioletMoss,
+        TileID.XenonMoss
+    };
+
+    private readonly int[] NoHornfels = new int[]
     {
         TileID.GrayBrick,
         TileID.SandstoneBrick,
