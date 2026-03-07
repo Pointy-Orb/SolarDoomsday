@@ -1,1 +1,19 @@
-Modify this file with a description of your mod.
+Inspired by the classic Minecraft mod with the same name.
+
+Have you ever felt that Terraria could use some extra urgency? Or maybe that it needed some deadly twist? Or maybe even, you just want to watch the world burn?
+
+If so, this mod is for you! This mod will allow you to create doomed worlds, which will, over time, be slowly destroyed by the ever-expanding sun!
+
+It starts with water evaporating and snow melting, but then escalates to tiles catching on fire, the ground beneath your feet turning to ash, and the sun's light itself burning your skin off!
+
+There's also a good degree of customizability, as you can set the number of days the world will have before the end. The triggers for the different stages are proportional, meaning that they'll come more quickly on shorter day counts and more slowly on larger ones. How the world ends once time is up is also customizable, as there's three options:
+ - Stagnation, where your world will stay at the state of the last day indefinitely (closest experience to the Minecraft mod)
+ - Dissipation, where the sun will die after time is up but will spare your world.
+ - Nova, where the sun will die after time is up, but will also destroy your world in the process.
+
+To end the apocalypse, you'll need Cosmic Sunblock, dropped by the Moon Lord. After saving the world, talking to both the Dryad and the Steampunker will give you guidance on how to rebuild it from the carnage.
+
+For worlds made without the mod enabled, you can still start the apocalypse by crafting a starter item at a demon altar.
+It is HIGHLY recommended that you make a backup for a world you care about that you plan to try this on, as this mod will cause IRREVERSIBLE damage to it!
+
+Github repo link: https://github.com/Pointy-Orb/SolarDoomsday

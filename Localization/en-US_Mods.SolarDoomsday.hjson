@@ -192,6 +192,7 @@ DropConditions.WorldNotSavedCondition: Drops while the Solar Apocalypse is still
 
 Conditions: {
 	WhileApocalypseInactive: Not while the Solar Apocalypse is active
+	ApocalypseNeverStarted: In a world without a Solar Apocalypse
 	WhenApocalypseOver: When the Solar Apocalypse has been stopped
 	HasCombustibleLemon: While a Combustible Lemon is in your inventory
 }

@@ -9,6 +9,7 @@ namespace SolarDoomsday;
 public class ModifyShops : GlobalNPC
 {
     public static Condition SavedEverybodyCondition = new Condition("Mods.SolarDoomsday.Conditions.WhenApocalypseOver", () => DoomsdayManager.savedEverybody);
+    public static Condition ApocalypseNeverStarted = new Condition("Mods.SolarDoomsday.Conditions.ApocalypseNeverStarted", () => DoomsdayManager.thisWorldNeverSawTerror);
 
     private static LocalizedText TerraformingKitMessage;
 
@@ -55,7 +56,7 @@ public class ModifyShops : GlobalNPC
             shop.InsertBefore(ItemID.DirtSolution, ModContent.ItemType<DarkGreenSolution>(), SavedEverybodyCondition);
             shop.InsertBefore(ItemID.DirtSolution, ModContent.ItemType<CyanSolution>(), SavedEverybodyCondition);
             insertedModSolutions = true;
-            dirtSolution.Disable();
+            dirtSolution.AddCondition(ApocalypseNeverStarted);
         }
         if (shop.TryGetEntry(ItemID.SandSolution, out NPCShop.Entry sandSolution))
         {
@@ -67,7 +68,7 @@ public class ModifyShops : GlobalNPC
                 shop.InsertBefore(ItemID.SandSolution, ModContent.ItemType<CyanSolution>(), SavedEverybodyCondition);
                 insertedModSolutions = true;
             }
-            sandSolution.Disable();
+            sandSolution.AddCondition(ApocalypseNeverStarted);
         }
         if (shop.TryGetEntry(ItemID.SnowSolution, out NPCShop.Entry snowSolution))
         {
@@ -79,7 +80,7 @@ public class ModifyShops : GlobalNPC
                 shop.InsertBefore(ItemID.SnowSolution, ModContent.ItemType<CyanSolution>(), SavedEverybodyCondition);
                 insertedModSolutions = true;
             }
-            snowSolution.Disable();
+            snowSolution.AddCondition(ApocalypseNeverStarted);
         }
         if (!insertedModSolutions)
         {
