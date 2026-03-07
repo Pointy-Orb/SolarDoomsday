@@ -1,3 +1,1 @@
 Find out how to make the start of Phase 3 less laggy
-	- Right now, the current plan with ash seems to be working well, what now seems to be the bottleneck is something in the WitherTiles method
-Make it so that the Angler doesn't request fish that are literally impossible to get

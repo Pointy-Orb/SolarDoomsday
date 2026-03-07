@@ -127,8 +127,46 @@ public class BurnNPCs : GlobalNPC
             return;
         }
         bool onFire = false;
-        var worldPos = npc.Center.ToTileCoordinates();
-        onFire = Main.tile[worldPos.X, worldPos.Y].Get<FireTileData>().fireAmount > 0;
+        var worldCenter = npc.Center.ToTileCoordinates();
+        if (WorldGen.InWorld(worldCenter.X, worldCenter.Y))
+        {
+            onFire = Main.tile[worldCenter.X, worldCenter.Y].Get<FireTileData>().fireAmount > 0;
+        }
+        var worldPos = npc.position.ToTileCoordinates();
+        for (int i = worldPos.X; i <= worldPos.X + (npc.width / 16); i++)
+        {
+            if (onFire)
+            {
+                break;
+            }
+            int bottomY = (int)(npc.Bottom.Y / 16) + 1;
+            int topY = (int)(npc.Top.Y / 16) - 1;
+            if (WorldGen.InWorld(i, bottomY) && Main.tile[i, bottomY].Get<FireTileData>().fireAmount > 0 && Main.tile[i, bottomY].HasTile)
+            {
+                onFire = true;
+            }
+            if (WorldGen.InWorld(i, topY) && Main.tile[i, topY].Get<FireTileData>().fireAmount > 0 && Main.tile[i, topY].HasTile)
+            {
+                onFire = true;
+            }
+        }
+        for (int i = worldPos.Y; i <= worldPos.Y + (npc.height / 16); i++)
+        {
+            if (onFire)
+            {
+                break;
+            }
+            int leftX = (int)(npc.position.X / 16) - 1;
+            int rightX = (int)(npc.Right.X / 16) + 1;
+            if (WorldGen.InWorld(leftX, i) && Main.tile[leftX, i].Get<FireTileData>().fireAmount > 0 && Main.tile[leftX, i].HasTile)
+            {
+                onFire = true;
+            }
+            if (WorldGen.InWorld(rightX, i) && Main.tile[rightX, i].Get<FireTileData>().fireAmount > 0 && Main.tile[rightX, i].HasTile)
+            {
+                onFire = true;
+            }
+        }
         if (!onFire)
         {
             return;

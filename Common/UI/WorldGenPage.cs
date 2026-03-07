@@ -23,7 +23,6 @@ namespace SolarDoomsday;
 
 //To anyone reading this, a lot of this was only possible because some people much smarter than me already did it, and I was able to follow their example.
 //Check out the Depths and Confection mods if you haven't already.
-//TODO: Add IL gamepad support
 public class WorldGenPage : ModSystem
 {
     internal static WorldCreationVars vars = new();
@@ -42,7 +41,7 @@ public class WorldGenPage : ModSystem
         IL_UIWorldCreation.BuildPage += BiggerBuildPage;
         IL_UIWorldCreation.MakeInfoMenu += CustomInfoMenu;
         IL_UIWorldCreation.ShowOptionDescription += ShowModOptionDescription;
-        //IL_UIWorldCreation.SetupGamepadPoints += ModSetUpGamepadPoints;
+        IL_UIWorldCreation.SetupGamepadPoints += ModSetUpGamepadPoints;
 
         //On_UIWorldListItem.DrawSelf += DrawWorldSelectIcon;
         On_UIWorldCreation.SetDefaultOptions += OnSetDefaults;
@@ -53,6 +52,8 @@ public class WorldGenPage : ModSystem
         IL_UIWorldCreation.BuildPage -= BiggerBuildPage;
         IL_UIWorldCreation.MakeInfoMenu -= CustomInfoMenu;
         IL_UIWorldCreation.ShowOptionDescription -= ShowModOptionDescription;
+        IL_UIWorldCreation.SetupGamepadPoints -= ModSetUpGamepadPoints;
+
         On_UIWorldCreation.SetDefaultOptions -= OnSetDefaults;
     }
 
@@ -96,7 +97,7 @@ public class WorldGenPage : ModSystem
                     container,
                     accumulatedHeight,
                     ClickEnableButton,
-                    "doomsdayEnable",
+                    "doomsday",
                     usableWidthPercent
                 )
         );
@@ -129,8 +130,8 @@ public class WorldGenPage : ModSystem
     private static void ModSetUpGamepadPoints(ILContext il)
     {
         var c = new ILCursor(il);
-        List<SnapPoint> snapGroupInfectFirst = null;
-        UILinkPoint[] arrayIF = null;
+        List<SnapPoint> snapGroupDoomsday = null;
+        UILinkPoint[] arrayDD = null;
 
         c.GotoNext(i => i.MatchLdarg0());
         c.GotoNext(i => i.MatchLdloc1());
@@ -142,24 +143,24 @@ public class WorldGenPage : ModSystem
         c.EmitDelegate(
             (List<SnapPoint> snapPoints) =>
             {
-                snapGroupInfectFirst = GetSnapGroup(snapPoints, "infectfirst");
+                snapGroupDoomsday = GetSnapGroup(snapPoints, "doomsday");
             }
         );
         c.GotoNext(i => i.MatchLdloc(26));
         c.GotoNext(i => i.MatchLdloc(10));
-        c.GotoNext(i => i.MatchCallvirt<List<SnapPoint>>("get_Count"), i => i.MatchBlt(out _));
+        c.GotoNext(MoveType.After, i => i.MatchCallvirt<List<SnapPoint>>("get_Count"), i => i.MatchBlt(out _));
         c.Emit(Ldloc_0);
         c.Emit(Ldloc, 12);
         c.EmitDelegate(
             (int num, UILinkPoint uiLinkPoint) =>
             {
-                arrayIF = new UILinkPoint[snapGroupInfectFirst.Count];
-                for (int l = 0; l < snapGroupInfectFirst.Count; l++)
+                arrayDD = new UILinkPoint[snapGroupDoomsday.Count];
+                for (int l = 0; l < snapGroupDoomsday.Count; l++)
                 {
-                    UILinkPointNavigator.SetPosition(num, snapGroupInfectFirst[l].Position);
+                    UILinkPointNavigator.SetPosition(num, snapGroupDoomsday[l].Position);
                     uiLinkPoint = UILinkPointNavigator.Points[num];
                     uiLinkPoint.Unlink();
-                    arrayIF[l] = uiLinkPoint;
+                    arrayDD[l] = uiLinkPoint;
                     num++;
                 }
             }
@@ -175,11 +176,11 @@ public class WorldGenPage : ModSystem
         c.EmitDelegate(
             (UILinkPoint[] array3, UILinkPoint uiLinkPoint2) =>
             {
-                LoopHorizontalLineLinks(arrayIF);
-                EstablishUpDownRelationship(array3, arrayIF);
-                for (int n = 0; n < arrayIF.Length; n++)
+                LoopHorizontalLineLinks(arrayDD);
+                EstablishUpDownRelationship(array3, arrayDD);
+                for (int n = 0; n < arrayDD.Length; n++)
                 {
-                    arrayIF[n].Down = uiLinkPoint2.ID;
+                    arrayDD[n].Down = uiLinkPoint2.ID;
                 }
             }
         );
@@ -196,10 +197,10 @@ public class WorldGenPage : ModSystem
         c.EmitDelegate(
             (UILinkPoint[] array3, UILinkPoint uiLinkPoint3, UILinkPoint uiLinkPoint2) =>
             {
-                array3[^1].Down = arrayIF[^1].ID;
-                arrayIF[^1].Down = uiLinkPoint3.ID;
-                uiLinkPoint3.Up = arrayIF[^1].ID;
-                uiLinkPoint2.Up = arrayIF[0].ID;
+                array3[^1].Down = arrayDD[^1].ID;
+                arrayDD[^1].Down = uiLinkPoint3.ID;
+                uiLinkPoint3.Up = arrayDD[^1].ID;
+                uiLinkPoint2.Up = arrayDD[0].ID;
             }
         );
     }

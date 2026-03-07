@@ -22,7 +22,6 @@ public class FlammabilitySystem : ModSystem
         TileID.PumpkinBlock,
         TileID.Hive,
         TileID.Larva,
-        TileID.Torches,
         TileID.HoneyBlock,
         TileID.HayBlock
     };

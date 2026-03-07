@@ -151,7 +151,7 @@ public class WitherTiles : GlobalTile
             WorldGen.KillWall(k, l);
             WorldGen.SquareTileFrame(k, l);
         }
-        if ((float)(DoomsdayClock.daysLeft - 1) / (float)DoomsdayClock.DayCount <= 1f / 3f && Main.rand.NextBool(200) && TileID.Sets.Dirt[type] && !DoomsdayClock.TimeLeftInRange(3))
+        if (!DoomsdayClock.TimeLeftInRange(3) && (float)(DoomsdayClock.daysLeft - 1) / (float)DoomsdayClock.DayCount <= 1f / 3f && Main.rand.NextBool(200) && TileID.Sets.Dirt[type])
         {
             WorldGen.Convert(i, j, ModContent.GetInstance<AshConversion>().Type, 0, true, true);
             didSomething = true;
@@ -161,7 +161,7 @@ public class WitherTiles : GlobalTile
             WorldGen.KillTile(i, j);
             didSomething = true;
         }
-        if (DoomsdayClock.TimeLeftInRange(6, 5) && (Main.rand.NextBool(7) || DoomsdayClock.TimeLeftInRange(2)))
+        if (DoomsdayClock.TimeLeftInRange(6, 5) && (Main.rand.NextBool(7) || DoomsdayClock.TimeLeftInRange(3, 2)))
         {
             if (TileID.Sets.Snow[Main.tile[i, j].TileType])
             {
@@ -189,7 +189,7 @@ public class WitherTiles : GlobalTile
             if (Main.tile[i, j].WallType == WallID.SnowWallUnsafe)
             {
                 Main.tile[i, j].WallType = WallID.Dirt;
-                NetMessage.SendTileSquare(-1, i, j, 1, 1);
+                didSomething = true;
             }
         }
         if (DoomsdayClock.TimeLeftInRange(3, 2) && (Main.rand.NextBool(3) || DoomsdayClock.TimeLeftInRange(3)))
@@ -198,7 +198,7 @@ public class WitherTiles : GlobalTile
             {
                 Main.tile[i, j].TileType = TileID.Dirt;
                 WorldGen.SquareTileFrame(i, j);
-                NetMessage.SendTileSquare(-1, i, j, 1, 1);
+                didSomething = true;
             }
             if (TileID.Sets.Leaves[type])
             {
@@ -208,9 +208,8 @@ public class WitherTiles : GlobalTile
         if (DoomsdayClock.TimeLeftInRange(3, 2) && type == TileID.WaterDrip)
         {
             WorldGen.KillTile(i, j);
-            didSomething = true;
         }
-        if (DoomsdayClock.TimeLeftInRange(3) && FlammabilitySystem.Flammability[type] > 0 && Main.rand.NextBool(9) && (DoomsdayClock.TimeLeftInRange(6) || j < Main.worldSurface))
+        if (DoomsdayClock.TimeLeftInRange(3) && FlammabilitySystem.Flammability[type] > 0 && Main.rand.NextBool(18) && (DoomsdayClock.TimeLeftInRange(6) || j < Main.worldSurface))
         {
             Fire.SetOnFire(i, j);
             SolarDoomsday.RemoteSetFire(i, j);

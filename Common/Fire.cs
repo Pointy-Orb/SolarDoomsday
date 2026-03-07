@@ -22,6 +22,30 @@ public struct FireTileData : ITileData
     }
 }
 
+public class FireBuffer
+{
+    public static int numFireBuffer;
+    public int x;
+    public int y;
+
+    public static void AddBuffer(int x, int y)
+    {
+        if (numFireBuffer < 39998 && Main.tile[x, y].Get<FireTileData>().fireAmount > 0)
+        {
+            Fire.fireBuffers[numFireBuffer].x = x;
+            Fire.fireBuffers[numFireBuffer].y = x;
+            numFireBuffer++;
+        }
+    }
+
+    public static void DelBuffer(int i)
+    {
+        numFireBuffer--;
+        Fire.fireBuffers[i].x = Main.liquidBuffer[numFireBuffer].x;
+        Fire.fireBuffers[i].y = Main.liquidBuffer[numFireBuffer].y;
+    }
+}
+
 public class Fire : ModType
 {
     public override void Load()
@@ -40,8 +64,10 @@ public class Fire : ModType
     }
 
     internal const int maxFires = 20000;
+    internal const int maxFireBuffer = 40000;
 
     public static Fire[] fires = new Fire[maxFires];
+    public static FireBuffer[] fireBuffers = new FireBuffer[maxFireBuffer];
     public static int numFire { get; private set; } = 0;
 
     private static int updateTimer = 0;
@@ -153,9 +179,9 @@ public class Fire : ModType
         {
             return;
         }
-        //TODO: Add a fire buffer
         if (numFire >= maxFires)
         {
+            FireBuffer.AddBuffer(i, j);
             return;
         }
         fires[numFire].x = i;
@@ -191,6 +217,16 @@ public class Fire : ModType
         }
         updateTimer = 0;
 
+        int bufferRoom = maxFires - numFire;
+        if (bufferRoom > FireBuffer.numFireBuffer)
+        {
+            bufferRoom = FireBuffer.numFireBuffer;
+        }
+        for (int i = 0; i < bufferRoom; i++)
+        {
+            AddFire(fireBuffers[0].x, fireBuffers[0].y);
+            FireBuffer.DelBuffer(0);
+        }
         if (Main.netMode != NetmodeID.MultiplayerClient)
         {
             for (int i = 0; i < numFire; i++)
