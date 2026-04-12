@@ -1,18 +1,18 @@
 using System;
-using MonoMod.Cil;
-using static Mono.Cecil.Cil.OpCodes;
-using Microsoft.Xna.Framework;
-using Terraria.Audio;
-using Terraria.ID;
-using Terraria;
 using System.Collections.Generic;
-using SolarDoomsday.Content.Tiles;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Terraria.ModLoader;
+using Microsoft.Xna.Framework;
+using MonoMod.Cil;
+using SolarDoomsday.Content.Tiles;
+using Terraria;
+using Terraria.Audio;
 using Terraria.Graphics.Effects;
-using System.IO;
+using Terraria.ID;
+using Terraria.ModLoader;
+using static Mono.Cecil.Cil.OpCodes;
 
 namespace SolarDoomsday
 {
@@ -28,7 +28,9 @@ namespace SolarDoomsday
             SetFire,
             PutOutFire,
             FireBurnEffects,
-            WaterFireSfx
+            WaterFireSfx,
+            CorrectBackground,
+            SetBackground,
         }
 
         public override void Load()
@@ -36,7 +38,10 @@ namespace SolarDoomsday
             mod = this;
             if (!Main.dedServ)
             {
-                Filters.Scene["SolarDoomsday:BigScaryFlashShader"] = new Filter(new BigScaryFlashShader("FilterBloodMoon"), EffectPriority.VeryHigh);
+                Filters.Scene["SolarDoomsday:BigScaryFlashShader"] = new Filter(
+                    new BigScaryFlashShader("FilterBloodMoon"),
+                    EffectPriority.VeryHigh
+                );
             }
             IL_Main.UpdateTime_StartDay += IL_StopEclipse;
         }
@@ -83,7 +88,24 @@ namespace SolarDoomsday
                 case MessageType.WaterFireSfx:
                     i = reader.ReadInt32();
                     j = reader.ReadInt32();
-                    SoundEngine.PlaySound(SoundID.LiquidsWaterLava, new Point(i, j).ToWorldCoordinates());
+                    SoundEngine.PlaySound(
+                        SoundID.LiquidsWaterLava,
+                        new Point(i, j).ToWorldCoordinates()
+                    );
+                    break;
+                case MessageType.CorrectBackground:
+                    int which = reader.ReadByte();
+                    int player = reader.ReadByte();
+                    int newType = Effects.BackgroundCorrectionServer(which, player);
+                    if (Main.dedServ)
+                    {
+                        SetBackground(which, newType);
+                    }
+                    break;
+                case MessageType.SetBackground:
+                    int rWhich = reader.ReadByte();
+                    int backType = reader.ReadByte();
+                    Effects.SetBackground(rWhich, backType);
                     break;
             }
         }
@@ -140,6 +162,32 @@ namespace SolarDoomsday
             packet.Send();
         }
 
+        public static void RandomizeBackground(int which, int player)
+        {
+            if (Main.netMode == NetmodeID.SinglePlayer)
+            {
+                return;
+            }
+            var packet = mod.GetPacket();
+            packet.Write((byte)MessageType.CorrectBackground);
+            packet.Write((byte)which);
+            packet.Write((byte)player);
+            packet.Send();
+        }
+
+        public static void SetBackground(int which, int type)
+        {
+            if (Main.netMode == NetmodeID.SinglePlayer)
+            {
+                return;
+            }
+            var packet = mod.GetPacket();
+            packet.Write((byte)MessageType.CorrectBackground);
+            packet.Write((byte)which);
+            packet.Write((byte)type);
+            packet.Send();
+        }
+
         private static void IL_StopEclipse(ILContext il)
         {
             try
@@ -159,6 +207,7 @@ namespace SolarDoomsday
                 MonoModHooks.DumpIL(mod, il);
             }
         }
+
         /*
         public override object Call(params object[] args)
         {
@@ -182,6 +231,6 @@ namespace SolarDoomsday
             }
             return false;
         }
-		*/
+        */
     }
 }

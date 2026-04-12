@@ -1,13 +1,13 @@
-using Terraria;
-using System.Threading.Tasks;
 using System;
-using Microsoft.Xna.Framework;
 using System.Collections.Generic;
-using System.Threading;
-using SolarDoomsday.Content.Tiles;
 using System.Linq;
-using Terraria.ModLoader;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Xna.Framework;
+using SolarDoomsday.Content.Tiles;
+using Terraria;
 using Terraria.ID;
+using Terraria.ModLoader;
 
 namespace SolarDoomsday.GameplayEffects;
 
@@ -134,14 +134,29 @@ public class WitherTiles : GlobalTile
         {
             WorldGen.KillTile(i, j, noItem: true);
         }
-        if (WorldGen.InWorld(i, j - 1) && (TileID.Sets.PreventsTileRemovalIfOnTopOfIt[Main.tile[i, j - 1].TileType] || TileID.Sets.BasicChest[Main.tile[i, j - 1].TileType]) && !TileID.Sets.IsATreeTrunk[Main.tile[i, j - 1].TileType])
+        if (
+            WorldGen.InWorld(i, j - 1)
+            && (
+                TileID.Sets.PreventsTileRemovalIfOnTopOfIt[Main.tile[i, j - 1].TileType]
+                || TileID.Sets.BasicChest[Main.tile[i, j - 1].TileType]
+            )
+            && !TileID.Sets.IsATreeTrunk[Main.tile[i, j - 1].TileType]
+        )
         {
             return;
         }
-        if (TileID.Sets.IsATreeTrunk[type] && DoomsdayClock.TimeLeftInRange(2) && FlammabilitySystem.Flammability[type] > -1)
+        if (
+            TileID.Sets.IsATreeTrunk[type]
+            && DoomsdayClock.TimeLeftInRange(2)
+            && FlammabilitySystem.Flammability[type] > -1
+        )
         {
             WorldGen.GetTreeBottom(i, j, out var k, out var l);
-            while (WorldGen.InWorld(k, l - 1) && TileID.Sets.IsATreeTrunk[Main.tile[k, l - 1].TileType] && Main.tile[k, l - 1].HasTile)
+            while (
+                WorldGen.InWorld(k, l - 1)
+                && TileID.Sets.IsATreeTrunk[Main.tile[k, l - 1].TileType]
+                && Main.tile[k, l - 1].HasTile
+            )
             {
                 l--;
             }
@@ -151,17 +166,29 @@ public class WitherTiles : GlobalTile
             WorldGen.KillWall(k, l);
             WorldGen.SquareTileFrame(k, l);
         }
-        if (!DoomsdayClock.TimeLeftInRange(3) && (float)(DoomsdayClock.daysLeft - 1) / (float)DoomsdayClock.DayCount <= 1f / 3f && Main.rand.NextBool(200) && TileID.Sets.Dirt[type])
+        if (
+            !DoomsdayClock.TimeLeftInRange(3)
+            && (float)(DoomsdayClock.daysLeft - 1) / (float)DoomsdayClock.DayCount <= 1f / 3f
+            && Main.rand.NextBool(200)
+            && TileID.Sets.Dirt[type]
+        )
         {
             WorldGen.Convert(i, j, ModContent.GetInstance<AshConversion>().Type, 0, true, true);
             didSomething = true;
         }
-        if (DoomsdayClock.TimeLeftInRange(3, 2) && TileID.Sets.Dirt[Main.tile[i, j + 1].TileType] && Main.tileCut[type])
+        if (
+            DoomsdayClock.TimeLeftInRange(3, 2)
+            && TileID.Sets.Dirt[Main.tile[i, j + 1].TileType]
+            && Main.tileCut[type]
+        )
         {
             WorldGen.KillTile(i, j);
             didSomething = true;
         }
-        if (DoomsdayClock.TimeLeftInRange(6, 5) && (Main.rand.NextBool(7) || DoomsdayClock.TimeLeftInRange(3, 2)))
+        if (
+            DoomsdayClock.TimeLeftInRange(6, 5)
+            && (Main.rand.NextBool(7) || DoomsdayClock.TimeLeftInRange(3, 2))
+        )
         {
             if (TileID.Sets.Snow[Main.tile[i, j].TileType])
             {
@@ -192,7 +219,10 @@ public class WitherTiles : GlobalTile
                 didSomething = true;
             }
         }
-        if (DoomsdayClock.TimeLeftInRange(3, 2) && (Main.rand.NextBool(3) || DoomsdayClock.TimeLeftInRange(3)))
+        if (
+            DoomsdayClock.TimeLeftInRange(3, 2)
+            && (Main.rand.NextBool(3) || DoomsdayClock.TimeLeftInRange(3))
+        )
         {
             if (type == TileID.Mud)
             {
@@ -209,13 +239,21 @@ public class WitherTiles : GlobalTile
         {
             WorldGen.KillTile(i, j);
         }
-        if (DoomsdayClock.TimeLeftInRange(3) && FlammabilitySystem.Flammability[type] > 0 && Main.rand.NextBool(18) && (DoomsdayClock.TimeLeftInRange(6) || j < Main.worldSurface))
+        if (
+            DoomsdayClock.TimeLeftInRange(3)
+            && FlammabilitySystem.Flammability[type] > 0
+            && Main.rand.NextBool(18)
+            && (DoomsdayClock.TimeLeftInRange(6) || j < Main.worldSurface)
+        )
         {
             Fire.SetOnFire(i, j);
             SolarDoomsday.RemoteSetFire(i, j);
             didSomething = true;
         }
-        if (DoomsdayClock.TimeLeftInRange(3, 2) && (Main.rand.NextBool(6) || DoomsdayClock.TimeLeftInRange(2)))
+        if (
+            DoomsdayClock.TimeLeftInRange(3, 2)
+            && (Main.rand.NextBool(6) || DoomsdayClock.TimeLeftInRange(2))
+        )
         {
             if (type == TileID.JungleGrass)
             {
@@ -234,13 +272,12 @@ public class WitherTiles : GlobalTile
                     if (TileID.Sets.Conversion.Grass[Main.tile[k, l].TileType])
                     {
                         Main.tile[k, l].TileType = TileID.Dirt;
-                        WorldGen.SquareTileFrame(k, l);
                     }
                 }
             }
-            NetMessage.SendTileSquare(-1, i - 1, j - 1, 3, 3, TileChangeType.None);
+            NetMessage.SendTileSquare(-1, i - 2, j - 2, 5, 5, TileChangeType.None);
         }
-    serverSync:
+        serverSync:
         if (didSomething)
         {
             NetMessage.SendTileSquare(-1, i, j, 1, 1);
@@ -264,7 +301,12 @@ public class AshifyEverything : ModSystem
         {
             return;
         }
-        var surfaceUpdateNum = (int)((float)Main.maxTilesX * (float)Main.maxTilesY * 4.5635E-06f * Main.desiredWorldTilesUpdateRate);
+        var surfaceUpdateNum = (int)(
+            (float)Main.maxTilesX
+            * (float)Main.maxTilesY
+            * 4.5635E-06f
+            * Main.desiredWorldTilesUpdateRate
+        );
         for (int i = 0; i < surfaceUpdateNum; i++)
         {
             int chosenTileX = Main.rand.Next(Main.maxTilesX);
@@ -273,13 +315,28 @@ public class AshifyEverything : ModSystem
             {
                 continue;
             }
-            if (!Main.tile[chosenTileX, chosenTileY].HasTile && Main.tile[chosenTileX, chosenTileY].WallType <= 0)
+            if (
+                !Main.tile[chosenTileX, chosenTileY].HasTile
+                && Main.tile[chosenTileX, chosenTileY].WallType <= 0
+            )
             {
                 continue;
             }
-            WorldGen.Convert(chosenTileX, chosenTileY, ModContent.GetInstance<AshConversion>().Type, 0, true, true);
+            WorldGen.Convert(
+                chosenTileX,
+                chosenTileY,
+                ModContent.GetInstance<AshConversion>().Type,
+                0,
+                true,
+                true
+            );
         }
-        var undergroundUpdateNum = (int)((float)Main.maxTilesX * (float)Main.maxTilesY * 1.1905E-06f * Main.desiredWorldTilesUpdateRate);
+        var undergroundUpdateNum = (int)(
+            (float)Main.maxTilesX
+            * (float)Main.maxTilesY
+            * 1.1905E-06f
+            * Main.desiredWorldTilesUpdateRate
+        );
         for (int i = 0; i < undergroundUpdateNum; i++)
         {
             int chosenTileX = Main.rand.Next(Main.maxTilesX);
@@ -288,11 +345,21 @@ public class AshifyEverything : ModSystem
             {
                 continue;
             }
-            if (!Main.tile[chosenTileX, chosenTileY].HasTile && Main.tile[chosenTileX, chosenTileY].WallType <= 0)
+            if (
+                !Main.tile[chosenTileX, chosenTileY].HasTile
+                && Main.tile[chosenTileX, chosenTileY].WallType <= 0
+            )
             {
                 continue;
             }
-            WorldGen.Convert(chosenTileX, chosenTileY, ModContent.GetInstance<AshConversion>().Type, 0, true, true);
+            WorldGen.Convert(
+                chosenTileX,
+                chosenTileY,
+                ModContent.GetInstance<AshConversion>().Type,
+                0,
+                true,
+                true
+            );
         }
     }
 }

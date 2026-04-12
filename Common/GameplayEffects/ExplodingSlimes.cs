@@ -1,10 +1,10 @@
-using Terraria;
-using SolarDoomsday.Content.Buffs;
-using System.Linq;
-using Terraria.ModLoader;
-using Terraria.ID;
-using Terraria.DataStructures;
 using System.Collections.Generic;
+using System.Linq;
+using SolarDoomsday.Content.Buffs;
+using Terraria;
+using Terraria.DataStructures;
+using Terraria.ID;
+using Terraria.ModLoader;
 
 namespace SolarDoomsday;
 
@@ -14,7 +14,10 @@ public class ExplodingSlimes : GlobalNPC
 
     public override void OnSpawn(NPC npc, IEntitySource source)
     {
-        if ((npc.aiStyle != NPCAIStyleID.Slime && !Slimes.Contains(npc.type)) || npc.SpawnedFromStatue)
+        if (
+            (npc.aiStyle != NPCAIStyleID.Slime && !Slimes.Contains(npc.type))
+            || npc.SpawnedFromStatue
+        )
         {
             return;
         }
@@ -23,11 +26,17 @@ public class ExplodingSlimes : GlobalNPC
             return;
         }
         var tileY = npc.position.Y / 16;
-        if ((tileY > Main.worldSurface && !DoomsdayClock.TimeLeftInRange(3)) || tileY > Main.rockLayer)
+        if (
+            (tileY > Main.worldSurface && !DoomsdayClock.TimeLeftInRange(3))
+            || tileY > Main.rockLayer
+        )
         {
             return;
         }
-        if (!DoomsdayClock.TimeLeftInRange(3, 2) || !(Main.rand.NextBool(3) || DoomsdayClock.TimeLeftInRange(2)))
+        if (
+            !DoomsdayClock.TimeLeftInRange(3, 2)
+            || !(Main.rand.NextBool(3) || DoomsdayClock.TimeLeftInRange(2))
+        )
         {
             return;
         }
@@ -51,6 +60,11 @@ public class ExplodingSlimes : GlobalNPC
         {
             return;
         }
+        if (!npc.active || (npc.aiStyle != NPCAIStyleID.Slime && !Slimes.Contains(npc.type)))
+        {
+            naughtyList.Remove(npc.whoAmI);
+            return;
+        }
         if (naughtyList[npc.whoAmI] > 0)
         {
             naughtyList[npc.whoAmI]--;
@@ -59,13 +73,6 @@ public class ExplodingSlimes : GlobalNPC
         {
             naughtyList.Remove(npc.whoAmI);
             npc.AddBuff(ModContent.BuffType<KamikazeSlime>(), 21600);
-        }
-        foreach (int key in naughtyList.Keys)
-        {
-            if (!Main.npc[key].active)
-            {
-                naughtyList.Remove(key);
-            }
         }
         if (!Main.IsItDay())
         {
@@ -86,6 +93,6 @@ public class ExplodingSlimes : GlobalNPC
         NPCID.JungleSlime,
         NPCID.BabySlime,
         NPCID.Pinky,
-        NPCID.Slimeling
+        NPCID.Slimeling,
     };
 }

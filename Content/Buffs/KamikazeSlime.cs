@@ -1,8 +1,8 @@
-using Terraria;
 using Microsoft.Xna.Framework;
+using Terraria;
 using Terraria.Audio;
-using Terraria.ModLoader;
 using Terraria.ID;
+using Terraria.ModLoader;
 
 namespace SolarDoomsday.Content.Buffs;
 
@@ -35,9 +35,21 @@ public class BlowUpSlime : GlobalNPC
 
     public override bool CheckDead(NPC npc)
     {
-        if (npc.GetGlobalNPC<BlowUpSlime>().blowCooldown <= 0 && (!npc.wet || npc.lavaWet) && npc.HasBuff(ModContent.BuffType<KamikazeSlime>()) && Main.dayTime)
+        if (
+            npc.GetGlobalNPC<BlowUpSlime>().blowCooldown <= 0
+            && (!npc.wet || npc.lavaWet)
+            && npc.HasBuff(ModContent.BuffType<KamikazeSlime>())
+            && Main.dayTime
+        )
         {
-            var bomb = Projectile.NewProjectileDirect(npc.GetSource_Death(), npc.Center, Vector2.Zero, ModContent.ProjectileType<SlimeBomb>(), npc.damage * 2, 7f);
+            var bomb = Projectile.NewProjectileDirect(
+                npc.GetSource_Death(),
+                npc.Center,
+                Vector2.Zero,
+                ModContent.ProjectileType<SlimeBomb>(),
+                npc.damage * 2,
+                7f
+            );
             bomb.scale = npc.scale;
             bomb.width = (int)(bomb.width * bomb.scale);
             bomb.height = (int)(bomb.height * bomb.scale);
@@ -48,7 +60,7 @@ public class BlowUpSlime : GlobalNPC
     //CanBeHit is used instead of OnHit because for some reason OnHit is called after the kill checking methods
     public override bool? CanBeHitByItem(NPC npc, Player player, Item item)
     {
-        npc.GetGlobalNPC<BlowUpSlime>().blowCooldown = 4;
+        npc.GetGlobalNPC<BlowUpSlime>().blowCooldown = 10;
         return null;
     }
 
@@ -93,16 +105,46 @@ public class SlimeBomb : ModProjectile
         SoundEngine.PlaySound(SoundID.Item14, Projectile.position);
         for (int i = 0; i < 50; i++)
         {
-            Dust dust = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, DustID.Lava, 0f, 0f, 100, default, 2f);
+            Dust dust = Dust.NewDustDirect(
+                Projectile.position,
+                Projectile.width,
+                Projectile.height,
+                DustID.Lava,
+                0f,
+                0f,
+                100,
+                default,
+                2f
+            );
             dust.velocity *= 1.4f;
         }
 
         for (int i = 0; i < 80; i++)
         {
-            Dust dust = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, DustID.Torch, 0f, 0f, 100, default, 3f);
+            Dust dust = Dust.NewDustDirect(
+                Projectile.position,
+                Projectile.width,
+                Projectile.height,
+                DustID.Torch,
+                0f,
+                0f,
+                100,
+                default,
+                3f
+            );
             dust.noGravity = true;
             dust.velocity *= 5f;
-            dust = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, DustID.Torch, 0f, 0f, 100, default, 2f);
+            dust = Dust.NewDustDirect(
+                Projectile.position,
+                Projectile.width,
+                Projectile.height,
+                DustID.Torch,
+                0f,
+                0f,
+                100,
+                default,
+                2f
+            );
             dust.velocity *= 3f;
         }
 
@@ -116,8 +158,23 @@ public class SlimeBomb : ModProjectile
 
             Utils.ClampWithinWorld(ref minTileX, ref minTileY, ref maxTileX, ref maxTileY);
 
-            bool explodeWalls = Projectile.ShouldWallExplode(Projectile.Center, explosionRadius, minTileX, maxTileX, minTileY, maxTileY);
-            Projectile.ExplodeTiles(Projectile.Center, explosionRadius, minTileX, maxTileX, minTileY, maxTileY, explodeWalls);
+            bool explodeWalls = Projectile.ShouldWallExplode(
+                Projectile.Center,
+                explosionRadius,
+                minTileX,
+                maxTileX,
+                minTileY,
+                maxTileY
+            );
+            Projectile.ExplodeTiles(
+                Projectile.Center,
+                explosionRadius,
+                minTileX,
+                maxTileX,
+                minTileY,
+                maxTileY,
+                explodeWalls
+            );
         }
     }
 }
