@@ -1,11 +1,12 @@
 using System.ComponentModel;
-using Terraria.GameContent;
-using Terraria.ModLoader;
 using Microsoft.Xna.Framework.Graphics;
-using ReLogic.Content;
-using Terraria;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using ReLogic.Content;
+using Terraria;
+using Terraria.GameContent;
+using Terraria.ID;
+using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
 
 namespace SolarDoomsday;
@@ -16,6 +17,9 @@ public class ServerConfig : ModConfig
 
     [DefaultValue(false)]
     public bool RainGivesSafety { get; set; }
+
+    [ReloadRequired]
+    public NPCDefinition sunblockDropper = new NPCDefinition(NPCID.None);
 }
 
 public enum DayCounterDisplay
@@ -23,7 +27,7 @@ public enum DayCounterDisplay
     Fancy,
     Plain,
     Minimal,
-    None
+    None,
 }
 
 public class ClientConfig : ModConfig

@@ -1,9 +1,10 @@
-using Terraria;
 using System;
-using static Terraria.GameContent.PlayerEyeHelper;
+using Terraria;
+using Terraria.DataStructures;
+using Terraria.GameContent;
+using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
-using Terraria.ID;
 
 namespace SolarDoomsday.Content.Buffs;
 
@@ -43,6 +44,11 @@ public class HeatStrokePlayer : ModPlayer
 {
     public bool heatStroke = false;
 
+    public override void Load()
+    {
+        On_PlayerEyeHelper.SetStateByPlayerInfo += HeatStrokeEye;
+    }
+
     public override void ResetEffects()
     {
         heatStroke = false;
@@ -65,8 +71,31 @@ public class HeatStrokePlayer : ModPlayer
         {
             modifier /= 2;
         }
-        Player.eyeHelper.SwitchToState(EyeState.IsPoisoned);
         Player.endurance -= modifier;
         Player.GetDamage(DamageClass.Generic) *= (1f - modifier);
+    }
+
+    public override void DrawEffects(PlayerDrawSet drawInfo, ref float r, ref float g, ref float b, ref float a, ref bool fullBright)
+    {
+        if (!heatStroke)
+        {
+            return;
+        }
+        b -= 0.7f;
+        g -= 0.3f;
+    }
+
+    private static void HeatStrokeEye(On_PlayerEyeHelper.orig_SetStateByPlayerInfo orig, ref PlayerEyeHelper self, Player player)
+    {
+        orig(ref self, player);
+        if (self.CurrentEyeState != PlayerEyeHelper.EyeState.NormalBlinking)
+        {
+            return;
+        }
+        if (!player.GetModPlayer<HeatStrokePlayer>().heatStroke)
+        {
+            return;
+        }
+        self.SwitchToState(PlayerEyeHelper.EyeState.IsPoisoned);
     }
 }

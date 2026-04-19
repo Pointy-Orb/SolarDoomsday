@@ -188,7 +188,10 @@ Projectiles: {
 	CombustibleLemonCeleb2.DisplayName: Combustible Lemon Celeb2
 }
 
-DropConditions.WorldNotSavedCondition: Drops while the Solar Apocalypse is still ongoing
+DropConditions: {
+	WorldNotSavedCondition: Drops while the Solar Apocalypse is still ongoing
+	IsConfigNPCCondition: Mods.SolarDoomsday.DropConditions.IsConfigNPCCondition
+}
 
 Conditions: {
 	WhileApocalypseInactive: Not while the Solar Apocalypse is active
@@ -221,6 +224,17 @@ Configs: {
 				'''
 				When enabled, rain will negate any active negative effects of the apocalypse.
 				Your world will still reach a point where it can no longer rain, though!
+				'''
+		}
+
+		sunblockDropper: {
+			Label: Custom Sunblock Dropping NPC
+			Tooltip:
+				'''
+				By default the Moon Lord will drop the Cosmic Sunblock.
+				Setting this will allow you to instead have a different NPC drop it.
+
+				If this is set to a modded NPC that is unloaded, it will use Moon Lord by default.
 				'''
 		}
 	}

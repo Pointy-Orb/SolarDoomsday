@@ -1,5 +1,7 @@
 bin/
 obj/
 .globalseddirs
+.csharpierrc
 timelapse.mp4
 How to ITileData.txt
+changelog.txt

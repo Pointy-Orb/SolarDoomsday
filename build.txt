@@ -1,5 +1,5 @@
 displayName = Solar Apocalypse
 author = Pointy Orb
-version = 1.0.0.2
+version = 1.0.1.0
 includeSource = true
 sortBefore = FancyLighting

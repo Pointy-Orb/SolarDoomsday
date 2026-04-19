@@ -1,13 +1,13 @@
-using Terraria;
 using System;
-using Terraria.GameContent;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Terraria;
 using Terraria.Chat;
+using Terraria.GameContent;
 using Terraria.GameContent.ItemDropRules;
+using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
-using Terraria.ID;
 
 namespace SolarDoomsday.Content.Items;
 
@@ -137,11 +137,31 @@ public class CosmicSunblock : ModItem
 
         for (float num8 = 0f; num8 < 1f; num8 += 0.25f)
         {
-            spriteBatch.Draw(texture.Value, drawPosition + new Vector2(0f, 4f).RotatedBy((num8 + num7) * ((float)Math.PI * 2f)) * globalTimeWrappedHourly, frame, new Color(90, 70, 255, 50), 0, origin, scale, SpriteEffects.None, 0f);
+            spriteBatch.Draw(
+                texture.Value,
+                drawPosition + new Vector2(0f, 4f).RotatedBy((num8 + num7) * ((float)Math.PI * 2f)) * globalTimeWrappedHourly,
+                frame,
+                new Color(90, 70, 255, 50),
+                0,
+                origin,
+                scale,
+                SpriteEffects.None,
+                0f
+            );
         }
         for (float num9 = 0f; num9 < 1f; num9 += 0.34f)
         {
-            spriteBatch.Draw(texture.Value, drawPosition + new Vector2(0f, 2f).RotatedBy((num9 + num7) * ((float)Math.PI * 2f)) * globalTimeWrappedHourly, frame, new Color(140, 120, 255, 77), 0, origin, scale, SpriteEffects.None, 0f);
+            spriteBatch.Draw(
+                texture.Value,
+                drawPosition + new Vector2(0f, 2f).RotatedBy((num9 + num7) * ((float)Math.PI * 2f)) * globalTimeWrappedHourly,
+                frame,
+                new Color(140, 120, 255, 77),
+                0,
+                origin,
+                scale,
+                SpriteEffects.None,
+                0f
+            );
         }
         return true;
     }
@@ -165,11 +185,31 @@ public class CosmicSunblock : ModItem
 
         for (float num8 = 0f; num8 < 1f; num8 += 0.25f)
         {
-            spriteBatch.Draw(texture.Value, drawPosition + new Vector2(0f, 4f).RotatedBy((num8 + num7) * ((float)Math.PI * 2f)) * globalTimeWrappedHourly, itemFrame, new Color(90, 70, 255, 50), rotation, drawOrigin, scale, SpriteEffects.None, 0f);
+            spriteBatch.Draw(
+                texture.Value,
+                drawPosition + new Vector2(0f, 4f).RotatedBy((num8 + num7) * ((float)Math.PI * 2f)) * globalTimeWrappedHourly,
+                itemFrame,
+                new Color(90, 70, 255, 50),
+                rotation,
+                drawOrigin,
+                scale,
+                SpriteEffects.None,
+                0f
+            );
         }
         for (float num9 = 0f; num9 < 1f; num9 += 0.34f)
         {
-            spriteBatch.Draw(texture.Value, drawPosition + new Vector2(0f, 2f).RotatedBy((num9 + num7) * ((float)Math.PI * 2f)) * globalTimeWrappedHourly, itemFrame, new Color(140, 120, 255, 77), rotation, drawOrigin, scale, SpriteEffects.None, 0f);
+            spriteBatch.Draw(
+                texture.Value,
+                drawPosition + new Vector2(0f, 2f).RotatedBy((num9 + num7) * ((float)Math.PI * 2f)) * globalTimeWrappedHourly,
+                itemFrame,
+                new Color(140, 120, 255, 77),
+                rotation,
+                drawOrigin,
+                scale,
+                SpriteEffects.None,
+                0f
+            );
         }
         spriteBatch.Draw(texture.Value, drawPosition, itemFrame, Color.White, rotation, drawOrigin, scale, SpriteEffects.None, 0);
         return false;
@@ -180,7 +220,13 @@ public class SunblockDropping : GlobalNPC
 {
     public override void ModifyNPCLoot(NPC npc, NPCLoot npcLoot)
     {
-        if (npc.type != NPCID.MoonLordCore)
+        var sunBlockDropper = ModContent.GetInstance<ServerConfig>().sunblockDropper;
+        int configType = sunBlockDropper.Type;
+        if (sunBlockDropper.IsUnloaded || configType == NPCID.None)
+        {
+            configType = NPCID.MoonLordCore;
+        }
+        if (npc.type != configType)
         {
             return;
         }
