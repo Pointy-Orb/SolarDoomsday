@@ -1,16 +1,16 @@
-using Terraria;
-using System.Linq;
-using System.IO;
 using System;
-using Terraria.Map;
-using MonoMod.Cil;
-using static Mono.Cecil.Cil.OpCodes;
+using System.IO;
+using System.Linq;
 using Microsoft.Xna.Framework;
-using Terraria.GameContent;
-using Terraria.ModLoader;
-using Terraria.ID;
 using Microsoft.Xna.Framework.Graphics;
+using MonoMod.Cil;
+using Terraria;
+using Terraria.GameContent;
+using Terraria.ID;
+using Terraria.Map;
+using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
+using static Mono.Cecil.Cil.OpCodes;
 
 namespace SolarDoomsday;
 
@@ -46,6 +46,7 @@ public class FireManager : ModSystem
     }
 
     private Vector3 LightColor = new(0.85f, 0.5f, 0.3f);
+
     private void DrawFire(int i, int j, Fire fire, SpriteBatch spriteBatch)
     {
         var pos = new Vector2(i, j) * 16 - Main.screenPosition;
@@ -73,15 +74,17 @@ public class FireManager : ModSystem
             c.GotoNext(MoveType.After, i => i.MatchLdloc(mapBaseTypeIndex));
             c.Emit(Ldarg_0);
             c.Emit(Ldarg_1);
-            c.EmitDelegate<Func<int, int, int, int>>((int mapBaseType, int i, int j) =>
-            {
-                Tile tile = Main.tile[i, j];
-                if (tile.Get<FireTileData>().fireAmount > 0)
+            c.EmitDelegate<Func<int, int, int, int>>(
+                (int mapBaseType, int i, int j) =>
                 {
-                    return MapHelper.tileLookup[TileID.LivingFire];
+                    Tile tile = Main.tile[i, j];
+                    if (tile.Get<FireTileData>().fireAmount > 0)
+                    {
+                        return MapHelper.tileLookup[TileID.LivingFire];
+                    }
+                    return mapBaseType;
                 }
-                return mapBaseType;
-            });
+            );
         }
         catch
         {
@@ -93,6 +96,7 @@ public class FireManager : ModSystem
     {
         SaveUnsafeTileData(tag);
     }
+
     public override void LoadWorldData(TagCompound tag)
     {
         LoadUnsafeTileData(tag);
@@ -100,6 +104,7 @@ public class FireManager : ModSystem
     }
 
     public static bool failedUnsafeLoad = false;
+
     private unsafe void SaveUnsafeTileData(TagCompound tag) //"Copied from Starlight River's AuroraWaterSystem.cs because I havent worked with pointers much" > Copied from AvalonWorld because I also haven't worked with pointers much
     {
         if (failedUnsafeLoad)
@@ -121,6 +126,7 @@ public class FireManager : ModSystem
         }
         tag.Add("SolarDoomsday:TileData", data);
     }
+
     private unsafe void LoadUnsafeTileData(TagCompound tag) //"Copied from Starlight River's AuroraWaterSystem.cs because I havent worked with pointers much" > Copied from AvalonWorld because I also haven't worked with pointers much
     {
         FireTileData[] targetData = Main.tile.GetData<FireTileData>();
@@ -128,7 +134,9 @@ public class FireManager : ModSystem
 
         if (targetData.Length != data.Length)
         {
-            Mod.Logger.Error($"Failed to load SolarDoomsday:TileData raw data, saved data was of incorrect size. Loaded data was {data.Length}, expected {targetData.Length}. SolarDoomsday:TileData will not be loaded.");
+            Mod.Logger.Error(
+                $"Failed to load SolarDoomsday:TileData raw data, saved data was of incorrect size. Loaded data was {data.Length}, expected {targetData.Length}. SolarDoomsday:TileData will not be loaded."
+            );
             failedUnsafeLoad = true;
             return;
         }
@@ -152,39 +160,43 @@ public class FireManager : ModSystem
         c.EmitLdarg(2);
         c.EmitLdarg(3);
         c.EmitLdarg(4);
-        c.EmitDelegate((BinaryReader reader, int xStart, int yStart, int width, int height) =>
-        {
-            for (int i = yStart; i < yStart + height; i++)
+        c.EmitDelegate(
+            (BinaryReader reader, int xStart, int yStart, int width, int height) =>
             {
-                for (int j = xStart; j < xStart + width; j++)
+                for (int i = yStart; i < yStart + height; i++)
                 {
-                    Tile tile = Main.tile[j, i];
-                    Fire.RecieveTileData(tile, reader, j, i);
+                    for (int j = xStart; j < xStart + width; j++)
+                    {
+                        Tile tile = Main.tile[j, i];
+                        Fire.RecieveTileData(tile, reader, j, i);
+                    }
                 }
             }
-        });
+        );
     }
 
     private void SendTileData(ILContext il)
     {
         ILCursor c = new(il);
-        while (c.TryGotoNext(MoveType.Before, i => i.MatchRet())) ;
+        while (c.TryGotoNext(MoveType.Before, i => i.MatchRet()))
+            ;
         c.EmitLdarg(0);
         c.EmitLdarg(1);
         c.EmitLdarg(2);
         c.EmitLdarg(3);
         c.EmitLdarg(4);
-        c.EmitDelegate((System.IO.BinaryWriter writer, int xStart, int yStart, int width, int height) =>
-        {
-            for (int i = yStart; i < yStart + height; i++)
+        c.EmitDelegate(
+            (System.IO.BinaryWriter writer, int xStart, int yStart, int width, int height) =>
             {
-                for (int j = xStart; j < xStart + width; j++)
+                for (int i = yStart; i < yStart + height; i++)
                 {
-                    Tile tile2 = Main.tile[j, i];
-                    Fire.SendTileData(tile2, writer);
+                    for (int j = xStart; j < xStart + width; j++)
+                    {
+                        Tile tile2 = Main.tile[j, i];
+                        Fire.SendTileData(tile2, writer);
+                    }
                 }
             }
-        });
+        );
     }
 }
-

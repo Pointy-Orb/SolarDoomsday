@@ -1,13 +1,13 @@
+using System;
+using System.IO;
+using Microsoft.Xna.Framework;
 using Terraria;
+using Terraria.Audio;
+using Terraria.Graphics.Light;
+using Terraria.ID;
+using Terraria.ModLoader;
 using Terraria.ObjectData;
 using Terraria.Utilities;
-using Terraria.Graphics.Light;
-using System.IO;
-using System;
-using Microsoft.Xna.Framework;
-using Terraria.Audio;
-using Terraria.ModLoader;
-using Terraria.ID;
 
 namespace SolarDoomsday;
 
@@ -186,6 +186,7 @@ public class Fire : ModType
         }
         fires[numFire].x = i;
         fires[numFire].y = j;
+        WorldGen.UpdateMapTile(i, j);
         fires[numFire].kill = false;
         fires[numFire].styleRand = Main.rand.Next(3);
         numFire++;
@@ -202,12 +203,14 @@ public class Fire : ModType
         {
             Dust.NewDust(new Vector2(fires[f].x * 16, fires[f].y * 16), 16, 16, DustID.Torch);
         }
+        WorldGen.UpdateMapTile(fires[f].x, fires[f].y);
         fires[f].x = fires[numFire].x;
         fires[f].y = fires[numFire].y;
         fires[f].kill = false;
     }
 
     private static int prevNumFire;
+
     public static void UpdateFire()
     {
         if (updateTimer < 3)
@@ -237,7 +240,7 @@ public class Fire : ModType
                     fires[i].kill = true;
                 }
             }
-            for (int i = 0; i < numFire;)
+            for (int i = 0; i < numFire; )
             {
                 if (fires[i].kill)
                 {
@@ -251,7 +254,7 @@ public class Fire : ModType
         }
         else
         {
-            for (int i = 0; i < numFire;)
+            for (int i = 0; i < numFire; )
             {
                 if (Main.tile[fires[i].x, fires[i].y].Get<FireTileData>().fireAmount <= 0)
                 {
@@ -276,6 +279,7 @@ public class Fire : ModType
     }
 
     public static readonly Vector3 LightColor = new(0.85f, 0.5f, 0.3f);
+
     public void Update()
     {
         Tile tile = Main.tile[x, y];
@@ -440,7 +444,13 @@ public class Fire : ModType
             WorldGen.Reframe(i, j);
         }
         bool safeMode = false;
-        if (WorldGen.InWorld(i, j - 1) && ((TileID.Sets.PreventsTileRemovalIfOnTopOfIt[Main.tile[i, j - 1].TileType] && !TileID.Sets.IsATreeTrunk[Main.tile[i, j - 1].TileType]) || TileID.Sets.BasicChest[Main.tile[i, j - 1].TileType]))
+        if (
+            WorldGen.InWorld(i, j - 1)
+            && (
+                (TileID.Sets.PreventsTileRemovalIfOnTopOfIt[Main.tile[i, j - 1].TileType] && !TileID.Sets.IsATreeTrunk[Main.tile[i, j - 1].TileType])
+                || TileID.Sets.BasicChest[Main.tile[i, j - 1].TileType]
+            )
+        )
         {
             safeMode = true;
         }
@@ -450,7 +460,10 @@ public class Fire : ModType
             WorldGen.KillTile(i, j, fail: false, effectOnly: false, noItem: true);
             Projectile.NewProjectile(Wiring.GetProjectileSource(i, j), i * 16 + 8, j * 16 + 8, 0f, 0f, 108, 500, 10f);
         }
-        if (FlammabilitySystem.Flammability[target.TileType] > 0 || (target.TileType == TileID.Platforms && FlammabilitySystem.FlammablePlatformStyles.Contains(TileObjectData.GetTileStyle(target))))
+        if (
+            FlammabilitySystem.Flammability[target.TileType] > 0
+            || (target.TileType == TileID.Platforms && FlammabilitySystem.FlammablePlatformStyles.Contains(TileObjectData.GetTileStyle(target)))
+        )
         {
             spread = true;
             if (TileID.Sets.IsATreeTrunk[target.TileType])
@@ -545,7 +558,15 @@ public class Fire : ModType
         }
     }
 
-    private static void GiveFireLight(On_TileLightScanner.orig_ApplyWallLight orig, TileLightScanner self, Tile tile, int x, int y, ref FastRandom localRandom, ref Vector3 lightColor)
+    private static void GiveFireLight(
+        On_TileLightScanner.orig_ApplyWallLight orig,
+        TileLightScanner self,
+        Tile tile,
+        int x,
+        int y,
+        ref FastRandom localRandom,
+        ref Vector3 lightColor
+    )
     {
         orig(self, tile, x, y, ref localRandom, ref lightColor);
         if (tile.Get<FireTileData>().fireAmount <= 0)

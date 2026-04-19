@@ -14,10 +14,7 @@ public class ExplodingSlimes : GlobalNPC
 
     public override void OnSpawn(NPC npc, IEntitySource source)
     {
-        if (
-            (npc.aiStyle != NPCAIStyleID.Slime && !Slimes.Contains(npc.type))
-            || npc.SpawnedFromStatue
-        )
+        if (npc.aiStyle != NPCAIStyleID.Slime || npc.SpawnedFromStatue)
         {
             return;
         }
@@ -26,17 +23,11 @@ public class ExplodingSlimes : GlobalNPC
             return;
         }
         var tileY = npc.position.Y / 16;
-        if (
-            (tileY > Main.worldSurface && !DoomsdayClock.TimeLeftInRange(3))
-            || tileY > Main.rockLayer
-        )
+        if ((tileY > Main.worldSurface && !DoomsdayClock.TimeLeftInRange(3)) || tileY > Main.rockLayer)
         {
             return;
         }
-        if (
-            !DoomsdayClock.TimeLeftInRange(3, 2)
-            || !(Main.rand.NextBool(3) || DoomsdayClock.TimeLeftInRange(2))
-        )
+        if (!DoomsdayClock.TimeLeftInRange(3, 2) || !(Main.rand.NextBool(3) || DoomsdayClock.TimeLeftInRange(2)))
         {
             return;
         }
@@ -60,11 +51,18 @@ public class ExplodingSlimes : GlobalNPC
         {
             return;
         }
-        if (!npc.active || (npc.aiStyle != NPCAIStyleID.Slime && !Slimes.Contains(npc.type)))
+        if (!npc.active || npc.aiStyle != NPCAIStyleID.Slime)
         {
             naughtyList.Remove(npc.whoAmI);
             return;
         }
+        var tileY = npc.position.Y / 16;
+        if ((tileY > Main.worldSurface && !DoomsdayClock.TimeLeftInRange(3)) || tileY > Main.rockLayer)
+        {
+            naughtyList.Remove(npc.whoAmI);
+            return;
+        }
+
         if (naughtyList[npc.whoAmI] > 0)
         {
             naughtyList[npc.whoAmI]--;
@@ -79,20 +77,4 @@ public class ExplodingSlimes : GlobalNPC
             naughtyList.Clear();
         }
     }
-
-    private static readonly int[] Slimes =
-    {
-        NPCID.GreenSlime,
-        NPCID.BlueSlime,
-        NPCID.RedSlime,
-        NPCID.PurpleSlime,
-        NPCID.YellowSlime,
-        NPCID.BlackSlime,
-        NPCID.IceSlime,
-        NPCID.SandSlime,
-        NPCID.JungleSlime,
-        NPCID.BabySlime,
-        NPCID.Pinky,
-        NPCID.Slimeling,
-    };
 }

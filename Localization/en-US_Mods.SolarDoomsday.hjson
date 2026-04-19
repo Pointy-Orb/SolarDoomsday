@@ -63,6 +63,8 @@ Buffs: {
 	}
 }
 
+ObsidianSkinSolar: Provides immunity to sun-related debuffs
+ObsidianSkinSolarBuff: Immune to sun-related debuffs
 StagnationWatchPrefix: "Day {0}, "
 
 Items: {
@@ -232,7 +234,7 @@ Configs: {
 			Tooltip:
 				'''
 				By default the Moon Lord will drop the Cosmic Sunblock.
-				Setting this will allow you to instead have a different NPC drop it.
+				Setting this to something other than 'None' will allow you to instead have a different NPC drop it.
 
 				If this is set to a modded NPC that is unloaded, it will use Moon Lord by default.
 				'''

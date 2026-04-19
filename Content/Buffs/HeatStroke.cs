@@ -81,8 +81,8 @@ public class HeatStrokePlayer : ModPlayer
         {
             return;
         }
-        b -= 0.7f;
-        g -= 0.3f;
+        b -= Utils.Remap(DoomsdayClock.PercentTimeLeft(), 2f / 3f, 1f / 3f, 0.2f, 0.8f);
+        g -= Utils.Remap(DoomsdayClock.PercentTimeLeft(), 2f / 3f, 1f / 3f, 0.1f, 0.4f);
     }
 
     private static void HeatStrokeEye(On_PlayerEyeHelper.orig_SetStateByPlayerInfo orig, ref PlayerEyeHelper self, Player player)
@@ -93,6 +93,10 @@ public class HeatStrokePlayer : ModPlayer
             return;
         }
         if (!player.GetModPlayer<HeatStrokePlayer>().heatStroke)
+        {
+            return;
+        }
+        if (!DoomsdayClock.TimeLeftInRange(2))
         {
             return;
         }
